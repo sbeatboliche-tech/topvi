@@ -62,16 +62,16 @@ export interface ServiceDef {
 
 // --- Helpers para no repetir tiers ---
 const likeTiers: Tier[] = [
-  { quantity: 100,    price: 590 },
-  { quantity: 250,    price: 1250 },
-  { quantity: 500,    price: 2200 },
-  { quantity: 1000,   price: 3800 },
-  { quantity: 2500,   price: 7900 },
-  { quantity: 5000,   price: 14900,  bonus: 500 },
-  { quantity: 10000,  price: 29900,  bonus: 1000 },
-  { quantity: 20000,  price: 54900,  bonus: 2000 },
+  { quantity: 100,    price: 990 },
+  { quantity: 250,    price: 1900 },
+  { quantity: 500,    price: 3700 },
+  { quantity: 1000,   price: 6500 },
+  { quantity: 2500,   price: 12900 },
+  { quantity: 5000,   price: 19900,  bonus: 500 },
+  { quantity: 10000,  price: 37900,  bonus: 1000 },
+  { quantity: 20000,  price: 49000,  bonus: 2000 },
   { quantity: 50000,  price: 99900,  bonus: 5000 },
-  { quantity: 100000, price: 229900, bonus: 10000 },
+  { quantity: 100000, price: 179900, bonus: 10000 },
 ];
 
 const viewTiers: Tier[] = [

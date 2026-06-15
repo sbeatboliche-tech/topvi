@@ -1,0 +1,387 @@
+"use client";
+
+import { useState, useEffect, useRef, useCallback } from "react";
+import { site } from "@/lib/config";
+
+const AGENTS = [
+  { name: "Valentina", color: "#e0457b" },
+  { name: "Sofía",     color: "#7c3aed" },
+  { name: "Camila",    color: "#0891b2" },
+  { name: "Martina",   color: "#16a34a" },
+  { name: "Florencia", color: "#ea580c" },
+  { name: "Lucía",     color: "#6366f1" },
+  { name: "Julieta",   color: "#d97706" },
+];
+
+type Message = { id: number; from: "agent" | "user"; text: string; time: string };
+type ChatState = "closed" | "options" | "chat";
+
+// ~3 segundos de delay para sentirse humano
+function typingDelay(_text: string) {
+  return 2800 + Math.random() * 600; // 2.8s – 3.4s
+}
+
+function nowTime() {
+  return new Date().toLocaleTimeString("es-AR", { hour: "2-digit", minute: "2-digit" });
+}
+
+const QUICK_REPLIES = [
+  "Estado de mi pedido",
+  "¿Cuándo llega mi pedido?",
+  "Quiero comprar",
+  "Tuve un problema",
+];
+
+export default function SupportChat({ locale }: { locale: string }) {
+  const STORAGE_KEY = "tvm_chat_messages";
+  const AGENT_KEY   = "tvm_chat_agent";
+  const STATE_KEY   = "tvm_chat_state";
+
+  const [chatState, setChatStateRaw] = useState<ChatState>("closed");
+  const [messages, setMessages] = useState<Message[]>([]);
+  const [input, setInput] = useState("");
+  const [isTyping, setIsTyping] = useState(false);
+  const [unread, setUnread] = useState(false);
+
+  // Agent: persist per session so the name doesn't change on re-renders
+  const [agent] = useState(() => {
+    try {
+      const saved = sessionStorage.getItem(AGENT_KEY);
+      if (saved) return JSON.parse(saved) as (typeof AGENTS)[0];
+    } catch { /* noop */ }
+    const a = AGENTS[Math.floor(Math.random() * AGENTS.length)];
+    try { sessionStorage.setItem(AGENT_KEY, JSON.stringify(a)); } catch { /* noop */ }
+    return a;
+  });
+
+  const bottomRef = useRef<HTMLDivElement>(null);
+  const inputRef  = useRef<HTMLInputElement>(null);
+  const msgId     = useRef(0);
+  const greeted   = useRef(false);
+
+  // Persist chat state (open/closed) across navigations
+  const setChatState = (s: ChatState) => {
+    setChatStateRaw(s);
+    try { sessionStorage.setItem(STATE_KEY, s); } catch { /* noop */ }
+  };
+
+  // Hydrate messages + state from storage on mount
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if (raw) {
+        const saved: Message[] = JSON.parse(raw);
+        if (saved.length > 0) {
+          setMessages(saved);
+          msgId.current = Math.max(...saved.map((m) => m.id));
+          greeted.current = true; // already greeted
+        }
+      }
+      const savedState = sessionStorage.getItem(STATE_KEY) as ChatState | null;
+      if (savedState === "chat" || savedState === "options") {
+        setChatStateRaw(savedState);
+      }
+    } catch { /* noop */ }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const addMsg = useCallback((from: "agent" | "user", text: string) => {
+    msgId.current++;
+    const newMsg: Message = { id: msgId.current, from, text, time: nowTime() };
+    setMessages((prev) => {
+      const updated = [...prev, newMsg];
+      try { localStorage.setItem(STORAGE_KEY, JSON.stringify(updated.slice(-50))); } catch { /* noop */ }
+      return updated;
+    });
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const agentReply = useCallback(
+    async (userMessage: string) => {
+      setIsTyping(true);
+      try {
+        const res = await fetch("/api/support/chat", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ message: userMessage, agentName: agent.name, locale }),
+        });
+        const data = await res.json();
+        const reply: string = data.reply || "Un momento, te ayudo enseguida. 😊";
+        await new Promise((r) => setTimeout(r, typingDelay(reply)));
+        addMsg("agent", reply);
+      } catch {
+        await new Promise((r) => setTimeout(r, 1200));
+        addMsg("agent", "Disculpá, tuve un problema. Podés escribirnos por Instagram DM y te ayudamos al instante. 😊");
+      } finally {
+        setIsTyping(false);
+      }
+    },
+    [agent.name, locale, addMsg]
+  );
+
+  // Initial greeting when chat opens
+  useEffect(() => {
+    if (chatState === "chat" && !greeted.current) {
+      greeted.current = true;
+      setIsTyping(true);
+      const delay = 1200 + Math.random() * 600;
+      setTimeout(() => {
+        setIsTyping(false);
+        addMsg(
+          "agent",
+          `¡Hola! 👋 Soy ${agent.name}, del equipo de soporte de ${site.name}. ¿En qué te puedo ayudar hoy?`
+        );
+      }, delay);
+    }
+  }, [chatState, agent.name, addMsg]);
+
+  // Scroll to bottom on new message
+  useEffect(() => {
+    bottomRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [messages, isTyping]);
+
+  // Focus input when chat opens
+  useEffect(() => {
+    if (chatState === "chat") {
+      setTimeout(() => inputRef.current?.focus(), 200);
+    }
+  }, [chatState]);
+
+  // Listen for external open event (from mis-pedidos page)
+  useEffect(() => {
+    const handler = () => {
+      setChatState("chat");
+      setUnread(false);
+    };
+    window.addEventListener("open-support-chat", handler);
+    return () => window.removeEventListener("open-support-chat", handler);
+  }, []);
+
+  // Unread badge after 8 seconds if still closed
+  useEffect(() => {
+    if (chatState !== "closed") return;
+    const t = setTimeout(() => setUnread(true), 8000);
+    return () => clearTimeout(t);
+  }, [chatState]);
+
+  const handleSend = useCallback(async () => {
+    const msg = input.trim();
+    if (!msg || isTyping) return;
+    setInput("");
+    addMsg("user", msg);
+    await agentReply(msg);
+  }, [input, isTyping, addMsg, agentReply]);
+
+  const handleKey = (e: React.KeyboardEvent) => {
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
+      handleSend();
+    }
+  };
+
+  const handleQuick = useCallback(
+    async (text: string) => {
+      addMsg("user", text);
+      await agentReply(text);
+    },
+    [addMsg, agentReply]
+  );
+
+  const showQuickReplies = messages.length === 1 && !isTyping;
+
+  // ── Closed: floating button ──────────────────────────────────────
+  if (chatState === "closed") {
+    return (
+      <button
+        onClick={() => { setChatState("options"); setUnread(false); }}
+        className="fixed bottom-[5.5rem] right-5 z-50 flex h-14 w-14 items-center justify-center rounded-full brand-gradient text-2xl shadow-xl shadow-brand/40 transition-transform hover:scale-110"
+        aria-label="Soporte"
+      >
+        💬
+        {unread && (
+          <span className="absolute -right-1 -top-1 flex h-5 w-5 items-center justify-center rounded-full bg-red-500 text-[10px] font-bold text-white">
+            1
+          </span>
+        )}
+      </button>
+    );
+  }
+
+  // ── Options menu ─────────────────────────────────────────────────
+  if (chatState === "options") {
+    return (
+      <div className="fixed bottom-[5.5rem] right-5 z-50 w-72 rounded-2xl border border-border bg-surface p-4 shadow-2xl">
+        <div className="mb-4 flex items-start justify-between">
+          <div>
+            <p className="font-semibold">¿Cómo querés contactarnos?</p>
+            <p className="mt-0.5 text-xs text-muted">Soporte en tiempo real · Lun-Vie 10-22hs</p>
+          </div>
+          <button onClick={() => setChatState("closed")} className="ml-2 mt-0.5 text-muted hover:text-foreground">
+            ✕
+          </button>
+        </div>
+        <div className="flex flex-col gap-2">
+          <button
+            onClick={() => setChatState("chat")}
+            className="flex items-center gap-3 rounded-xl border border-border bg-surface-2 p-3 text-left transition-colors hover:border-brand/50"
+          >
+            <span className="text-2xl">💬</span>
+            <div>
+              <p className="text-sm font-semibold">Chat en vivo</p>
+              <p className="text-xs text-muted">Respondemos al instante</p>
+            </div>
+          </button>
+          <a
+            href={site.instagram}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center gap-3 rounded-xl border border-border bg-surface-2 p-3 transition-colors hover:border-brand/50"
+          >
+            <span className="text-2xl">📸</span>
+            <div>
+              <p className="text-sm font-semibold">Instagram DM</p>
+              <p className="text-xs text-muted">@{site.instagram.split("/").pop()}</p>
+            </div>
+          </a>
+        </div>
+      </div>
+    );
+  }
+
+  // ── Chat window ──────────────────────────────────────────────────
+  return (
+    <div
+      className="fixed bottom-5 right-5 z-50 flex flex-col rounded-2xl border border-border bg-surface shadow-2xl"
+      style={{ width: "min(360px, 92vw)", maxHeight: "min(520px, 80vh)" }}
+    >
+      {/* Header */}
+      <div className="flex shrink-0 items-center justify-between rounded-t-2xl px-4 py-3"
+        style={{ background: "linear-gradient(135deg,#1d4ed8,#3b82f6,#22d3ee)" }}>
+        <div className="flex items-center gap-3">
+          <div
+            className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border-2 border-white/30 text-sm font-bold text-white"
+            style={{ backgroundColor: agent.color }}
+          >
+            {agent.name[0]}
+          </div>
+          <div>
+            <p className="text-sm font-semibold text-white">{agent.name}</p>
+            <div className="flex items-center gap-1.5">
+              <span className="h-1.5 w-1.5 rounded-full bg-green-400" />
+              <p className="text-[11px] text-white/80">En línea · soporte {site.name}</p>
+            </div>
+          </div>
+        </div>
+        <button
+          onClick={() => setChatState("options")}
+          className="text-white/70 hover:text-white"
+          aria-label="Cerrar chat"
+        >
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="h-5 w-5">
+            <path d="M18 6L6 18M6 6l12 12" />
+          </svg>
+        </button>
+      </div>
+
+      {/* Messages */}
+      <div className="flex-1 overflow-y-auto p-4 space-y-3">
+        {messages.map((msg) => (
+          <div key={msg.id} className={`flex ${msg.from === "user" ? "justify-end" : "items-end gap-2"}`}>
+            {msg.from === "agent" && (
+              <div
+                className="mb-1 flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-[10px] font-bold text-white"
+                style={{ backgroundColor: agent.color }}
+              >
+                {agent.name[0]}
+              </div>
+            )}
+            <div className="max-w-[75%]">
+              <div
+                className={`rounded-2xl px-3.5 py-2 text-sm leading-relaxed ${
+                  msg.from === "user"
+                    ? "rounded-br-none text-white"
+                    : "rounded-bl-none bg-surface-2 text-foreground"
+                }`}
+                style={msg.from === "user" ? { background: "linear-gradient(135deg,#1d4ed8,#3b82f6)" } : {}}
+              >
+                {msg.text}
+              </div>
+              <p className={`mt-1 text-[10px] text-muted ${msg.from === "user" ? "text-right" : ""}`}>
+                {msg.time}
+              </p>
+            </div>
+          </div>
+        ))}
+
+        {/* Typing indicator */}
+        {isTyping && (
+          <div className="flex items-end gap-2">
+            <div
+              className="mb-1 flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-[10px] font-bold text-white"
+              style={{ backgroundColor: agent.color }}
+            >
+              {agent.name[0]}
+            </div>
+            <div className="rounded-2xl rounded-bl-none bg-surface-2 px-4 py-3">
+              <div className="flex gap-1">
+                {[0, 150, 300].map((d) => (
+                  <span
+                    key={d}
+                    className="h-2 w-2 rounded-full bg-muted"
+                    style={{ animation: `bounce 1s infinite ${d}ms` }}
+                  />
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Quick replies — shown only after first agent message */}
+        {showQuickReplies && (
+          <div className="flex flex-wrap gap-2 pt-1">
+            {QUICK_REPLIES.map((qr) => (
+              <button
+                key={qr}
+                onClick={() => handleQuick(qr)}
+                className="rounded-full border border-brand/40 bg-brand/10 px-3 py-1.5 text-xs font-medium text-accent transition-colors hover:bg-brand/20"
+              >
+                {qr}
+              </button>
+            ))}
+          </div>
+        )}
+
+        <div ref={bottomRef} />
+      </div>
+
+      {/* Input */}
+      <div className="shrink-0 border-t border-border p-3">
+        <div className="flex items-center gap-2 rounded-xl border border-border bg-surface-2 px-3 py-2 focus-within:border-brand transition-colors">
+          <input
+            ref={inputRef}
+            value={input}
+            onChange={(e) => setInput(e.target.value)}
+            onKeyDown={handleKey}
+            placeholder="Escribí tu mensaje..."
+            className="flex-1 bg-transparent text-sm outline-none placeholder:text-muted"
+            disabled={isTyping}
+          />
+          <button
+            onClick={handleSend}
+            disabled={!input.trim() || isTyping}
+            className="shrink-0 rounded-full p-1.5 text-white transition-opacity disabled:opacity-40"
+            style={{ background: "linear-gradient(135deg,#1d4ed8,#3b82f6)" }}
+            aria-label="Enviar"
+          >
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" className="h-4 w-4">
+              <path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z" />
+            </svg>
+          </button>
+        </div>
+        <p className="mt-1.5 text-center text-[10px] text-muted">
+          Soporte de {site.name} · Respuestas en tiempo real
+        </p>
+      </div>
+    </div>
+  );
+}

@@ -4,19 +4,36 @@ import { locales, defaultLocale, isLocale, type Locale } from "@/lib/i18n";
 // Rutas que NO llevan prefijo de idioma.
 const EXCLUDED = ["/api", "/admin", "/_next", "/favicon.ico", "/robots.txt", "/sitemap.xml"];
 
+// País (ISO-2 que envía Vercel) → locale del sitio.
+// Los países de LATAM sin moneda propia configurada caen a Argentina (ARS).
+const COUNTRY_TO_LOCALE: Record<string, Locale> = {
+  AR: "ar",
+  MX: "mx",
+  CO: "co",
+  CL: "cl",
+  PE: "pe",
+  ES: "es",
+  BR: "br",
+};
+
 function detectLocale(req: NextRequest): Locale {
-  // 1) preferencia guardada
+  // 1) preferencia guardada explícitamente por el usuario (selector de país)
   const saved = req.cookies.get("locale")?.value;
   if (saved && isLocale(saved)) return saved;
 
-  // 2) Accept-Language
+  // 2) GEOLOCALIZACIÓN por IP (la fuente confiable: dónde está el visitante).
+  //    Vercel inyecta el país en este header en producción.
+  const country = (
+    req.headers.get("x-vercel-ip-country") ?? ""
+  ).toUpperCase();
+  if (country && country in COUNTRY_TO_LOCALE) return COUNTRY_TO_LOCALE[country];
+
+  // 3) Fallback por idioma del navegador SOLO si no hay geo (ej. desarrollo local).
+  //    Ojo: solo lo usamos para distinguir portugués; el idioma del navegador
+  //    NO es señal de país (un argentino puede tener el navegador en es-ES).
   const al = req.headers.get("accept-language")?.toLowerCase() ?? "";
   if (al.startsWith("pt")) return "br";
-  if (al.includes("es-es")) return "es";
-  if (al.includes("es-mx")) return "mx";
-  if (al.includes("es-co")) return "co";
-  if (al.includes("es-cl")) return "cl";
-  if (al.includes("es-pe")) return "pe";
+
   return defaultLocale;
 }
 

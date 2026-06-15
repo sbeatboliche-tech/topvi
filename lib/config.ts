@@ -94,10 +94,10 @@ const shareTiers: Tier[] = [
   { quantity: 100, price: 790 },
   { quantity: 250, price: 1750 },
   { quantity: 500, price: 3200 },
-  { quantity: 1000, price: 5900 },
-  { quantity: 2500, price: 12900 },
-  { quantity: 5000, price: 23900 },
-  { quantity: 10000, price: 42900 },
+  { quantity: 1000, price: 5900,  bonus: 100 },
+  { quantity: 2500, price: 12900, bonus: 250 },
+  { quantity: 5000, price: 23900, bonus: 500 },
+  { quantity: 10000, price: 42900, bonus: 1000 },
 ];
 
 const saveTiers: Tier[] = [
@@ -105,10 +105,10 @@ const saveTiers: Tier[] = [
   { quantity: 100, price: 560 },
   { quantity: 250, price: 1200 },
   { quantity: 500, price: 2100 },
-  { quantity: 1000, price: 3700 },
-  { quantity: 2500, price: 8200 },
-  { quantity: 5000, price: 14900 },
-  { quantity: 10000, price: 27900 },
+  { quantity: 1000, price: 3700,  bonus: 100 },
+  { quantity: 2500, price: 8200,  bonus: 250 },
+  { quantity: 5000, price: 14900, bonus: 500 },
+  { quantity: 10000, price: 27900, bonus: 1000 },
 ];
 
 // Precios = 10% por debajo de la competencia (referencia EasyMarketing).

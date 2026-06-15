@@ -22,7 +22,7 @@ export const site = {
   // ---- Pagos ----
   usdt: {
     network: "TRC20",
-    address: "PEGÁ_TU_WALLET_USDT_ACA",
+    address: "TPUthV8pJ4YwMmpsSNwfULXfAQdt5zjPW3",
   },
 
   // ---- Social proof ----

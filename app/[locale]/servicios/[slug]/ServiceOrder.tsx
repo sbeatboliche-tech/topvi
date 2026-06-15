@@ -280,7 +280,7 @@ export default function ServiceOrder({
                     : "border-border bg-surface-2 hover:border-brand/40"
                 }`}
               >
-                <div className="font-semibold">₮ USDT</div>
+                <div className="font-semibold">🪙 Crypto</div>
                 <p className="mt-1 text-xs text-muted">{t.order.usdtDesc}</p>
               </button>
             </div>

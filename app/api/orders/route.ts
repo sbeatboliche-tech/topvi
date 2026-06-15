@@ -56,6 +56,17 @@ export async function POST(req: NextRequest) {
     if (payment === "mercadopago") {
       const baseUrl = process.env.PUBLIC_BASE_URL ?? req.nextUrl.origin;
       const init_point = await createPreference(order, baseUrl);
+      if (!init_point) {
+        // MP no está configurado o no opera en este país → avisamos claro
+        // en vez de mandar al usuario a "gracias" sin haber pagado.
+        return NextResponse.json(
+          {
+            error:
+              "El pago con MercadoPago no está disponible en este momento. Probá con tarjeta o crypto, o escribinos.",
+          },
+          { status: 502 }
+        );
+      }
       return NextResponse.json({ orderId: order.id, init_point });
     }
 

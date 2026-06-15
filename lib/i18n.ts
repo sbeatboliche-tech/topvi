@@ -37,7 +37,7 @@ export const localeConfig: Record<Locale, LocaleCfg> = {
     flag: "🇦🇷",
     lang: "es",
     intl: "es-AR",
-    currency: { code: "ARS", arsPerUnit: 1, round: 50, decimals: 0 },
+    currency: { code: "ARS", arsPerUnit: 1, round: 1, decimals: 0 },
     mpCurrency: "ARS",
   },
   mx: {

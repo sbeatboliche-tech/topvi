@@ -9,6 +9,9 @@ import {
   platformInfo,
   priceFor,
   bonusFor,
+  anchorPrice,
+  applyPaymentDiscount,
+  CRYPTO_DISCOUNT,
   MAX_TARGETS,
   type Quality,
 } from "@/lib/config";
@@ -85,6 +88,8 @@ export default function ServiceOrder({
   const addonTier = addonSvc?.tiers[addonTierIdx];
   const addonPrice = addonOn && addonTier ? priceFor(addonTier, "global") : 0;
   const total = price + addonPrice;
+  // Total a pagar (con descuento si elige cripto). Se recalcula igual en el server.
+  const payTotal = applyPaymentDiscount(total, payment);
 
   const filledTargets = targets.map((x) => x.trim()).filter(Boolean);
 
@@ -166,7 +171,7 @@ export default function ServiceOrder({
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Error");
       fbqTrack("InitiateCheckout", {
-        value: localAmount(total, locale),
+        value: localAmount(payTotal, locale),
         currency: localeConfig[locale].currency.code,
       });
       if (payment === "mercadopago" && data.init_point) {
@@ -270,7 +275,10 @@ export default function ServiceOrder({
                       {formatNum(tt.quantity, locale)}
                     </div>
                     <div className="text-xs text-muted">{svc.unit}</div>
-                    <div className="mt-1.5 text-sm font-semibold text-accent">
+                    <div className="mt-1.5 text-[11px] text-muted line-through">
+                      {displayPrice(anchorPrice(pp), locale)}
+                    </div>
+                    <div className="text-sm font-semibold text-accent">
                       {displayPrice(pp, locale)}
                     </div>
                   </button>
@@ -563,10 +571,22 @@ export default function ServiceOrder({
 
             <div className="mt-4 flex items-end justify-between border-t border-border pt-4">
               <span className="text-muted">{t.order.price}</span>
-              <span className="text-2xl font-extrabold">
-                {displayPrice(total, locale)}
+              <span>
+                {payment === "usdt" && (
+                  <span className="mr-2 text-sm text-muted line-through">
+                    {displayPrice(total, locale)}
+                  </span>
+                )}
+                <span className="text-2xl font-extrabold">
+                  {displayPrice(payTotal, locale)}
+                </span>
               </span>
             </div>
+            {payment === "usdt" && (
+              <p className="mt-1 text-right text-xs font-semibold text-success">
+                −{Math.round(CRYPTO_DISCOUNT * 100)}% pagando en cripto 🪙
+              </p>
+            )}
 
             {interestFree && (
               <p className="mt-3 rounded-lg bg-success/10 px-3 py-2 text-center text-xs font-semibold text-success">
@@ -604,7 +624,7 @@ export default function ServiceOrder({
                 {t.order.price}
               </div>
               <div className="text-lg font-extrabold">
-                {displayPrice(total, locale)}
+                {displayPrice(payTotal, locale)}
               </div>
             </div>
             <button

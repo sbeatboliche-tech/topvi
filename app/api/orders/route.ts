@@ -6,6 +6,7 @@ import {
   getPack,
   priceFor,
   bonusFor,
+  applyPaymentDiscount,
   MAX_PACK_POSTS,
   MAX_TARGETS,
   formatNumber,
@@ -81,7 +82,7 @@ export async function POST(req: NextRequest) {
         bonus: 0,
         quality: "global",
         totalFollowers: pack.followers,
-        amount: pack.price,
+        amount: applyPaymentDiscount(pack.price, payment),
         payment,
         notes,
       });
@@ -173,7 +174,7 @@ export async function POST(req: NextRequest) {
       bonus,
       quality: q,
       totalFollowers,
-      amount,
+      amount: applyPaymentDiscount(amount, payment),
       payment,
       notes,
     });

@@ -358,6 +358,21 @@ export function closestTierIdx(svc: ServiceDef, qty: number): number {
 // Cantidad máxima de cuentas/posteos entre los que repartir una compra.
 export const MAX_TARGETS = 10;
 
+// ---- Conversión: precio tachado (anclaje) y descuento por método de pago ----
+// Precio "antes" tachado = precio actual × ANCHOR_MULTIPLIER (anclaje de oferta).
+export const ANCHOR_MULTIPLIER = 1.4;
+// Descuento al pagar con cripto (USDT): te ahorra comisión y empuja la compra.
+export const CRYPTO_DISCOUNT = 0.05;
+
+export function anchorPrice(price: number): number {
+  return Math.round(price * ANCHOR_MULTIPLIER);
+}
+
+// Aplica el descuento por método de pago (solo USDT). Se recalcula en el server.
+export function applyPaymentDiscount(amount: number, payment: string): number {
+  return payment === "usdt" ? Math.round(amount * (1 - CRYPTO_DISCOUNT)) : amount;
+}
+
 export function priceFor(tier: Tier, quality: Quality): number {
   if (quality === "premium" && tier.pricePremium != null)
     return tier.pricePremium;

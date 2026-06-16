@@ -160,7 +160,13 @@ export default async function Gracias({
         <p className="mt-3 text-muted">{t.gracias.noOrder}</p>
       )}
 
-      <div className="mt-10 flex justify-center gap-3">
+      <div className="mt-10 flex flex-wrap justify-center gap-3">
+        <Link
+          href={p("/servicios")}
+          className="brand-gradient rounded-full px-6 py-3 font-semibold text-white"
+        >
+          🛒 Comprar de nuevo
+        </Link>
         <Link
           href={p("/")}
           className="rounded-full border border-border bg-surface px-6 py-3 font-semibold hover:bg-surface-2"

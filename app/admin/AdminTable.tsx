@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import type { Order, OrderStatus } from "@/lib/db";
-import { formatARS, formatNumber, getService } from "@/lib/config";
+import { formatARS, formatNumber, getService, getPack } from "@/lib/config";
 import { localeConfig, displayPrice, isLocale } from "@/lib/i18n";
 
 const statusLabels: Record<OrderStatus, string> = {
@@ -112,7 +112,7 @@ export default function AdminTable({
               <tr key={o.id} className="border-t border-border bg-background/40">
                 <td className="p-3 font-mono text-xs">{o.id}</td>
                 <td className="p-3 text-xs">
-                  {getService(o.service)?.title ?? o.service}
+                  {getService(o.service)?.title ?? getPack(o.service)?.name ?? o.service}
                 </td>
                 <td className="p-3">
                   {(() => {
@@ -134,6 +134,16 @@ export default function AdminTable({
                       </a>
                     );
                   })()}
+                  {o.notes && (
+                    <details className="mt-1">
+                      <summary className="cursor-pointer text-xs text-muted">
+                        ver desglose
+                      </summary>
+                      <pre className="mt-1 whitespace-pre-wrap break-all text-[11px] text-muted">
+                        {o.notes}
+                      </pre>
+                    </details>
+                  )}
                 </td>
                 <td className="p-3">
                   {formatNumber(o.totalFollowers)}{" "}

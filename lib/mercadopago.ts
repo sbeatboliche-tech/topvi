@@ -6,7 +6,7 @@
 // ============================================================
 
 import type { Order } from "./db";
-import { getService } from "./config";
+import { getService, getPack } from "./config";
 import { isLocale, localeConfig, localAmount, defaultLocale } from "./i18n";
 
 const TOKEN = process.env.MP_ACCESS_TOKEN;
@@ -26,8 +26,11 @@ export async function createPreference(
   // MercadoPago no opera en este país → no se puede cobrar con MP.
   if (!cfg.mpCurrency) return null;
 
+  const pack = getPack(order.service);
   const svc = getService(order.service);
-  const title = svc
+  const title = pack
+    ? `${pack.name} · ${pack.followers} seg + ${pack.likes} likes + ${pack.views} vistas`
+    : svc
     ? `${order.totalFollowers} ${svc.unit} · ${svc.title}`
     : `${order.totalFollowers} unidades`;
 

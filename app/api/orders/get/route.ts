@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getOrder } from "@/lib/db";
-import { getService } from "@/lib/config";
+import { getService, getPack } from "@/lib/config";
 import { isLocale, localeConfig, localAmount, defaultLocale } from "@/lib/i18n";
 
 // Devuelve datos públicos de una orden para la pantalla de pago con tarjeta.
@@ -14,13 +14,19 @@ export async function GET(req: NextRequest) {
   const locale = isLocale(order.locale) ? order.locale : defaultLocale;
   const cfg = localeConfig[locale];
   const svc = getService(order.service);
+  const pack = getPack(order.service);
+  const title = pack
+    ? pack.name
+    : svc
+    ? `${order.totalFollowers} ${svc.unit} · ${svc.title}`
+    : "";
 
   return NextResponse.json({
     id: order.id,
     amount: localAmount(order.amount, locale), // monto en moneda local
     currency: cfg.currency.code,
     payerEmail: order.contact.includes("@") ? order.contact : "",
-    title: svc ? `${order.totalFollowers} ${svc.unit} · ${svc.title}` : "",
+    title,
     status: order.status,
   });
 }

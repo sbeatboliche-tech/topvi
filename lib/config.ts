@@ -227,6 +227,64 @@ export const services: ServiceDef[] = [
   },
 ];
 
+// ============================================================
+//  PACKS (combos: seguidores + likes + vistas en una compra)
+//  Los likes y vistas se reparten entre los posteos que cargue
+//  el cliente (hasta MAX_PACK_POSTS).
+// ============================================================
+
+export const MAX_PACK_POSTS = 10;
+
+export interface PackDef {
+  slug: string; // "pack-pro"
+  name: string;
+  emoji: string;
+  badge?: string;
+  followers: number;
+  likes: number;
+  views: number;
+  price: number; // precio final (ARS)
+  originalPrice: number; // precio tachado (ARS)
+}
+
+export const packs: PackDef[] = [
+  {
+    slug: "pack-starter",
+    name: "Pack Starter",
+    emoji: "🚀",
+    followers: 5000,
+    likes: 10000,
+    views: 30000,
+    price: 58000,
+    originalPrice: 84000,
+  },
+  {
+    slug: "pack-pro",
+    name: "Pack Pro",
+    emoji: "🔥",
+    badge: "MÁS POPULAR",
+    followers: 10000,
+    likes: 25000,
+    views: 60000,
+    price: 99999,
+    originalPrice: 164000,
+  },
+  {
+    slug: "pack-elite",
+    name: "Pack Elite",
+    emoji: "👑",
+    followers: 20000,
+    likes: 50000,
+    views: 100000,
+    price: 149999,
+    originalPrice: 274000,
+  },
+];
+
+export function getPack(slug: string): PackDef | undefined {
+  return packs.find((p) => p.slug === slug);
+}
+
 export const platformInfo: Record<
   Platform,
   { label: string; emoji: string }

@@ -1,44 +1,10 @@
 import Link from "next/link";
-import { site, getService } from "@/lib/config";
-import { isLocale, displayPrice, type Locale } from "@/lib/i18n";
+import { site, getService, packs } from "@/lib/config";
+import { isLocale, displayPrice, formatNum, type Locale } from "@/lib/i18n";
 import { getHomeCopy } from "@/lib/home-copy";
 import { notFound } from "next/navigation";
 import LiveFeed from "@/components/LiveFeed";
 import { Star } from "lucide-react";
-
-// ── Bundle packs (estilo cheAgencia) ──────────────────────────
-const BUNDLES = [
-  {
-    name: "Pack Starter",
-    emoji: "🚀",
-    badge: null,
-    items: ["5.000 Seguidores", "10.000 Likes", "30.000 Vistas Reels"],
-    originalPrice: "$84.000",
-    salePrice: "$58.000",
-    slug: "instagram-seguidores",
-    qty: 5000,
-  },
-  {
-    name: "Pack Pro",
-    emoji: "🔥",
-    badge: "MÁS POPULAR",
-    items: ["10.000 Seguidores", "25.000 Likes", "60.000 Vistas Reels"],
-    originalPrice: "$164.000",
-    salePrice: "$99.999",
-    slug: "instagram-seguidores",
-    qty: 10000,
-  },
-  {
-    name: "Pack Elite",
-    emoji: "👑",
-    badge: null,
-    items: ["20.000 Seguidores", "50.000 Likes", "100.000 Vistas Reels"],
-    originalPrice: "$274.000",
-    salePrice: "$149.999",
-    slug: "instagram-seguidores",
-    qty: 20000,
-  },
-] as const;
 
 // ── Perfiles de éxito (scroll horizontal) ────────────────────
 const SUCCESS_PROFILES = [
@@ -268,45 +234,56 @@ export default async function Home({
             Instagram · Seguidores + Likes + Vistas. Todo lo que necesitás para dominar el feed.
           </p>
           <div className="grid gap-6 md:grid-cols-3">
-            {BUNDLES.map((bundle) => (
-              <div
-                key={bundle.name}
-                className={`relative flex flex-col rounded-2xl border p-6 ${
-                  bundle.badge
-                    ? "border-gray-900 bg-white shadow-xl"
-                    : "border-gray-200 bg-white shadow-sm"
-                }`}
-              >
-                {bundle.badge && (
-                  <div className="absolute -top-3 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-full bg-gray-900 px-4 py-1 text-xs font-bold text-white">
-                    🔥 {bundle.badge}
-                  </div>
-                )}
-                <div className="text-3xl mb-2">{bundle.emoji}</div>
-                <h3 className="text-lg font-bold text-gray-900">{bundle.name}</h3>
-                <ul className="mt-3 flex flex-col gap-1.5">
-                  {bundle.items.map((item) => (
-                    <li key={item} className="flex items-center gap-2 text-sm text-gray-700">
-                      <span className="text-green-500">✓</span> {item}
-                    </li>
-                  ))}
-                </ul>
-                <div className="mt-5">
-                  <span className="text-sm text-gray-400 line-through">{bundle.originalPrice}</span>
-                  <div className="text-3xl font-extrabold text-gray-900">{bundle.salePrice} ARS</div>
-                </div>
-                <Link
-                  href={p(`/servicios/${bundle.slug}?qty=${bundle.qty}`)}
-                  className={`mt-5 rounded-full py-3 text-center text-sm font-bold transition-colors ${
+            {packs.map((bundle) => {
+              const items = [
+                `${formatNum(bundle.followers, locale)} Seguidores`,
+                `${formatNum(bundle.likes, locale)} Likes`,
+                `${formatNum(bundle.views, locale)} Vistas Reels`,
+              ];
+              return (
+                <div
+                  key={bundle.slug}
+                  className={`relative flex flex-col rounded-2xl border p-6 ${
                     bundle.badge
-                      ? "bg-gray-900 text-white hover:bg-gray-700"
-                      : "border border-gray-300 bg-white text-gray-900 hover:bg-gray-50"
+                      ? "border-gray-900 bg-white shadow-xl"
+                      : "border-gray-200 bg-white shadow-sm"
                   }`}
                 >
-                  Quiero este pack →
-                </Link>
-              </div>
-            ))}
+                  {bundle.badge && (
+                    <div className="absolute -top-3 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-full bg-gray-900 px-4 py-1 text-xs font-bold text-white">
+                      🔥 {bundle.badge}
+                    </div>
+                  )}
+                  <div className="text-3xl mb-2">{bundle.emoji}</div>
+                  <h3 className="text-lg font-bold text-gray-900">{bundle.name}</h3>
+                  <ul className="mt-3 flex flex-col gap-1.5">
+                    {items.map((item) => (
+                      <li key={item} className="flex items-center gap-2 text-sm text-gray-700">
+                        <span className="text-green-500">✓</span> {item}
+                      </li>
+                    ))}
+                  </ul>
+                  <div className="mt-5">
+                    <span className="text-sm text-gray-400 line-through">
+                      {displayPrice(bundle.originalPrice, locale)}
+                    </span>
+                    <div className="text-3xl font-extrabold text-gray-900">
+                      {displayPrice(bundle.price, locale)}
+                    </div>
+                  </div>
+                  <Link
+                    href={p(`/packs/${bundle.slug}`)}
+                    className={`mt-5 rounded-full py-3 text-center text-sm font-bold transition-colors ${
+                      bundle.badge
+                        ? "bg-gray-900 text-white hover:bg-gray-700"
+                        : "border border-gray-300 bg-white text-gray-900 hover:bg-gray-50"
+                    }`}
+                  >
+                    Quiero este pack →
+                  </Link>
+                </div>
+              );
+            })}
           </div>
           <p className="mt-6 text-center text-xs text-gray-400">
             ✓ Incluye garantía de reposición · ✓ Sin contraseña · ✓ Entrega en menos de 12hs

@@ -27,6 +27,7 @@ export interface Order {
   amount: number; // ARS
   payment: "mercadopago" | "tarjeta" | "usdt";
   status: OrderStatus;
+  notes?: string; // desglose del pack + links de posteos (para entregar)
 }
 
 const hasSupabase =
@@ -79,6 +80,7 @@ export async function createOrder(
       amount: order.amount,
       payment: order.payment,
       status: order.status,
+      notes: order.notes ?? null,
     });
     if (error) throw new Error(error.message);
   } else {
@@ -152,5 +154,6 @@ function fromRow(r: any): Order {
     amount: Number(r.amount),
     payment: r.payment,
     status: r.status,
+    notes: r.notes ?? undefined,
   };
 }

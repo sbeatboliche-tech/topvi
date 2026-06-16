@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getOrder } from "@/lib/db";
-import { site } from "@/lib/config";
+import { site, getPack } from "@/lib/config";
 import {
   getDict,
   isLocale,
@@ -43,12 +43,35 @@ export default async function Gracias({
 
           {/* Resumen del pedido */}
           <div className="mt-8 rounded-2xl border border-border bg-surface p-6 text-left">
-            <div className="flex justify-between border-b border-border pb-3">
-              <span className="text-muted">{t.gracias.qty}</span>
-              <span className="font-semibold">
-                {formatNum(order.totalFollowers, locale)}
-              </span>
-            </div>
+            {(() => {
+              const pack = getPack(order.service);
+              if (pack) {
+                return (
+                  <div className="space-y-2 border-b border-border pb-3">
+                    <div className="flex justify-between">
+                      <span className="text-muted">👥 Seguidores</span>
+                      <span className="font-semibold">{formatNum(pack.followers, locale)}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-muted">❤️ Likes</span>
+                      <span className="font-semibold">{formatNum(pack.likes, locale)}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-muted">▶️ Vistas</span>
+                      <span className="font-semibold">{formatNum(pack.views, locale)}</span>
+                    </div>
+                  </div>
+                );
+              }
+              return (
+                <div className="flex justify-between border-b border-border pb-3">
+                  <span className="text-muted">{t.gracias.qty}</span>
+                  <span className="font-semibold">
+                    {formatNum(order.totalFollowers, locale)}
+                  </span>
+                </div>
+              );
+            })()}
             <div className="flex justify-between border-b border-border py-3">
               <span className="text-muted">{t.gracias.total}</span>
               <span className="font-semibold">

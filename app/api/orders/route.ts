@@ -1,28 +1,103 @@
 import { NextRequest, NextResponse } from "next/server";
-import { createOrder } from "@/lib/db";
+import { createOrder, type Order } from "@/lib/db";
 import { createPreference } from "@/lib/mercadopago";
-import { getService, priceFor, bonusFor, type Quality } from "@/lib/config";
+import {
+  getService,
+  getPack,
+  priceFor,
+  bonusFor,
+  MAX_PACK_POSTS,
+  formatNumber,
+  type Quality,
+} from "@/lib/config";
 import { isLocale, defaultLocale } from "@/lib/i18n";
+
+type Payment = "mercadopago" | "tarjeta" | "usdt";
+
+function isValidPayment(p: unknown): p is Payment {
+  return p === "mercadopago" || p === "tarjeta" || p === "usdt";
+}
 
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
-    const { slug, target, contact, quantity, quality, payment, locale } = body;
+    const { contact, payment, locale } = body;
     const loc = isLocale(String(locale)) ? String(locale) : defaultLocale;
 
-    // ---- Validación básica ----
-    if (!target || !contact) {
+    if (!isValidPayment(payment)) {
+      return NextResponse.json({ error: "Pago inválido." }, { status: 400 });
+    }
+    if (!contact) {
       return NextResponse.json(
         { error: "Faltan datos del pedido." },
         { status: 400 }
       );
     }
-    if (
-      payment !== "mercadopago" &&
-      payment !== "tarjeta" &&
-      payment !== "usdt"
-    ) {
-      return NextResponse.json({ error: "Pago inválido." }, { status: 400 });
+
+    // ============================================================
+    //  RAMA PACK (combo: seguidores + likes + vistas)
+    // ============================================================
+    if (body.pack) {
+      const pack = getPack(String(body.pack));
+      if (!pack) {
+        return NextResponse.json({ error: "Pack inválido." }, { status: 400 });
+      }
+      const username = String(body.target ?? "")
+        .trim()
+        .replace(/^@+/, "")
+        .slice(0, 200);
+      const posts: string[] = Array.isArray(body.posts)
+        ? body.posts
+            .map((x: unknown) => String(x).trim())
+            .filter(Boolean)
+            .slice(0, MAX_PACK_POSTS)
+        : [];
+      if (!username) {
+        return NextResponse.json(
+          { error: "Falta el usuario para los seguidores." },
+          { status: 400 }
+        );
+      }
+      if (posts.length === 0) {
+        return NextResponse.json(
+          { error: "Cargá al menos un link de posteo para los likes y vistas." },
+          { status: 400 }
+        );
+      }
+
+      const notes =
+        `PACK: ${pack.name}\n` +
+        `• ${formatNumber(pack.followers)} seguidores → @${username}\n` +
+        `• ${formatNumber(pack.likes)} likes + ${formatNumber(pack.views)} vistas, repartidos en ${posts.length} posteo(s):\n` +
+        posts.map((p, i) => `  ${i + 1}) ${p}`).join("\n");
+
+      const order = await createOrder({
+        locale: loc,
+        service: pack.slug,
+        username,
+        contact: String(contact).slice(0, 120),
+        quantity: pack.followers,
+        bonus: 0,
+        quality: "global",
+        totalFollowers: pack.followers,
+        amount: pack.price,
+        payment,
+        notes,
+      });
+
+      return finishOrder(order, payment, req);
+    }
+
+    // ============================================================
+    //  RAMA SERVICIO INDIVIDUAL
+    // ============================================================
+    const { slug, target, quantity, quality } = body;
+
+    if (!target) {
+      return NextResponse.json(
+        { error: "Faltan datos del pedido." },
+        { status: 400 }
+      );
     }
 
     // ---- Validamos servicio y recalculamos precio en el server ----
@@ -53,24 +128,7 @@ export async function POST(req: NextRequest) {
       payment,
     });
 
-    if (payment === "mercadopago") {
-      const baseUrl = process.env.PUBLIC_BASE_URL ?? req.nextUrl.origin;
-      const init_point = await createPreference(order, baseUrl);
-      if (!init_point) {
-        // MP no está configurado o no opera en este país → avisamos claro
-        // en vez de mandar al usuario a "gracias" sin haber pagado.
-        return NextResponse.json(
-          {
-            error:
-              "El pago con MercadoPago no está disponible en este momento. Probá con tarjeta o crypto, o escribinos.",
-          },
-          { status: 502 }
-        );
-      }
-      return NextResponse.json({ orderId: order.id, init_point });
-    }
-
-    return NextResponse.json({ orderId: order.id });
+    return finishOrder(order, payment, req);
   } catch (err) {
     console.error("[api/orders]", err);
     return NextResponse.json(
@@ -78,4 +136,26 @@ export async function POST(req: NextRequest) {
       { status: 500 }
     );
   }
+}
+
+// Cierra la orden: inicia el pago si es MercadoPago, o devuelve el id.
+async function finishOrder(order: Order, payment: Payment, req: NextRequest) {
+  if (payment === "mercadopago") {
+    const baseUrl = process.env.PUBLIC_BASE_URL ?? req.nextUrl.origin;
+    const init_point = await createPreference(order, baseUrl);
+    if (!init_point) {
+      // MP no está configurado o no opera en este país → avisamos claro
+      // en vez de mandar al usuario a "gracias" sin haber pagado.
+      return NextResponse.json(
+        {
+          error:
+            "El pago con MercadoPago no está disponible en este momento. Probá con tarjeta o crypto, o escribinos.",
+        },
+        { status: 502 }
+      );
+    }
+    return NextResponse.json({ orderId: order.id, init_point });
+  }
+
+  return NextResponse.json({ orderId: order.id });
 }

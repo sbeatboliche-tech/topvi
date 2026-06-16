@@ -314,6 +314,37 @@ export function getService(slug: string): ServiceDef | undefined {
   return services.find((s) => s.slug === slug);
 }
 
+// ---- Upsell / add-on cruzado ----
+// Qué servicio sugerir como complemento al comprar otro.
+const ADDON_MAP: Record<string, string> = {
+  "instagram-seguidores": "instagram-likes",
+  "tiktok-seguidores": "tiktok-likes",
+  "instagram-likes": "instagram-seguidores",
+  "tiktok-likes": "tiktok-seguidores",
+};
+
+export function getAddonFor(slug: string): ServiceDef | undefined {
+  const target = ADDON_MAP[slug];
+  return target ? getService(target) : undefined;
+}
+
+// Índice del tier cuya cantidad es la más cercana a `qty` (para sugerir).
+export function closestTierIdx(svc: ServiceDef, qty: number): number {
+  let best = 0;
+  let bestDiff = Infinity;
+  svc.tiers.forEach((t, i) => {
+    const d = Math.abs(t.quantity - qty);
+    if (d < bestDiff) {
+      bestDiff = d;
+      best = i;
+    }
+  });
+  return best;
+}
+
+// Cantidad máxima de cuentas/posteos entre los que repartir una compra.
+export const MAX_TARGETS = 10;
+
 export function priceFor(tier: Tier, quality: Quality): number {
   if (quality === "premium" && tier.pricePremium != null)
     return tier.pricePremium;

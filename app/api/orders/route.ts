@@ -7,6 +7,7 @@ import {
   priceFor,
   bonusFor,
   MAX_PACK_POSTS,
+  MAX_TARGETS,
   formatNumber,
   type Quality,
 } from "@/lib/config";
@@ -89,18 +90,10 @@ export async function POST(req: NextRequest) {
     }
 
     // ============================================================
-    //  RAMA SERVICIO INDIVIDUAL
+    //  RAMA SERVICIO INDIVIDUAL (con multi-target + add-on opcional)
     // ============================================================
-    const { slug, target, quantity, quality } = body;
+    const { slug, quantity, quality } = body;
 
-    if (!target) {
-      return NextResponse.json(
-        { error: "Faltan datos del pedido." },
-        { status: 400 }
-      );
-    }
-
-    // ---- Validamos servicio y recalculamos precio en el server ----
     const svc = getService(String(slug));
     if (!svc) {
       return NextResponse.json({ error: "Servicio inválido." }, { status: 400 });
@@ -109,16 +102,72 @@ export async function POST(req: NextRequest) {
     if (!tier) {
       return NextResponse.json({ error: "Paquete inválido." }, { status: 400 });
     }
+
+    // Destinos: array (nuevo) o `target` único (compatibilidad).
+    const rawTargets: unknown[] = Array.isArray(body.targets)
+      ? body.targets
+      : body.target
+      ? [body.target]
+      : [];
+    const targets = rawTargets
+      .map((x) => String(x).trim().replace(/^@+/, "").slice(0, 200))
+      .filter(Boolean)
+      .slice(0, MAX_TARGETS);
+    if (targets.length === 0) {
+      return NextResponse.json(
+        { error: "Faltan datos del pedido." },
+        { status: 400 }
+      );
+    }
+
     const q: Quality =
       svc.hasQuality && quality === "premium" ? "premium" : "global";
-    const amount = priceFor(tier, q);
+    let amount = priceFor(tier, q);
     const bonus = bonusFor(tier, q);
     const totalFollowers = tier.quantity + bonus;
+
+    const fmtTarget = (kind: string, val: string) =>
+      kind === "followers" ? `@${val}` : val;
+
+    // Add-on / upsell cruzado (opcional).
+    let addonNote = "";
+    if (body.addon && body.addon.slug) {
+      const aSvc = getService(String(body.addon.slug));
+      const aTier = aSvc?.tiers.find((t) => t.quantity === body.addon.quantity);
+      const aTargets: string[] = Array.isArray(body.addon.targets)
+        ? body.addon.targets
+            .map((x: unknown) => String(x).trim().replace(/^@+/, ""))
+            .filter(Boolean)
+        : [];
+      if (!aSvc || !aTier) {
+        return NextResponse.json({ error: "Add-on inválido." }, { status: 400 });
+      }
+      if (aTargets.length === 0) {
+        return NextResponse.json(
+          { error: "Falta el destino del add-on." },
+          { status: 400 }
+        );
+      }
+      amount += priceFor(aTier, "global");
+      addonNote =
+        `\n+ ADD-ON: ${formatNumber(aTier.quantity)} ${aSvc.short} → ` +
+        aTargets.map((x) => fmtTarget(aSvc.kind, x)).join(", ");
+    }
+
+    // Notas para entrega: solo si hay reparto múltiple o add-on.
+    const targetWord = svc.kind === "followers" ? "cuenta(s)" : "posteo(s)";
+    let notes: string | undefined;
+    if (targets.length > 1 || addonNote) {
+      notes =
+        `${formatNumber(totalFollowers)} ${svc.unit} en ${targets.length} ${targetWord}:\n` +
+        targets.map((x, i) => `  ${i + 1}) ${fmtTarget(svc.kind, x)}`).join("\n") +
+        addonNote;
+    }
 
     const order = await createOrder({
       locale: loc,
       service: svc.slug,
-      username: String(target).trim().replace(/^@+/, "").slice(0, 200),
+      username: targets[0],
       contact: String(contact).slice(0, 120),
       quantity: tier.quantity,
       bonus,
@@ -126,6 +175,7 @@ export async function POST(req: NextRequest) {
       totalFollowers,
       amount,
       payment,
+      notes,
     });
 
     return finishOrder(order, payment, req);

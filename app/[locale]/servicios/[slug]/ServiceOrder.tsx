@@ -1,12 +1,15 @@
 "use client";
 
-import { useMemo, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import {
   getService,
+  getAddonFor,
+  closestTierIdx,
   platformInfo,
   priceFor,
   bonusFor,
+  MAX_TARGETS,
   type Quality,
 } from "@/lib/config";
 import {
@@ -34,9 +37,9 @@ export default function ServiceOrder({
   const router = useRouter();
 
   const mpAvailable = localeConfig[locale].mpCurrency !== null;
+  const isFollowers = svc.kind === "followers";
+  const platformLabel = platformInfo[svc.platform].label;
 
-  // Índice de tier pre-seleccionado: el que venga por URL (?qty=) si existe,
-  // si no el "recomendado" por defecto.
   const defaultTierIdx = svc.hasQuality ? 3 : 2;
   const presetIdx = initialQty
     ? svc.tiers.findIndex((tt) => tt.quantity === initialQty)
@@ -48,39 +51,79 @@ export default function ServiceOrder({
   const [tierIdx, setTierIdx] = useState(
     presetIdx >= 0 ? presetIdx : defaultTierIdx
   );
-  const [target, setTarget] = useState("");
+  // Multi-target: cuentas (seguidores) o links de posteo (likes/vistas/etc).
+  const [targets, setTargets] = useState<string[]>([""]);
   const [contact, setContact] = useState("");
   const [payment, setPayment] = useState<"mercadopago" | "tarjeta" | "usdt">(
     mpAvailable ? "mercadopago" : "usdt"
   );
+
+  // ---- Add-on / upsell cruzado ----
+  const addonSvc = getAddonFor(svc.slug);
+  const addonIsFollowers = addonSvc?.kind === "followers";
+  const [addonOn, setAddonOn] = useState(false);
+  const [addonTierIdx, setAddonTierIdx] = useState(0);
+  const [addonTarget, setAddonTarget] = useState("");
+
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
 
-  const targetRef = useRef<HTMLInputElement>(null);
+  const firstTargetRef = useRef<HTMLInputElement>(null);
+  const targetsRef = useRef<HTMLDivElement>(null);
   const contactRef = useRef<HTMLInputElement>(null);
-
-  const isFollowers = svc.kind === "followers";
-  const platformLabel = platformInfo[svc.platform].label;
+  const addonTargetRef = useRef<HTMLInputElement>(null);
 
   const tier = svc.tiers[tierIdx];
   const price = priceFor(tier, quality);
   const bonus = bonusFor(tier, quality);
   const totalUnits = tier.quantity + bonus;
-  // "3 cuotas sin interés" solo en los paquetes más grandes (los últimos 3 de la lista)
   const interestFree = tierIdx >= svc.tiers.length - 3;
 
-  const cleanTarget = useMemo(() => target.trim().replace(/^@/, ""), [target]);
-  const stepN = (n: number) => (svc.hasQuality ? n : n - 1);
+  const addonTier = addonSvc?.tiers[addonTierIdx];
+  const addonPrice = addonOn && addonTier ? priceFor(addonTier, "global") : 0;
+  const total = price + addonPrice;
+
+  const filledTargets = targets.map((x) => x.trim()).filter(Boolean);
+
+  function enableAddon() {
+    if (!addonSvc) return;
+    setAddonTierIdx(closestTierIdx(addonSvc, tier.quantity));
+    setAddonOn(true);
+  }
+
+  function setTarget(i: number, val: string) {
+    setTargets((arr) => arr.map((x, idx) => (idx === i ? val : x)));
+  }
+  function addTarget() {
+    setTargets((arr) => (arr.length < MAX_TARGETS ? [...arr, ""] : arr));
+  }
+  function removeTarget(i: number) {
+    setTargets((arr) => (arr.length > 1 ? arr.filter((_, idx) => idx !== i) : arr));
+  }
+
+  function cleanTarget(v: string) {
+    return isFollowers ? v.trim().replace(/^@/, "") : v.trim();
+  }
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError("");
-    // Validación: si falta un dato, llevamos el foco/scroll al campo
-    // (en móvil el error vivía fuera de pantalla y parecía que "no pasaba nada").
-    if (!cleanTarget) {
+
+    const cleaned = filledTargets.map(cleanTarget).filter(Boolean);
+    if (cleaned.length === 0) {
       setError(isFollowers ? t.order.errUser : t.order.errLink);
-      targetRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
-      targetRef.current?.focus();
+      targetsRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
+      firstTargetRef.current?.focus();
+      return;
+    }
+    if (addonOn && !addonTarget.trim()) {
+      setError(
+        addonIsFollowers
+          ? "Ingresá la cuenta para los seguidores que agregaste."
+          : "Pegá el link del posteo para los likes que agregaste."
+      );
+      addonTargetRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
+      addonTargetRef.current?.focus();
       return;
     }
     if (!contact.trim()) {
@@ -97,12 +140,24 @@ export default function ServiceOrder({
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           slug: svc.slug,
-          target: cleanTarget,
+          targets: cleaned,
           contact: contact.trim(),
           quantity: tier.quantity,
           quality,
           payment,
           locale,
+          addon:
+            addonOn && addonSvc && addonTier
+              ? {
+                  slug: addonSvc.slug,
+                  quantity: addonTier.quantity,
+                  targets: [
+                    addonIsFollowers
+                      ? addonTarget.trim().replace(/^@/, "")
+                      : addonTarget.trim(),
+                  ],
+                }
+              : undefined,
         }),
       });
       const data = await res.json();
@@ -121,6 +176,12 @@ export default function ServiceOrder({
   }
 
   const qkeys: Quality[] = ["global", "premium"];
+  const stepN = (n: number) => (svc.hasQuality ? n : n - 1);
+  // Numeración dinámica: el add-on (si existe) corre los pasos siguientes.
+  const targetStep = stepN(3);
+  const addonStep = stepN(4);
+  const contactStep = addonSvc ? stepN(5) : stepN(4);
+  const payStep = addonSvc ? stepN(6) : stepN(5);
 
   return (
     <div className="mx-auto max-w-6xl px-4 py-12">
@@ -140,7 +201,7 @@ export default function ServiceOrder({
         )}
       </div>
 
-      <form onSubmit={handleSubmit} className="grid gap-6 pb-24 lg:grid-cols-[1fr_380px] lg:pb-0">
+      <form onSubmit={handleSubmit} className="grid gap-6 pb-28 lg:grid-cols-[1fr_380px] lg:pb-0">
         <div className="space-y-6">
           {svc.hasQuality && (
             <div className="rounded-2xl border border-border bg-surface p-6">
@@ -173,6 +234,7 @@ export default function ServiceOrder({
             </div>
           )}
 
+          {/* Cantidad */}
           <div className="rounded-2xl border border-border bg-surface p-6">
             <h2 className="mb-4 font-semibold">
               {stepN(2)}. {t.order.quantity}
@@ -210,71 +272,193 @@ export default function ServiceOrder({
             </div>
           </div>
 
-          <div className="rounded-2xl border border-border bg-surface p-6">
-            <h2 className="mb-4 font-semibold">
-              {stepN(3)}. {t.order.yourData}
+          {/* Destinos: cuentas (seguidores) o posteos (likes/vistas) */}
+          <div ref={targetsRef} className="rounded-2xl border border-border bg-surface p-6">
+            <h2 className="mb-1 font-semibold">
+              {targetStep}.{" "}
+              {isFollowers
+                ? "¿En qué cuentas querés los seguidores?"
+                : "¿En qué posteos los querés?"}
             </h2>
-            <div className="space-y-4">
-              <div>
-                <label className="mb-1.5 block text-sm text-muted">
-                  {isFollowers
-                    ? fmt(t.order.userLabel, { platform: platformLabel })
-                    : t.order.linkLabel}
-                </label>
-                {isFollowers ? (
-                  <div className="flex items-center rounded-xl border border-border bg-surface-2 px-3 focus-within:border-brand">
-                    <span className="text-muted">@</span>
+            <p className="mb-4 text-sm text-muted">
+              {isFollowers
+                ? `Repartimos los ${formatNum(totalUnits, locale)} ${svc.unit} entre las cuentas que cargues (hasta ${MAX_TARGETS}).`
+                : `Repartimos los ${formatNum(totalUnits, locale)} ${svc.unit} entre los posteos que cargues (hasta ${MAX_TARGETS}).`}
+            </p>
+            <div className="space-y-3">
+              {targets.map((val, i) => (
+                <div key={i} className="flex items-center gap-2">
+                  <span className="w-5 shrink-0 text-center text-sm text-muted">
+                    {i + 1}
+                  </span>
+                  {isFollowers ? (
+                    <div className="flex w-full items-center rounded-xl border border-border bg-surface-2 px-3 focus-within:border-brand">
+                      <span className="text-muted">@</span>
+                      <input
+                        ref={i === 0 ? firstTargetRef : undefined}
+                        value={val}
+                        onChange={(e) => setTarget(i, e.target.value)}
+                        placeholder="usuario"
+                        className="w-full bg-transparent px-2 py-3 outline-none"
+                        autoCapitalize="none"
+                        autoCorrect="off"
+                        spellCheck={false}
+                      />
+                    </div>
+                  ) : (
                     <input
-                      ref={targetRef}
-                      value={target}
-                      onChange={(e) => setTarget(e.target.value)}
-                      placeholder="usuario"
-                      className="w-full bg-transparent px-2 py-3 outline-none"
+                      ref={i === 0 ? firstTargetRef : undefined}
+                      value={val}
+                      onChange={(e) => setTarget(i, e.target.value)}
+                      placeholder="https://instagram.com/..."
+                      className="w-full rounded-xl border border-border bg-surface-2 px-3 py-3 outline-none focus:border-brand"
                       autoCapitalize="none"
                       autoCorrect="off"
                       spellCheck={false}
-                      enterKeyHint="next"
+                      inputMode="url"
                     />
-                  </div>
-                ) : (
-                  <input
-                    ref={targetRef}
-                    value={target}
-                    onChange={(e) => setTarget(e.target.value)}
-                    placeholder="https://..."
-                    className="w-full rounded-xl border border-border bg-surface-2 px-3 py-3 outline-none focus:border-brand"
-                    autoCapitalize="none"
-                    autoCorrect="off"
-                    spellCheck={false}
-                    inputMode="url"
-                    enterKeyHint="next"
-                  />
-                )}
-                <p className="mt-1.5 text-xs text-muted">{t.order.publicWarn}</p>
-              </div>
-              <div>
-                <label className="mb-1.5 block text-sm text-muted">
-                  {t.order.contactLabel}
-                </label>
-                <input
-                  ref={contactRef}
-                  value={contact}
-                  onChange={(e) => setContact(e.target.value)}
-                  placeholder={t.order.contactPh}
-                  className="w-full rounded-xl border border-border bg-surface-2 px-3 py-3 outline-none focus:border-brand"
-                  inputMode="email"
-                  autoCapitalize="none"
-                  autoCorrect="off"
-                  spellCheck={false}
-                  enterKeyHint="done"
-                />
-              </div>
+                  )}
+                  {targets.length > 1 && (
+                    <button
+                      type="button"
+                      onClick={() => removeTarget(i)}
+                      className="shrink-0 rounded-lg border border-border px-3 py-2 text-muted hover:bg-surface-2"
+                      aria-label="Quitar"
+                    >
+                      ✕
+                    </button>
+                  )}
+                </div>
+              ))}
             </div>
+            {targets.length < MAX_TARGETS && (
+              <button
+                type="button"
+                onClick={addTarget}
+                className="mt-3 rounded-full border border-border px-4 py-2 text-sm font-medium hover:bg-surface-2"
+              >
+                {isFollowers ? "+ Agregar otra cuenta" : "+ Agregar otro posteo"}
+              </button>
+            )}
+            <p className="mt-3 text-xs text-muted">{t.order.publicWarn}</p>
           </div>
 
+          {/* Add-on / upsell cruzado */}
+          {addonSvc && addonTier && (
+            <div
+              className={`rounded-2xl border p-6 transition-all ${
+                addonOn ? "border-brand bg-brand/5" : "border-dashed border-brand/50 bg-surface"
+              }`}
+            >
+              <div className="flex items-start justify-between gap-3">
+                <div>
+                  <h2 className="font-semibold">
+                    {addonStep}. 🔥 Sumá {addonSvc.short} y potenciá el resultado
+                  </h2>
+                  <p className="mt-1 text-sm text-muted">
+                    {addonIsFollowers
+                      ? "Reforzá tu perfil con seguidores además de los likes."
+                      : "Tus seguidores rinden más si tus posteos tienen likes."}
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => (addonOn ? setAddonOn(false) : enableAddon())}
+                  className={`shrink-0 rounded-full px-4 py-2 text-sm font-semibold transition-colors ${
+                    addonOn
+                      ? "border border-border bg-surface-2"
+                      : "brand-gradient text-white"
+                  }`}
+                >
+                  {addonOn ? "Quitar" : "Agregar"}
+                </button>
+              </div>
+
+              {addonOn && (
+                <div className="mt-4 space-y-4">
+                  <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
+                    {addonSvc.tiers.map((tt, i) => (
+                      <button
+                        type="button"
+                        key={tt.quantity}
+                        onClick={() => setAddonTierIdx(i)}
+                        className={`rounded-lg border p-2 text-center text-sm transition-all ${
+                          addonTierIdx === i
+                            ? "border-brand bg-brand/10 ring-1 ring-brand"
+                            : "border-border bg-surface-2 hover:border-brand/40"
+                        }`}
+                      >
+                        <div className="font-bold">{formatNum(tt.quantity, locale)}</div>
+                        <div className="text-xs text-accent">
+                          {displayPrice(priceFor(tt, "global"), locale)}
+                        </div>
+                      </button>
+                    ))}
+                  </div>
+                  <div>
+                    <label className="mb-1.5 block text-sm text-muted">
+                      {addonIsFollowers
+                        ? `Cuenta de ${platformLabel} para los seguidores`
+                        : "Link del posteo para los likes"}
+                    </label>
+                    {addonIsFollowers ? (
+                      <div className="flex items-center rounded-xl border border-border bg-surface-2 px-3 focus-within:border-brand">
+                        <span className="text-muted">@</span>
+                        <input
+                          ref={addonTargetRef}
+                          value={addonTarget}
+                          onChange={(e) => setAddonTarget(e.target.value)}
+                          placeholder="usuario"
+                          className="w-full bg-transparent px-2 py-3 outline-none"
+                          autoCapitalize="none"
+                          autoCorrect="off"
+                          spellCheck={false}
+                        />
+                      </div>
+                    ) : (
+                      <input
+                        ref={addonTargetRef}
+                        value={addonTarget}
+                        onChange={(e) => setAddonTarget(e.target.value)}
+                        placeholder="https://instagram.com/..."
+                        className="w-full rounded-xl border border-border bg-surface-2 px-3 py-3 outline-none focus:border-brand"
+                        autoCapitalize="none"
+                        autoCorrect="off"
+                        spellCheck={false}
+                        inputMode="url"
+                      />
+                    )}
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Contacto */}
           <div className="rounded-2xl border border-border bg-surface p-6">
             <h2 className="mb-4 font-semibold">
-              {stepN(4)}. {t.order.payment}
+              {contactStep}. {t.order.yourData}
+            </h2>
+            <label className="mb-1.5 block text-sm text-muted">
+              {t.order.contactLabel}
+            </label>
+            <input
+              ref={contactRef}
+              value={contact}
+              onChange={(e) => setContact(e.target.value)}
+              placeholder={t.order.contactPh}
+              className="w-full rounded-xl border border-border bg-surface-2 px-3 py-3 outline-none focus:border-brand"
+              inputMode="email"
+              autoCapitalize="none"
+              autoCorrect="off"
+              spellCheck={false}
+            />
+          </div>
+
+          {/* Pago */}
+          <div className="rounded-2xl border border-border bg-surface p-6">
+            <h2 className="mb-4 font-semibold">
+              {payStep}. {t.order.payment}
             </h2>
             <div className="grid gap-3 sm:grid-cols-2">
               {mpAvailable && (
@@ -329,42 +513,41 @@ export default function ServiceOrder({
           </div>
         </div>
 
+        {/* Resumen */}
         <div className="lg:sticky lg:top-24 lg:self-start">
           <div className="rounded-2xl border border-border bg-surface p-6">
             <h2 className="mb-4 font-semibold">{t.order.summary}</h2>
             <dl className="space-y-2 text-sm">
               <div className="flex justify-between">
-                <dt className="text-muted">{t.order.service}</dt>
-                <dd className="font-medium">{svc.short}</dd>
+                <dt className="text-muted">{svc.short}</dt>
+                <dd className="font-medium">{formatNum(totalUnits, locale)}</dd>
               </div>
-              {svc.hasQuality && (
-                <div className="flex justify-between">
-                  <dt className="text-muted">{t.order.qualityW}</dt>
-                  <dd className="font-medium">{t.quality[quality].label}</dd>
+              {filledTargets.length > 1 && (
+                <div className="flex justify-between text-xs">
+                  <dt className="text-muted">
+                    {isFollowers ? "Cuentas" : "Posteos"}
+                  </dt>
+                  <dd className="font-medium">{filledTargets.length}</dd>
                 </div>
               )}
               <div className="flex justify-between">
-                <dt className="text-muted capitalize">{svc.unit}</dt>
-                <dd className="font-medium">{formatNum(tier.quantity, locale)}</dd>
+                <dt className="text-muted">{svc.short}</dt>
+                <dd className="font-medium">{displayPrice(price, locale)}</dd>
               </div>
-              {bonus > 0 && (
-                <div className="flex justify-between text-success">
-                  <dt>{t.order.bonus}</dt>
-                  <dd className="font-medium">+{formatNum(bonus, locale)}</dd>
+              {addonOn && addonTier && (
+                <div className="flex justify-between text-accent">
+                  <dt>
+                    + {formatNum(addonTier.quantity, locale)} {addonSvc!.short}
+                  </dt>
+                  <dd className="font-medium">{displayPrice(addonPrice, locale)}</dd>
                 </div>
               )}
-              <div className="flex justify-between border-t border-border pt-2">
-                <dt className="text-muted">{t.order.total}</dt>
-                <dd className="font-semibold text-accent">
-                  {formatNum(totalUnits, locale)}
-                </dd>
-              </div>
             </dl>
 
             <div className="mt-4 flex items-end justify-between border-t border-border pt-4">
               <span className="text-muted">{t.order.price}</span>
               <span className="text-2xl font-extrabold">
-                {displayPrice(price, locale)}
+                {displayPrice(total, locale)}
               </span>
             </div>
 
@@ -391,7 +574,7 @@ export default function ServiceOrder({
           </div>
         </div>
 
-        {/* Barra fija de pago en MÓVIL (siempre visible para convertir mejor) */}
+        {/* Barra fija de pago en MÓVIL */}
         <div className="fixed inset-x-0 bottom-0 z-40 border-t border-border bg-surface/95 px-4 py-3 backdrop-blur lg:hidden">
           {error && (
             <p className="mb-2 rounded-lg bg-warning/10 px-3 py-1.5 text-center text-xs font-medium text-warning">
@@ -404,7 +587,7 @@ export default function ServiceOrder({
                 {t.order.price}
               </div>
               <div className="text-lg font-extrabold">
-                {displayPrice(price, locale)}
+                {displayPrice(total, locale)}
               </div>
             </div>
             <button
@@ -417,7 +600,6 @@ export default function ServiceOrder({
           </div>
         </div>
       </form>
-
     </div>
   );
 }

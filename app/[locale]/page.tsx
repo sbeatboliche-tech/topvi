@@ -1,24 +1,10 @@
 import Link from "next/link";
-import { site, getService, packs } from "@/lib/config";
+import { getService, packs } from "@/lib/config";
 import { isLocale, displayPrice, formatNum, type Locale } from "@/lib/i18n";
 import { getHomeCopy } from "@/lib/home-copy";
 import { notFound } from "next/navigation";
 import LiveFeed from "@/components/LiveFeed";
 import { Star } from "lucide-react";
-
-// ── Perfiles de éxito (scroll horizontal) ────────────────────
-const SUCCESS_PROFILES = [
-  { handle: "@sofia.moda", followers: "12.4K", gain: "+1.2K /mes", category: "Moda" },
-  { handle: "@marcos.fitness", followers: "25K", gain: "+2.8K /mes", category: "Fitness" },
-  { handle: "@chef.juli", followers: "18.7K", gain: "+1.9K /mes", category: "Gastronomía" },
-  { handle: "@emprendedora.v", followers: "31K", gain: "+3.5K /mes", category: "E-commerce" },
-  { handle: "@foto.bea", followers: "9.2K", gain: "+890 /mes", category: "Fotografía" },
-  { handle: "@coach.nico", followers: "44K", gain: "+4.1K /mes", category: "Coaching" },
-  { handle: "@tienda.lola", followers: "7.8K", gain: "+650 /mes", category: "Retail" },
-  { handle: "@dj.santi", followers: "15.3K", gain: "+1.6K /mes", category: "Música" },
-  { handle: "@abogada.pau", followers: "22K", gain: "+2.2K /mes", category: "Servicios" },
-  { handle: "@nutricion.ro", followers: "19.5K", gain: "+2.0K /mes", category: "Salud" },
-];
 
 // ── Prueba social / algoritmo ─────────────────────────────────
 const PROOF_ITEMS = [
@@ -155,38 +141,6 @@ export default async function Home({
               >
                 {n}
               </span>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ════════════════════════════════════════
-          GALERÍA DE CASOS DE ÉXITO
-      ════════════════════════════════════════ */}
-      <section className="border-y border-gray-100 bg-gray-50 px-4 py-16">
-        <div className="mx-auto max-w-6xl">
-          <h2 className="mb-2 text-center text-3xl font-bold text-gray-900">
-            Resultados reales de nuestros clientes
-          </h2>
-          <p className="mb-8 text-center text-gray-500">
-            Perfiles que crecieron con {site.name}
-          </p>
-          <div className="no-scrollbar flex gap-4 overflow-x-auto pb-2">
-            {SUCCESS_PROFILES.map((profile) => (
-              <div
-                key={profile.handle}
-                className="flex w-44 shrink-0 flex-col items-center rounded-2xl border border-gray-200 bg-white p-4 text-center shadow-sm"
-              >
-                <div className="mb-2 flex h-12 w-12 items-center justify-center rounded-full bg-gray-100 text-xl">
-                  📸
-                </div>
-                <p className="text-xs font-semibold text-gray-900">{profile.handle}</p>
-                <p className="mt-1 text-lg font-extrabold text-gray-900">{profile.followers}</p>
-                <p className="text-[11px] font-medium text-green-600">{profile.gain}</p>
-                <span className="mt-2 rounded-full bg-gray-100 px-2 py-0.5 text-[10px] text-gray-500">
-                  {profile.category}
-                </span>
-              </div>
             ))}
           </div>
         </div>

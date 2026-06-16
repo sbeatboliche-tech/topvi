@@ -11,7 +11,7 @@ const content = {
       { title: "Ingresá tu usuario", desc: "Solo tu usuario público. NUNCA pedimos tu contraseña. La cuenta debe estar pública." },
       { title: "Pagá de forma segura", desc: "Con MercadoPago (hasta 3 cuotas) o con USDT. El pago está protegido." },
       { title: "Recibís todo", desc: "La entrega empieza entre 0 y 6 horas (hasta 12 hs según demanda), de forma gradual y natural." },
-      { title: "Garantía activa", desc: "Si algo cae durante el período de garantía (30 a 60 días según calidad), lo reponemos sin costo." },
+      { title: "Garantía activa", desc: "Si algo cae durante el período de garantía (90 días), lo reponemos sin costo." },
     ],
     faqTitle: "Dudas frecuentes",
     faqs: [
@@ -29,7 +29,7 @@ const content = {
       { title: "Informe seu usuário", desc: "Só seu usuário público. NUNCA pedimos sua senha. A conta deve estar pública." },
       { title: "Pague com segurança", desc: "Com MercadoPago (parcelado) ou USDT. O pagamento é protegido." },
       { title: "Receba tudo", desc: "A entrega começa entre 0 e 6 horas (até 12h conforme a demanda), de forma gradual e natural." },
-      { title: "Garantia ativa", desc: "Se algo cair no período de garantia (30 a 60 dias conforme a qualidade), repomos sem custo." },
+      { title: "Garantia ativa", desc: "Se algo cair no período de garantia (90 dias), repomos sem custo." },
     ],
     faqTitle: "Dúvidas frequentes",
     faqs: [

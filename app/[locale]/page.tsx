@@ -16,6 +16,7 @@ const BUNDLES = [
     originalPrice: "$84.000",
     salePrice: "$58.000",
     slug: "instagram-seguidores",
+    qty: 5000,
   },
   {
     name: "Pack Pro",
@@ -25,6 +26,7 @@ const BUNDLES = [
     originalPrice: "$164.000",
     salePrice: "$99.999",
     slug: "instagram-seguidores",
+    qty: 10000,
   },
   {
     name: "Pack Elite",
@@ -34,6 +36,7 @@ const BUNDLES = [
     originalPrice: "$274.000",
     salePrice: "$149.999",
     slug: "instagram-seguidores",
+    qty: 20000,
   },
 ] as const;
 
@@ -112,7 +115,7 @@ export default async function Home({
           {/* Stats chips */}
           <div className="mb-8 flex flex-wrap justify-center gap-2">
             {[
-              { icon: "👥", text: "+25.000 clientes en Argentina" },
+              { icon: "👥", text: "5.000 clientes en todo el mundo" },
               { icon: "🏆", text: "Agencia #1 en crecimiento digital" },
               { icon: "⚡", text: "Entrega en menos de 12hs" },
             ].map((s) => (
@@ -127,20 +130,20 @@ export default async function Home({
 
           {/* Headline */}
           <h1 className="mb-4 text-balance text-4xl font-extrabold leading-tight tracking-tight text-gray-900 md:text-5xl lg:text-6xl">
-            Tu perfil vacío le está costando ventas
+            Nadie le compra a una cuenta de 200 seguidores
           </h1>
 
           {/* Subheadline */}
           <p className="mx-auto mb-8 max-w-xl text-lg leading-relaxed text-gray-500">
-            Inyectá autoridad inmediata en tu Instagram. Sin contraseñas, sin riesgo de baneo.
+            Tus clientes te stalkean antes de pagarte. Un perfil con volumen transmite que sos un negocio en serio.
           </p>
 
           {/* CTA */}
           <Link
-            href={p("/servicios")}
+            href={p("/servicios/instagram-seguidores")}
             className="inline-flex items-center gap-2 rounded-full bg-gray-900 px-8 py-4 text-base font-bold text-white shadow-lg transition-colors hover:bg-gray-700"
           >
-            Quiero crecer ahora →
+            Subir mis números →
           </Link>
           <p className="mt-3 text-xs text-gray-400">
             Sin contraseña · Pago 100% seguro · Desde {from}
@@ -293,7 +296,7 @@ export default async function Home({
                   <div className="text-3xl font-extrabold text-gray-900">{bundle.salePrice} ARS</div>
                 </div>
                 <Link
-                  href={p(`/servicios/${bundle.slug}`)}
+                  href={p(`/servicios/${bundle.slug}?qty=${bundle.qty}`)}
                   className={`mt-5 rounded-full py-3 text-center text-sm font-bold transition-colors ${
                     bundle.badge
                       ? "bg-gray-900 text-white hover:bg-gray-700"
@@ -458,10 +461,10 @@ export default async function Home({
             <div className="text-base font-extrabold text-gray-900">Desde {from}</div>
           </div>
           <Link
-            href={p("/servicios")}
+            href={p("/servicios/instagram-seguidores")}
             className="ml-auto flex-1 rounded-full bg-gray-900 py-3 text-center font-bold text-white"
           >
-            Quiero crecer ahora
+            Subir mis números
           </Link>
         </div>
       </div>

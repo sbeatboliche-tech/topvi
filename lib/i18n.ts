@@ -234,7 +234,7 @@ const es: Dict = {
     { title: "Paga seguro", desc: "Con MercadoPago o Crypto. Pago protegido." },
     { title: "Mira cómo crece", desc: "Recibes todo automáticamente. Soporte en tiempo real siempre." },
   ],
-  teaser: { title: "Desde {qty} seguidores", sub: "Elige entre calidad Global o Premium con regalo y garantía de hasta 60 días.", cta: "Ver paquetes y precios" },
+  teaser: { title: "Desde {qty} seguidores", sub: "Seguidores reales con regalo en los packs grandes y garantía de 90 días.", cta: "Ver paquetes y precios" },
   servicesPage: { title: "Nuestros servicios", sub: "Haz crecer tu Instagram y TikTok. Elige qué necesitas.", from: "Desde" },
   order: {
     title: "Comprar {svc}",
@@ -263,7 +263,7 @@ const es: Dict = {
     cardLabel: "Tarjeta de crédito",
     cardDesc: "Pagá con tu tarjeta acá mismo, sin salir de la web.",
     usdtDesc: "Pago en cripto (USDT). Te pasamos la wallet al confirmar.",
-    interestFree: "🎉 3 cuotas SIN interés en este paquete",
+    interestFree: "💳 3 cuotas SIN interés en este paquete",
     followersBenefits:
       "🛡️ 90 días de garantía · 📉 Muy poca caída · 🔒 Sin contraseña · ⚡ Entrega 0-6 hs",
     errUser: "Ingresa tu usuario.",
@@ -316,7 +316,7 @@ const ar: Dict = {
     { title: "Pagá seguro", desc: "Con MercadoPago o Crypto. Pago protegido." },
     { title: "Mirá cómo crece", desc: "Recibís todo automáticamente. Soporte en tiempo real siempre." },
   ],
-  teaser: { ...es.teaser, sub: "Elegí entre calidad Global o Premium con regalo y garantía de hasta 60 días.", cta: "Ver paquetes y precios" },
+  teaser: { ...es.teaser, sub: "Seguidores reales con regalo en los packs grandes y garantía de 90 días.", cta: "Ver paquetes y precios" },
   servicesPage: { ...es.servicesPage, sub: "Hacé crecer tu Instagram y TikTok. Elegí qué necesitás." },
   order: {
     ...es.order,
@@ -378,7 +378,7 @@ const pt: Dict = {
     { title: "Pague com segurança", desc: "Com MercadoPago ou Crypto. Pagamento protegido." },
     { title: "Veja crescer", desc: "Recebe tudo automaticamente. Suporte em tempo real sempre." },
   ],
-  teaser: { title: "A partir de {qty} seguidores", sub: "Escolha entre qualidade Global ou Premium com brinde e garantia de até 60 dias.", cta: "Ver pacotes e preços" },
+  teaser: { title: "A partir de {qty} seguidores", sub: "Seguidores reais com brinde nos pacotes grandes e garantia de 90 dias.", cta: "Ver pacotes e preços" },
   servicesPage: { title: "Nossos serviços", sub: "Faça seu Instagram e TikTok crescerem. Escolha o que precisa.", from: "A partir de" },
   order: {
     title: "Comprar {svc}",
@@ -407,7 +407,7 @@ const pt: Dict = {
     cardLabel: "Cartão de crédito",
     cardDesc: "Pague com seu cartão aqui mesmo, sem sair do site.",
     usdtDesc: "Pagamento em cripto (USDT). Enviamos a carteira ao confirmar.",
-    interestFree: "🎉 3x SEM juros neste pacote",
+    interestFree: "💳 3x SEM juros neste pacote",
     followersBenefits:
       "🛡️ 90 dias de garantia · 📉 Queda mínima · 🔒 Sem senha · ⚡ Entrega 0-6h",
     errUser: "Informe seu usuário.",

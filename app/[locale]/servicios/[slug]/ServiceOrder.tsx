@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import {
   getService,
@@ -21,9 +21,13 @@ import {
 export default function ServiceOrder({
   slug,
   locale,
+  initialQty,
+  initialQuality,
 }: {
   slug: string;
   locale: Locale;
+  initialQty?: number;
+  initialQuality?: Quality;
 }) {
   const svc = getService(slug)!;
   const t = getDict(locale);
@@ -31,10 +35,19 @@ export default function ServiceOrder({
 
   const mpAvailable = localeConfig[locale].mpCurrency !== null;
 
+  // Índice de tier pre-seleccionado: el que venga por URL (?qty=) si existe,
+  // si no el "recomendado" por defecto.
+  const defaultTierIdx = svc.hasQuality ? 3 : 2;
+  const presetIdx = initialQty
+    ? svc.tiers.findIndex((tt) => tt.quantity === initialQty)
+    : -1;
+
   const [quality, setQuality] = useState<Quality>(
-    svc.hasQuality ? "premium" : "global"
+    initialQuality ?? (svc.hasQuality ? "premium" : "global")
   );
-  const [tierIdx, setTierIdx] = useState(svc.hasQuality ? 3 : 2);
+  const [tierIdx, setTierIdx] = useState(
+    presetIdx >= 0 ? presetIdx : defaultTierIdx
+  );
   const [target, setTarget] = useState("");
   const [contact, setContact] = useState("");
   const [payment, setPayment] = useState<"mercadopago" | "tarjeta" | "usdt">(
@@ -42,6 +55,9 @@ export default function ServiceOrder({
   );
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
+
+  const targetRef = useRef<HTMLInputElement>(null);
+  const contactRef = useRef<HTMLInputElement>(null);
 
   const isFollowers = svc.kind === "followers";
   const platformLabel = platformInfo[svc.platform].label;
@@ -59,9 +75,20 @@ export default function ServiceOrder({
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError("");
-    if (!cleanTarget)
-      return setError(isFollowers ? t.order.errUser : t.order.errLink);
-    if (!contact.trim()) return setError(t.order.errContact);
+    // Validación: si falta un dato, llevamos el foco/scroll al campo
+    // (en móvil el error vivía fuera de pantalla y parecía que "no pasaba nada").
+    if (!cleanTarget) {
+      setError(isFollowers ? t.order.errUser : t.order.errLink);
+      targetRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
+      targetRef.current?.focus();
+      return;
+    }
+    if (!contact.trim()) {
+      setError(t.order.errContact);
+      contactRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
+      contactRef.current?.focus();
+      return;
+    }
 
     setSubmitting(true);
     try {
@@ -198,20 +225,29 @@ export default function ServiceOrder({
                   <div className="flex items-center rounded-xl border border-border bg-surface-2 px-3 focus-within:border-brand">
                     <span className="text-muted">@</span>
                     <input
+                      ref={targetRef}
                       value={target}
                       onChange={(e) => setTarget(e.target.value)}
                       placeholder="usuario"
                       className="w-full bg-transparent px-2 py-3 outline-none"
                       autoCapitalize="none"
+                      autoCorrect="off"
+                      spellCheck={false}
+                      enterKeyHint="next"
                     />
                   </div>
                 ) : (
                   <input
+                    ref={targetRef}
                     value={target}
                     onChange={(e) => setTarget(e.target.value)}
                     placeholder="https://..."
                     className="w-full rounded-xl border border-border bg-surface-2 px-3 py-3 outline-none focus:border-brand"
                     autoCapitalize="none"
+                    autoCorrect="off"
+                    spellCheck={false}
+                    inputMode="url"
+                    enterKeyHint="next"
                   />
                 )}
                 <p className="mt-1.5 text-xs text-muted">{t.order.publicWarn}</p>
@@ -221,10 +257,16 @@ export default function ServiceOrder({
                   {t.order.contactLabel}
                 </label>
                 <input
+                  ref={contactRef}
                   value={contact}
                   onChange={(e) => setContact(e.target.value)}
                   placeholder={t.order.contactPh}
                   className="w-full rounded-xl border border-border bg-surface-2 px-3 py-3 outline-none focus:border-brand"
+                  inputMode="email"
+                  autoCapitalize="none"
+                  autoCorrect="off"
+                  spellCheck={false}
+                  enterKeyHint="done"
                 />
               </div>
             </div>
@@ -267,7 +309,7 @@ export default function ServiceOrder({
                   <div className="font-semibold">💳 {t.order.cardLabel}</div>
                   <p className="mt-1 text-xs text-muted">{t.order.cardDesc}</p>
                   <p className="mt-1.5 text-xs font-semibold text-success">
-                    🎉 Hasta 3 cuotas sin interés
+                    💳 Hasta 3 cuotas sin interés
                   </p>
                 </button>
               )}
@@ -351,6 +393,11 @@ export default function ServiceOrder({
 
         {/* Barra fija de pago en MÓVIL (siempre visible para convertir mejor) */}
         <div className="fixed inset-x-0 bottom-0 z-40 border-t border-border bg-surface/95 px-4 py-3 backdrop-blur lg:hidden">
+          {error && (
+            <p className="mb-2 rounded-lg bg-warning/10 px-3 py-1.5 text-center text-xs font-medium text-warning">
+              {error}
+            </p>
+          )}
           <div className="flex items-center gap-3 pr-14">
             <div className="leading-tight">
               <div className="text-[10px] uppercase text-muted">

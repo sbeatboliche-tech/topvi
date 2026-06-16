@@ -261,7 +261,7 @@ export default function SupportChat({ locale }: { locale: string }) {
     >
       {/* Header */}
       <div className="flex shrink-0 items-center justify-between rounded-t-2xl px-4 py-3"
-        style={{ background: "linear-gradient(135deg,#1d4ed8,#3b82f6,#22d3ee)" }}>
+        style={{ background: "linear-gradient(135deg,#0a0a0b,#1f2937)" }}>
         <div className="flex items-center gap-3">
           <div
             className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border-2 border-white/30 text-sm font-bold text-white"
@@ -315,7 +315,7 @@ export default function SupportChat({ locale }: { locale: string }) {
                     ? "rounded-br-none text-white"
                     : "rounded-bl-none bg-surface-2 text-foreground"
                 }`}
-                style={msg.from === "user" ? { background: "linear-gradient(135deg,#1d4ed8,#3b82f6)" } : {}}
+                style={msg.from === "user" ? { background: "linear-gradient(135deg,#111827,#374151)" } : {}}
               >
                 {msg.text}
               </div>
@@ -394,7 +394,7 @@ export default function SupportChat({ locale }: { locale: string }) {
             onClick={handleSend}
             disabled={!input.trim() || isTyping}
             className="shrink-0 rounded-full p-1.5 text-white transition-opacity disabled:opacity-40"
-            style={{ background: "linear-gradient(135deg,#1d4ed8,#3b82f6)" }}
+            style={{ background: "linear-gradient(135deg,#111827,#374151)" }}
             aria-label="Enviar"
           >
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" className="h-4 w-4">

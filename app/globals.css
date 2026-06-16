@@ -46,6 +46,12 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
+/* Titulares con la display de marca (Space Grotesk) y tracking ajustado */
+h1, h2, h3, .font-display {
+  font-family: var(--font-display), var(--font-sans), system-ui, sans-serif;
+  letter-spacing: -0.02em;
+}
+
 /* Gradiente de marca reutilizable */
 .brand-gradient {
   background-image: linear-gradient(135deg, var(--brand) 0%, var(--brand-2) 100%);
@@ -55,6 +61,16 @@ body {
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
+}
+
+/* Hero oscuro: glow superior + grilla sutil (sensación premium/tech) */
+.hero-bg {
+  background-color: #0a0a0b;
+  background-image:
+    radial-gradient(900px circle at 50% -15%, rgba(255, 255, 255, 0.10), transparent 60%),
+    linear-gradient(rgba(255, 255, 255, 0.045) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.045) 1px, transparent 1px);
+  background-size: 100% 100%, 46px 46px, 46px 46px;
 }
 
 /* Glow detrás del hero */
@@ -81,9 +97,20 @@ html {
   will-change: transform;
 }
 
+/* Pop de confirmación (pantalla de gracias) */
+@keyframes pop {
+  0%   { transform: scale(0.6); opacity: 0; }
+  60%  { transform: scale(1.08); opacity: 1; }
+  100% { transform: scale(1); }
+}
+.animate-pop {
+  animation: pop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+
 /* Respeta "reducir movimiento" del sistema: frena animaciones y scroll suave */
 @media (prefers-reduced-motion: reduce) {
-  .animate-marquee {
+  .animate-marquee,
+  .animate-pop {
     animation: none;
   }
   html {

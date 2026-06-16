@@ -33,7 +33,7 @@ export default async function Gracias({
 
   return (
     <div className="mx-auto max-w-2xl px-4 py-20 text-center">
-      <div className="brand-gradient mx-auto flex h-16 w-16 items-center justify-center rounded-full text-3xl text-white">
+      <div className="animate-pop brand-gradient mx-auto flex h-16 w-16 items-center justify-center rounded-full text-3xl text-white">
         ✓
       </div>
       <h1 className="mt-6 text-3xl font-bold">{t.gracias.title}</h1>

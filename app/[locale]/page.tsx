@@ -52,10 +52,16 @@ export default async function Home({
       {/* ════════════════════════════════════════
           HERO
       ════════════════════════════════════════ */}
-      <section className="bg-white px-4 pb-16 pt-12 text-center">
-        <div className="mx-auto max-w-3xl">
-          {/* Rating badge */}
-          <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-gray-200 bg-gray-50 px-4 py-1.5 text-sm font-medium text-gray-600">
+      <section className="hero-bg relative overflow-hidden px-4 pb-20 pt-14 text-center">
+        <div className="relative mx-auto max-w-3xl">
+          {/* Eyebrow con el motivo ▲ de la marca */}
+          <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/5 px-4 py-1.5 text-xs font-medium text-white/80 backdrop-blur">
+            <span className="text-green-400">▲</span>
+            Crecimiento real en Instagram & TikTok
+          </div>
+
+          {/* Rating */}
+          <div className="mb-6 flex items-center justify-center gap-2 text-sm text-white/70">
             <span className="flex gap-0.5 text-yellow-400">
               {Array.from({ length: 5 }).map((_, i) => (
                 <Star key={i} className="h-3.5 w-3.5 fill-current" />
@@ -64,8 +70,38 @@ export default async function Home({
             4.9/5 · +4.800 reseñas reales
           </div>
 
-          {/* Stats chips */}
-          <div className="mb-8 flex flex-wrap justify-center gap-2">
+          {/* Headline */}
+          <h1 className="text-balance text-4xl font-bold leading-[1.05] tracking-tight text-white md:text-6xl">
+            Más seguidores, más confianza,{" "}
+            <span className="text-white/90">más ventas</span>
+          </h1>
+
+          {/* Subheadline */}
+          <p className="mx-auto mt-5 max-w-xl text-lg leading-relaxed text-white/60">
+            Un perfil con volumen genera confianza al instante y convierte visitas en clientes. Sin contraseñas, sin riesgo.
+          </p>
+
+          {/* CTAs */}
+          <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
+            <Link
+              href={p("/servicios/instagram-seguidores")}
+              className="inline-flex w-full items-center justify-center gap-2 rounded-full bg-white px-8 py-4 text-base font-bold text-gray-900 shadow-lg transition-transform hover:scale-[1.02] sm:w-auto"
+            >
+              Subir mis números →
+            </Link>
+            <Link
+              href={p("/servicios")}
+              className="inline-flex w-full items-center justify-center gap-2 rounded-full border border-white/20 px-8 py-4 text-base font-semibold text-white transition-colors hover:bg-white/10 sm:w-auto"
+            >
+              Ver precios
+            </Link>
+          </div>
+          <p className="mt-4 text-xs text-white/40">
+            Sin contraseña · Pago 100% seguro · Desde {from}
+          </p>
+
+          {/* Stats */}
+          <div className="mt-10 flex flex-wrap justify-center gap-2">
             {[
               { icon: "👥", text: "5.000 clientes en todo el mundo" },
               { icon: "✅", text: "+12.500 órdenes completadas" },
@@ -74,33 +110,12 @@ export default async function Home({
             ].map((s) => (
               <span
                 key={s.text}
-                className="inline-flex items-center gap-1.5 rounded-full bg-gray-100 px-3 py-1.5 text-sm font-medium text-gray-700"
+                className="inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-xs font-medium text-white/75"
               >
                 {s.icon} {s.text}
               </span>
             ))}
           </div>
-
-          {/* Headline */}
-          <h1 className="mb-4 text-balance text-4xl font-extrabold leading-tight tracking-tight text-gray-900 md:text-5xl lg:text-6xl">
-            Más seguidores, más confianza, más ventas
-          </h1>
-
-          {/* Subheadline */}
-          <p className="mx-auto mb-8 max-w-xl text-lg leading-relaxed text-gray-500">
-            Un perfil con volumen genera confianza al instante y convierte visitas en clientes. Sin contraseñas, sin riesgo.
-          </p>
-
-          {/* CTA */}
-          <Link
-            href={p("/servicios/instagram-seguidores")}
-            className="inline-flex items-center gap-2 rounded-full bg-gray-900 px-8 py-4 text-base font-bold text-white shadow-lg transition-colors hover:bg-gray-700"
-          >
-            Subir mis números →
-          </Link>
-          <p className="mt-3 text-xs text-gray-400">
-            Sin contraseña · Pago 100% seguro · Desde {from}
-          </p>
         </div>
       </section>
 
@@ -198,7 +213,7 @@ export default async function Home({
               return (
                 <div
                   key={bundle.slug}
-                  className={`relative flex flex-col rounded-2xl border p-6 ${
+                  className={`relative flex flex-col rounded-2xl border p-6 transition-all duration-200 hover:-translate-y-1 hover:shadow-xl ${
                     bundle.badge
                       ? "border-gray-900 bg-white shadow-xl"
                       : "border-gray-200 bg-white shadow-sm"

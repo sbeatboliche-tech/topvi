@@ -90,6 +90,21 @@ export default function Footer({
         </div>
       </div>
 
+      {/* Medios de pago aceptados — refuerza confianza */}
+      <div className="border-t border-border px-4 py-4">
+        <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-center gap-2 text-[11px] font-medium text-muted">
+          <span className="mr-1 text-muted">Pagás seguro con</span>
+          {["MercadoPago", "Visa", "Mastercard", "USDT"].map((m) => (
+            <span
+              key={m}
+              className="rounded-md border border-border bg-surface px-2.5 py-1"
+            >
+              {m}
+            </span>
+          ))}
+        </div>
+      </div>
+
       <div className="border-t border-border px-4 py-4 text-center text-xs text-muted">
         © {new Date().getFullYear()} {site.name}. {dict.footer.rights}
         <span className="block mt-1 opacity-70">{dict.footer.legal}</span>

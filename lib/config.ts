@@ -71,24 +71,11 @@ const likeTiers: Tier[] = [
   { quantity: 50000, price: 99700, bonus: 5000 },
 ];
 
-// Vistas de TikTok (reproducciones).
+// Vistas / reproducciones (misma tabla para Instagram y TikTok).
 const viewTiers: Tier[] = [
   { quantity: 500,     price: 190 },
   { quantity: 1000,    price: 350 },
   { quantity: 2000,    price: 620 },
-  { quantity: 5000,    price: 990 },
-  { quantity: 10000,   price: 1700 },
-  { quantity: 25000,   price: 3400 },
-  { quantity: 50000,   price: 5900 },
-  { quantity: 75000,   price: 6700 },
-  { quantity: 100000,  price: 9900,  bonus: 10000 },
-  { quantity: 300000,  price: 24900, bonus: 30000 },
-  { quantity: 500000,  price: 34900, bonus: 50000 },
-  { quantity: 1000000, price: 59900, bonus: 100000 },
-];
-
-// Vistas de Reels de Instagram (arranca en 5.000).
-const igViewTiers: Tier[] = [
   { quantity: 5000,    price: 990 },
   { quantity: 10000,   price: 1700 },
   { quantity: 25000,   price: 3400 },
@@ -179,7 +166,7 @@ export const services: ServiceDef[] = [
     emoji: "▶️",
     unit: "vistas",
     hasQuality: false,
-    tiers: igViewTiers,
+    tiers: viewTiers,
   },
   {
     slug: "tiktok-seguidores",

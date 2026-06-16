@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { getService, packs } from "@/lib/config";
+import { site, getService, packs } from "@/lib/config";
 import { isLocale, displayPrice, formatNum, type Locale } from "@/lib/i18n";
 import { getHomeCopy } from "@/lib/home-copy";
 import { notFound } from "next/navigation";
@@ -84,16 +84,16 @@ export default async function Home({
           {/* CTAs */}
           <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
             <Link
-              href={p("/servicios/instagram-seguidores")}
+              href={p("/servicios")}
               className="inline-flex w-full items-center justify-center gap-2 rounded-full bg-white px-8 py-4 text-base font-bold text-gray-900 shadow-lg transition-transform hover:scale-[1.02] sm:w-auto"
             >
-              Subir mis números →
+              Empezá a crecer →
             </Link>
             <Link
-              href={p("/servicios")}
+              href={p("/como-funciona")}
               className="inline-flex w-full items-center justify-center gap-2 rounded-full border border-white/20 px-8 py-4 text-base font-semibold text-white transition-colors hover:bg-white/10 sm:w-auto"
             >
-              Ver precios
+              ¿Cómo funciona?
             </Link>
           </div>
           <p className="mt-4 text-xs text-white/40">
@@ -106,7 +106,7 @@ export default async function Home({
               { icon: "👥", text: "5.000 clientes en todo el mundo" },
               { icon: "✅", text: "+12.500 órdenes completadas" },
               { icon: "🏆", text: "Agencia #1 en crecimiento digital" },
-              { icon: "⚡", text: "Entrega en menos de 12hs" },
+              { icon: "⚡", text: "Entrega total en menos de 4 hs" },
             ].map((s) => (
               <span
                 key={s.text}
@@ -118,27 +118,6 @@ export default async function Home({
           </div>
         </div>
       </section>
-
-      {/* ════════════════════════════════════════
-          TICKER DE COMPRAS EN TIEMPO REAL
-      ════════════════════════════════════════ */}
-      <div className="overflow-hidden border-y border-gray-200 bg-gray-50 py-3">
-        <div className="animate-marquee flex gap-8 whitespace-nowrap text-sm text-gray-600">
-          {[...c.feed.names, ...c.feed.names].map((name, i) => (
-            <span key={i} className="inline-flex items-center gap-2">
-              🛒
-              <span className="font-medium text-gray-900">{name}</span>
-              {" de "}
-              <span>{c.feed.cities[i % c.feed.cities.length]}</span>
-              {" compró "}
-              <span className="font-medium text-gray-900">
-                {c.feed.services[i % c.feed.services.length]}
-              </span>
-              <span className="mx-4 text-gray-300">|</span>
-            </span>
-          ))}
-        </div>
-      </div>
 
       {/* ════════════════════════════════════════
           PENSADO PARA CADA NICHO
@@ -185,6 +164,58 @@ export default async function Home({
                 <p className="mt-1.5 text-sm text-gray-500">{step.desc}</p>
               </div>
             ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ════════════════════════════════════════
+          ANTES / DESPUÉS
+      ════════════════════════════════════════ */}
+      <section className="bg-white px-4 py-12 md:py-16">
+        <div className="mx-auto max-w-4xl">
+          <h2 className="mb-2 text-center text-3xl font-bold text-gray-900">
+            La diferencia se nota
+          </h2>
+          <p className="mb-8 text-center text-gray-500">
+            Lo que cambia en tu perfil cuando dejás de pasar desapercibido.
+          </p>
+          <div className="grid gap-4 md:grid-cols-2">
+            {/* Antes */}
+            <div className="rounded-2xl border border-gray-200 bg-gray-50 p-6">
+              <div className="mb-4 inline-flex items-center gap-2 rounded-full bg-gray-200 px-3 py-1 text-xs font-bold uppercase tracking-wide text-gray-600">
+                Antes
+              </div>
+              <ul className="flex flex-col gap-3">
+                {[
+                  "Perfil con pocos seguidores y poca credibilidad",
+                  "Publicaciones con 4 o 5 likes",
+                  "El algoritmo no te muestra a nadie nuevo",
+                  "Clientes que dudan antes de escribirte",
+                ].map((t) => (
+                  <li key={t} className="flex items-start gap-2.5 text-sm text-gray-500">
+                    <span className="mt-0.5 text-red-400">✕</span> {t}
+                  </li>
+                ))}
+              </ul>
+            </div>
+            {/* Después */}
+            <div className="rounded-2xl border-2 border-gray-900 bg-white p-6 shadow-xl">
+              <div className="mb-4 inline-flex items-center gap-2 rounded-full bg-gray-900 px-3 py-1 text-xs font-bold uppercase tracking-wide text-white">
+                ▲ Con {site.name}
+              </div>
+              <ul className="flex flex-col gap-3">
+                {[
+                  "Perfil con volumen que impone respeto",
+                  "Publicaciones con interacción real",
+                  "Más alcance: el algoritmo te impulsa",
+                  "Clientes que confían y te compran",
+                ].map((t) => (
+                  <li key={t} className="flex items-start gap-2.5 text-sm font-medium text-gray-900">
+                    <span className="mt-0.5 text-green-600">✓</span> {t}
+                  </li>
+                ))}
+              </ul>
+            </div>
           </div>
         </div>
       </section>
@@ -256,7 +287,7 @@ export default async function Home({
             })}
           </div>
           <p className="mt-6 text-center text-xs text-gray-400">
-            ✓ Incluye garantía de reposición · ✓ Sin contraseña · ✓ Entrega en menos de 12hs
+            ✓ Incluye garantía de reposición · ✓ Sin contraseña · ✓ Entrega total en menos de 4 hs
           </p>
         </div>
       </section>
@@ -393,7 +424,7 @@ export default async function Home({
             {c.finalCta.cta} →
           </Link>
           <p className="mt-3 text-xs text-white/50">
-            Sin contraseña · Entrega en menos de 12hs · Garantía incluida
+            Sin contraseña · Entrega total en menos de 4 hs · Garantía incluida
           </p>
         </div>
       </section>
@@ -408,10 +439,10 @@ export default async function Home({
             <div className="text-base font-extrabold text-gray-900">Desde {from}</div>
           </div>
           <Link
-            href={p("/servicios/instagram-seguidores")}
+            href={p("/servicios")}
             className="ml-auto flex-1 rounded-full bg-gray-900 py-3 text-center font-bold text-white"
           >
-            Subir mis números
+            Empezá a crecer
           </Link>
         </div>
       </div>

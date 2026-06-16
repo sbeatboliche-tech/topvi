@@ -52,7 +52,7 @@ const es: HomeCopy = {
     title2: ".",
     sub: "Nadie confía en una cuenta con 200 seguidores. Inyecta autoridad a tu perfil hoy: seguidores, likes y vistas reales para Instagram y TikTok, desde {from}.",
     bullets: [
-      "⚡ Empieza a llegar en 0-6 horas",
+      "⚡ Entrega total en menos de 4 hs",
       "🔒 Sin contraseña, cero riesgo",
       "🛡️ Garantía de reposición incluida",
       "💳 MercadoPago, tarjeta o USDT",
@@ -78,7 +78,7 @@ const es: HomeCopy = {
     items: [
       { emoji: "🛒", title: "1. Elige tu paquete", desc: "Seguidores, likes o vistas. La cantidad que necesites." },
       { emoji: "👤", title: "2. Pon tu usuario", desc: "Solo tu @usuario. Nunca te pedimos la contraseña." },
-      { emoji: "🚀", title: "3. Mira cómo crece", desc: "Pagas seguro y empieza a llegar en 0-6 horas." },
+      { emoji: "🚀", title: "3. Mira cómo crece", desc: "Pagas seguro y lo recibís en menos de 4 hs." },
     ],
   },
   packs: {
@@ -88,9 +88,9 @@ const es: HomeCopy = {
     cta: "Elegir este pack",
     names: ["Arranque", "Influencer", "Autoridad"],
     perks: [
-      ["Entrega en 0-6 horas", "Sin contraseña", "Garantía de reposición", "Soporte en tiempo real"],
-      ["Entrega en 0-6 horas", "Sin contraseña", "Garantía de reposición", "Soporte en tiempo real", "Seguidores de regalo"],
-      ["Entrega en 0-6 horas", "Sin contraseña", "Garantía de reposición", "Soporte prioritario", "Seguidores de regalo"],
+      ["Entrega en menos de 4 hs", "Sin contraseña", "Garantía de reposición", "Soporte en tiempo real"],
+      ["Entrega en menos de 4 hs", "Sin contraseña", "Garantía de reposición", "Soporte en tiempo real", "Seguidores de regalo"],
+      ["Entrega en menos de 4 hs", "Sin contraseña", "Garantía de reposición", "Soporte prioritario", "Seguidores de regalo"],
     ],
     moreLink: "Ver todos los paquetes (likes, vistas, TikTok y más) →",
   },
@@ -126,7 +126,7 @@ const es: HomeCopy = {
     items: [
       { q: "¿Necesitan mi contraseña?", a: "No, nunca. Solo tu @usuario y que la cuenta esté pública mientras dura la entrega. Jamás te vamos a pedir la contraseña." },
       { q: "¿Me pueden banear la cuenta?", a: "No. En más de 5 años y miles de órdenes, ninguna cuenta tuvo problemas. No hacemos nada que viole el acceso a tu cuenta." },
-      { q: "¿Cuánto tarda en llegar?", a: "La entrega empieza entre 0 y 6 horas después del pago, y se completa de forma gradual para que se vea natural." },
+      { q: "¿Cuánto tarda en llegar?", a: "La entrega total se completa en menos de 4 horas, de forma gradual para que se vea natural." },
       { q: "¿Y si se caen los seguidores?", a: "Tienen garantía de reposición: si hay caídas dentro del período de garantía, los reponemos gratis. Escribinos por chat o Instagram DM y listo." },
       { q: "¿Cómo pago?", a: "Con MercadoPago (tarjeta, débito o dinero en cuenta) o con USDT. El pago es 100% seguro y procesado por plataformas oficiales." },
     ],
@@ -152,7 +152,7 @@ const ar: HomeCopy = {
     ...es.hero,
     sub: "Nadie confía en una cuenta con 200 seguidores. Inyectale autoridad a tu perfil hoy: seguidores, likes y vistas para Instagram y TikTok, desde {from}.",
     bullets: [
-      "⚡ Empieza a llegar en 0-6 horas",
+      "⚡ Entrega total en menos de 4 hs",
       "🔒 Sin contraseña, cero riesgo",
       "🛡️ Garantía de reposición incluida",
       "💳 MercadoPago, tarjeta o USDT",
@@ -164,7 +164,7 @@ const ar: HomeCopy = {
     items: [
       { emoji: "🛒", title: "1. Elegí tu paquete", desc: "Seguidores, likes o vistas. La cantidad que necesites." },
       { emoji: "👤", title: "2. Poné tu usuario", desc: "Solo tu @usuario. Nunca te pedimos la contraseña." },
-      { emoji: "🚀", title: "3. Mirá cómo crece", desc: "Pagás seguro y empieza a llegar en 0-6 horas." },
+      { emoji: "🚀", title: "3. Mirá cómo crece", desc: "Pagás seguro y lo recibís en menos de 4 hs." },
     ],
   },
   reviews: {
@@ -180,7 +180,7 @@ const ar: HomeCopy = {
     items: [
       { q: "¿Necesitan mi contraseña?", a: "No, nunca. Solo tu @usuario y que la cuenta esté pública mientras dura la entrega. Jamás te vamos a pedir la contraseña." },
       { q: "¿Me pueden banear la cuenta?", a: "No. En más de 5 años y miles de órdenes, ninguna cuenta tuvo problemas. No hacemos nada que viole el acceso a tu cuenta." },
-      { q: "¿Cuánto tarda en llegar?", a: "La entrega arranca entre 0 y 6 horas después del pago, y se completa de forma gradual para que se vea natural." },
+      { q: "¿Cuánto tarda en llegar?", a: "La entrega total se completa en menos de 4 horas, de forma gradual para que se vea natural." },
       { q: "¿Y si se caen los seguidores?", a: "Tienen garantía de reposición: si hay caídas dentro del período de garantía, los reponemos gratis. Escribinos por chat o Instagram DM y listo." },
       { q: "¿Cómo pago?", a: "Con MercadoPago (tarjeta, débito o dinero en cuenta) o con USDT. El pago es 100% seguro y procesado por plataformas oficiales." },
     ],
@@ -214,7 +214,7 @@ const pt: HomeCopy = {
     title2: ".",
     sub: "Ninguém confia em uma conta com 200 seguidores. Injete autoridade no seu perfil hoje: seguidores, curtidas e visualizações para Instagram e TikTok, a partir de {from}.",
     bullets: [
-      "⚡ Começa a chegar em 0-6 horas",
+      "⚡ Entrega total em menos de 4 hs",
       "🔒 Sem senha, risco zero",
       "🛡️ Garantia de reposição incluída",
       "💳 MercadoPago, cartão ou USDT",
@@ -240,7 +240,7 @@ const pt: HomeCopy = {
     items: [
       { emoji: "🛒", title: "1. Escolha seu pacote", desc: "Seguidores, curtidas ou visualizações. A quantidade que precisar." },
       { emoji: "👤", title: "2. Informe seu usuário", desc: "Só seu @usuario. Nunca pedimos a senha." },
-      { emoji: "🚀", title: "3. Veja crescer", desc: "Pague com segurança e começa a chegar em 0-6 horas." },
+      { emoji: "🚀", title: "3. Veja crescer", desc: "Pague com segurança e você recebe em menos de 4 hs." },
     ],
   },
   packs: {
@@ -250,9 +250,9 @@ const pt: HomeCopy = {
     cta: "Escolher este pack",
     names: ["Início", "Influencer", "Autoridade"],
     perks: [
-      ["Entrega em 0-6 horas", "Sem senha", "Garantia de reposição", "Suporte em tempo real"],
-      ["Entrega em 0-6 horas", "Sem senha", "Garantia de reposição", "Suporte em tempo real", "Seguidores de brinde"],
-      ["Entrega em 0-6 horas", "Sem senha", "Garantia de reposição", "Suporte prioritário", "Seguidores de brinde"],
+      ["Entrega em menos de 4 hs", "Sem senha", "Garantia de reposição", "Suporte em tempo real"],
+      ["Entrega em menos de 4 hs", "Sem senha", "Garantia de reposição", "Suporte em tempo real", "Seguidores de brinde"],
+      ["Entrega em menos de 4 hs", "Sem senha", "Garantia de reposição", "Suporte prioritário", "Seguidores de brinde"],
     ],
     moreLink: "Ver todos os pacotes (curtidas, views, TikTok e mais) →",
   },
@@ -288,7 +288,7 @@ const pt: HomeCopy = {
     items: [
       { q: "Vocês precisam da minha senha?", a: "Não, nunca. Só seu @usuario e a conta pública durante a entrega. Jamais pediremos sua senha." },
       { q: "Minha conta pode ser banida?", a: "Não. Em mais de 5 anos e milhares de pedidos, nenhuma conta teve problemas." },
-      { q: "Quanto tempo demora?", a: "A entrega começa entre 0 e 6 horas após o pagamento, e é concluída gradualmente para parecer natural." },
+      { q: "Quanto tempo demora?", a: "A entrega é concluída em menos de 4 horas, de forma gradual para parecer natural." },
       { q: "E se os seguidores caírem?", a: "Tem garantia de reposição: se houver quedas dentro do período de garantia, repomos grátis. É só chamar no chat ou Instagram DM." },
       { q: "Como pago?", a: "Com MercadoPago (cartão, débito ou saldo) ou USDT. Pagamento 100% seguro por plataformas oficiais." },
     ],

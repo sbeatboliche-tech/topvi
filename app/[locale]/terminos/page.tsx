@@ -37,7 +37,7 @@ const SECTIONS: { h: string; p: string[] }[] = [
   {
     h: "5. Entrega",
     p: [
-      "Los tiempos de entrega son estimados (habitualmente entre 0 y 6 horas, pudiendo extenderse hasta 12 horas o más en momentos de alta demanda) y se realizan de forma gradual para imitar un crecimiento natural.",
+      "Los tiempos de entrega son estimados (habitualmente la entrega total se completa en pocas horas) y pueden variar por alta demanda, mantenimiento o factores externos. La entrega se realiza de forma gradual para imitar un crecimiento natural.",
       "Las demoras por alta demanda, mantenimiento o factores externos no dan derecho a reembolso siempre que el servicio se entregue.",
     ],
   },

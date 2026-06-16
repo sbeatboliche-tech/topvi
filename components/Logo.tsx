@@ -1,9 +1,9 @@
 // ============================================================
 //  LOGO / WORDMARK
-//  "TOP" en negro extrabold + "VIRAL" en bloque verde redondeado,
-//  y "marketing" sobrio en gris debajo.
-//  Es CSS puro: nítido en cualquier tamaño y combina con la paleta.
-//  Tamaño controlable con la prop `size`.
+//  "TOP" en gris + "VIRAL" en negro fuerte (dos tonos, mismo peso),
+//  y "marketing" sobrio en gris fino debajo.
+//  Sin color de marca ni fondo: limpio sobre cualquier base.
+//  Es CSS puro: nítido en cualquier tamaño. Tamaño con la prop `size`.
 // ============================================================
 
 export default function Logo({
@@ -32,12 +32,10 @@ export default function Logo({
       aria-label="TopViral Marketing"
     >
       <span className="flex items-center gap-1.5">
-        <span className={`font-extrabold tracking-tight text-gray-900 ${word}`}>
+        <span className={`font-extrabold tracking-tight text-gray-400 ${word}`}>
           TOP
         </span>
-        <span
-          className={`rounded-md bg-[var(--accent)] px-1.5 pb-1 pt-0.5 font-extrabold tracking-tight text-white ${word}`}
-        >
+        <span className={`font-extrabold tracking-tight text-gray-900 ${word}`}>
           VIRAL
         </span>
       </span>

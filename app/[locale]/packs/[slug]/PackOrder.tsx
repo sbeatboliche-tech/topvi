@@ -4,6 +4,7 @@ import { useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { getPack, MAX_PACK_POSTS } from "@/lib/config";
 import { displayPrice, formatNum, localeConfig, type Locale } from "@/lib/i18n";
+import AccountCheck from "@/components/AccountCheck";
 
 export default function PackOrder({
   slug,
@@ -155,6 +156,7 @@ export default function PackOrder({
                 spellCheck={false}
               />
             </div>
+            <AccountCheck username={username} />
             <p className="mt-1.5 text-xs text-muted">
               ⚠️ Tu cuenta debe estar pública hasta recibir todo.
             </p>

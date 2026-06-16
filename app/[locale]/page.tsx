@@ -96,12 +96,12 @@ export default async function Home({
 
           {/* Headline */}
           <h1 className="mb-4 text-balance text-4xl font-extrabold leading-tight tracking-tight text-gray-900 md:text-5xl lg:text-6xl">
-            Nadie le compra a una cuenta de 200 seguidores
+            Más seguidores, más confianza, más ventas
           </h1>
 
           {/* Subheadline */}
           <p className="mx-auto mb-8 max-w-xl text-lg leading-relaxed text-gray-500">
-            Tus clientes te stalkean antes de pagarte. Un perfil con volumen transmite que sos un negocio en serio.
+            Un perfil con volumen genera confianza al instante y convierte visitas en clientes. Sin contraseñas, sin riesgo.
           </p>
 
           {/* CTA */}

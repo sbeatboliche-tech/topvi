@@ -20,6 +20,7 @@ import {
   fmt,
   type Locale,
 } from "@/lib/i18n";
+import AccountCheck from "@/components/AccountCheck";
 
 export default function ServiceOrder({
   slug,
@@ -287,46 +288,53 @@ export default function ServiceOrder({
             </p>
             <div className="space-y-3">
               {targets.map((val, i) => (
-                <div key={i} className="flex items-center gap-2">
-                  <span className="w-5 shrink-0 text-center text-sm text-muted">
-                    {i + 1}
-                  </span>
-                  {isFollowers ? (
-                    <div className="flex w-full items-center rounded-xl border border-border bg-surface-2 px-3 focus-within:border-brand">
-                      <span className="text-muted">@</span>
+                <div key={i}>
+                  <div className="flex items-center gap-2">
+                    <span className="w-5 shrink-0 text-center text-sm text-muted">
+                      {i + 1}
+                    </span>
+                    {isFollowers ? (
+                      <div className="flex w-full items-center rounded-xl border border-border bg-surface-2 px-3 focus-within:border-brand">
+                        <span className="text-muted">@</span>
+                        <input
+                          ref={i === 0 ? firstTargetRef : undefined}
+                          value={val}
+                          onChange={(e) => setTarget(i, e.target.value)}
+                          placeholder="usuario"
+                          className="w-full bg-transparent px-2 py-3 outline-none"
+                          autoCapitalize="none"
+                          autoCorrect="off"
+                          spellCheck={false}
+                        />
+                      </div>
+                    ) : (
                       <input
                         ref={i === 0 ? firstTargetRef : undefined}
                         value={val}
                         onChange={(e) => setTarget(i, e.target.value)}
-                        placeholder="usuario"
-                        className="w-full bg-transparent px-2 py-3 outline-none"
+                        placeholder="https://instagram.com/..."
+                        className="w-full rounded-xl border border-border bg-surface-2 px-3 py-3 outline-none focus:border-brand"
                         autoCapitalize="none"
                         autoCorrect="off"
                         spellCheck={false}
+                        inputMode="url"
                       />
+                    )}
+                    {targets.length > 1 && (
+                      <button
+                        type="button"
+                        onClick={() => removeTarget(i)}
+                        className="shrink-0 rounded-lg border border-border px-3 py-2 text-muted hover:bg-surface-2"
+                        aria-label="Quitar"
+                      >
+                        ✕
+                      </button>
+                    )}
+                  </div>
+                  {isFollowers && svc.platform === "instagram" && (
+                    <div className="pl-7">
+                      <AccountCheck username={val} />
                     </div>
-                  ) : (
-                    <input
-                      ref={i === 0 ? firstTargetRef : undefined}
-                      value={val}
-                      onChange={(e) => setTarget(i, e.target.value)}
-                      placeholder="https://instagram.com/..."
-                      className="w-full rounded-xl border border-border bg-surface-2 px-3 py-3 outline-none focus:border-brand"
-                      autoCapitalize="none"
-                      autoCorrect="off"
-                      spellCheck={false}
-                      inputMode="url"
-                    />
-                  )}
-                  {targets.length > 1 && (
-                    <button
-                      type="button"
-                      onClick={() => removeTarget(i)}
-                      className="shrink-0 rounded-lg border border-border px-3 py-2 text-muted hover:bg-surface-2"
-                      aria-label="Quitar"
-                    >
-                      ✕
-                    </button>
                   )}
                 </div>
               ))}
@@ -427,6 +435,9 @@ export default function ServiceOrder({
                         spellCheck={false}
                         inputMode="url"
                       />
+                    )}
+                    {addonIsFollowers && addonSvc.platform === "instagram" && (
+                      <AccountCheck username={addonTarget} />
                     )}
                   </div>
                 </div>

@@ -2,9 +2,9 @@
 
 import Link from "next/link";
 import { useState } from "react";
-import { site } from "@/lib/config";
 import type { Dict, Locale } from "@/lib/i18n";
 import LangSwitcher from "./LangSwitcher";
+import Logo from "./Logo";
 
 export default function Header({
   locale,
@@ -27,14 +27,8 @@ export default function Header({
   return (
     <header className="sticky top-0 z-50 border-b border-border bg-white/95 backdrop-blur-lg">
       <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3">
-        <Link href={p("/")} className="flex items-center gap-2 text-lg font-bold text-gray-900">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src="/logo.png"
-            alt={site.name}
-            className="h-9 w-9 rounded-lg object-cover"
-          />
-          <span>{site.name}</span>
+        <Link href={p("/")} className="flex items-center">
+          <Logo size="md" />
         </Link>
 
         <nav className="hidden items-center gap-6 md:flex">

@@ -71,7 +71,7 @@ const likeTiers: Tier[] = [
   { quantity: 50000, price: 99700, bonus: 5000 },
 ];
 
-// Vistas / reproducciones (misma tabla para Instagram y TikTok).
+// Vistas de Reels de Instagram (hasta 1.000.000).
 const viewTiers: Tier[] = [
   { quantity: 500,     price: 190 },
   { quantity: 1000,    price: 350 },
@@ -85,6 +85,21 @@ const viewTiers: Tier[] = [
   { quantity: 300000,  price: 24900, bonus: 30000 },
   { quantity: 500000,  price: 34900, bonus: 50000 },
   { quantity: 1000000, price: 59900, bonus: 100000 },
+];
+
+// Reproducciones de TikTok = precios de IG +15%, hasta 500.000.
+const ttViewTiers: Tier[] = [
+  { quantity: 500,    price: 220 },
+  { quantity: 1000,   price: 400 },
+  { quantity: 2000,   price: 710 },
+  { quantity: 5000,   price: 1140 },
+  { quantity: 10000,  price: 1950 },
+  { quantity: 25000,  price: 3900 },
+  { quantity: 50000,  price: 6800 },
+  { quantity: 75000,  price: 7700 },
+  { quantity: 100000, price: 11400, bonus: 10000 },
+  { quantity: 300000, price: 28600, bonus: 30000 },
+  { quantity: 500000, price: 40100, bonus: 50000 },
 ];
 
 const shareTiers: Tier[] = [
@@ -199,7 +214,7 @@ export const services: ServiceDef[] = [
     emoji: "▶️",
     unit: "reproducciones",
     hasQuality: false,
-    tiers: viewTiers,
+    tiers: ttViewTiers,
   },
   {
     slug: "instagram-compartidos",

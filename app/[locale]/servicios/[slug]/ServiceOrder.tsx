@@ -15,12 +15,14 @@ import {
 import {
   getDict,
   localeConfig,
+  localAmount,
   displayPrice,
   formatNum,
   fmt,
   type Locale,
 } from "@/lib/i18n";
 import AccountCheck from "@/components/AccountCheck";
+import { fbqTrack } from "@/lib/fbq";
 
 export default function ServiceOrder({
   slug,
@@ -163,6 +165,10 @@ export default function ServiceOrder({
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Error");
+      fbqTrack("InitiateCheckout", {
+        value: localAmount(total, locale),
+        currency: localeConfig[locale].currency.code,
+      });
       if (payment === "mercadopago" && data.init_point) {
         window.location.href = data.init_point;
       } else if (payment === "tarjeta") {

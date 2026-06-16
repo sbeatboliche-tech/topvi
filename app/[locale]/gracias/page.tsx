@@ -8,8 +8,11 @@ import {
   fmt,
   displayPrice,
   formatNum,
+  localAmount,
+  localeConfig,
   type Locale,
 } from "@/lib/i18n";
+import PixelPurchase from "@/components/PixelPurchase";
 
 export default async function Gracias({
   params,
@@ -37,6 +40,12 @@ export default async function Gracias({
 
       {order ? (
         <>
+          {isPaid && (
+            <PixelPurchase
+              value={localAmount(order.amount, locale)}
+              currency={localeConfig[locale].currency.code}
+            />
+          )}
           <p className="mt-3 text-muted">
             {fmt(t.gracias.orderFor, { id: order.id, user: order.username })}
           </p>

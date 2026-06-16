@@ -3,8 +3,9 @@
 import { useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { getPack, MAX_PACK_POSTS } from "@/lib/config";
-import { displayPrice, formatNum, localeConfig, type Locale } from "@/lib/i18n";
+import { displayPrice, formatNum, localeConfig, localAmount, type Locale } from "@/lib/i18n";
 import AccountCheck from "@/components/AccountCheck";
+import { fbqTrack } from "@/lib/fbq";
 
 export default function PackOrder({
   slug,
@@ -80,6 +81,10 @@ export default function PackOrder({
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Error");
+      fbqTrack("InitiateCheckout", {
+        value: localAmount(pack.price, locale),
+        currency: localeConfig[locale].currency.code,
+      });
       if (payment === "mercadopago" && data.init_point) {
         window.location.href = data.init_point;
       } else if (payment === "tarjeta") {

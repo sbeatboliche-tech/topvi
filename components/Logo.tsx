@@ -9,9 +9,11 @@
 export default function Logo({
   size = "md",
   className = "",
+  dark = false,
 }: {
   size?: "sm" | "md" | "lg";
   className?: string;
+  dark?: boolean;
 }) {
   const word =
     size === "lg" ? "text-3xl" : size === "sm" ? "text-lg" : "text-xl";
@@ -37,14 +39,26 @@ export default function Logo({
 
       <span className="inline-flex flex-col leading-none">
         <span className="flex items-center gap-1.5">
-          <span className={`font-extrabold tracking-tight text-gray-400 ${word}`}>
+          <span
+            className={`font-extrabold tracking-tight ${word} ${
+              dark ? "text-white/55" : "text-gray-400"
+            }`}
+          >
             TOP
           </span>
-          <span className={`font-extrabold tracking-tight text-gray-900 ${word}`}>
+          <span
+            className={`font-extrabold tracking-tight ${word} ${
+              dark ? "text-white" : "text-gray-900"
+            }`}
+          >
             VIRAL
           </span>
         </span>
-        <span className={`mt-1 pl-0.5 font-medium uppercase text-gray-400 ${sub}`}>
+        <span
+          className={`mt-1 pl-0.5 font-medium uppercase ${sub} ${
+            dark ? "text-white/45" : "text-gray-400"
+          }`}
+        >
           marketing
         </span>
       </span>

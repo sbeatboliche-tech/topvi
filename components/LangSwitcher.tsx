@@ -37,27 +37,27 @@ export default function LangSwitcher({
     <div className="relative">
       <button
         onClick={() => setOpen(!open)}
-        className="flex items-center gap-1.5 rounded-full border border-border bg-surface px-3 py-1.5 text-sm hover:bg-surface-2"
+        className="flex items-center gap-1.5 rounded-full border border-white/15 bg-white/5 px-3 py-1.5 text-sm text-white/80 hover:bg-white/10"
         aria-label={dict.langPicker}
       >
         <span>{current.flag}</span>
         <span className="hidden sm:inline">{current.currency.code}</span>
-        <span className="text-muted">▾</span>
+        <span className="text-white/50">▾</span>
       </button>
 
       {open && (
-        <div className="absolute right-0 z-50 mt-2 w-44 overflow-hidden rounded-xl border border-border bg-surface shadow-xl">
+        <div className="absolute right-0 z-50 mt-2 w-44 overflow-hidden rounded-xl border border-white/10 bg-[#141417] text-white shadow-xl">
           {locales.map((l) => (
             <button
               key={l}
               onClick={() => switchTo(l)}
-              className={`flex w-full items-center gap-2 px-3 py-2 text-left text-sm hover:bg-surface-2 ${
-                l === locale ? "text-accent" : ""
+              className={`flex w-full items-center gap-2 px-3 py-2 text-left text-sm hover:bg-white/10 ${
+                l === locale ? "text-green-400" : "text-white/80"
               }`}
             >
               <span>{localeConfig[l].flag}</span>
               <span className="flex-1">{localeConfig[l].label}</span>
-              <span className="text-xs text-muted">
+              <span className="text-xs text-white/45">
                 {localeConfig[l].currency.code}
               </span>
             </button>

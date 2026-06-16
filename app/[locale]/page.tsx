@@ -47,8 +47,13 @@ export default async function Home({
   const followers = getService("instagram-seguidores")!;
   const from = displayPrice(followers.tiers[0].price, locale);
 
+  // Tonos oscuros alternados para dar ritmo sin romper la unidad.
+  const dark1 = "bg-[#0a0a0b]";
+  const dark2 = "bg-[#0f0f11]";
+  const card = "rounded-2xl border border-white/10 bg-white/[0.04]";
+
   return (
-    <>
+    <div className="bg-[#0a0a0b]">
       {/* ════════════════════════════════════════
           HERO
       ════════════════════════════════════════ */}
@@ -67,7 +72,7 @@ export default async function Home({
                 <Star key={i} className="h-3.5 w-3.5 fill-current" />
               ))}
             </span>
-            4.9/5 · +4.800 reseñas reales
+            4.9/5 · +2.200 reseñas reales
           </div>
 
           {/* Headline */}
@@ -122,17 +127,17 @@ export default async function Home({
       {/* ════════════════════════════════════════
           PENSADO PARA CADA NICHO
       ════════════════════════════════════════ */}
-      <section className="bg-white px-4 py-12 md:py-16">
+      <section className={`${dark2} border-y border-white/5 px-4 py-12 md:py-16`}>
         <div className="mx-auto max-w-5xl">
-          <h2 className="mb-2 text-center text-3xl font-bold text-gray-900">
+          <h2 className="mb-2 text-center text-3xl font-bold text-white">
             {c.niches.title}
           </h2>
-          <p className="mb-8 text-center text-gray-500">{c.niches.sub}</p>
+          <p className="mb-8 text-center text-white/55">{c.niches.sub}</p>
           <div className="no-scrollbar grid grid-flow-col grid-rows-2 gap-2 overflow-x-auto pb-2 md:flex md:flex-wrap md:justify-center md:overflow-visible">
             {c.niches.items.map((n) => (
               <span
                 key={n}
-                className="whitespace-nowrap rounded-full border border-gray-200 bg-gray-50 px-4 py-2 text-sm font-medium text-gray-700"
+                className="whitespace-nowrap rounded-full border border-white/10 bg-white/5 px-4 py-2 text-sm font-medium text-white/75"
               >
                 {n}
               </span>
@@ -144,24 +149,21 @@ export default async function Home({
       {/* ════════════════════════════════════════
           TRES PASOS
       ════════════════════════════════════════ */}
-      <section className="bg-white px-4 py-12 md:py-16">
+      <section className={`${dark1} px-4 py-12 md:py-16`}>
         <div className="mx-auto max-w-5xl">
-          <h2 className="mb-2 text-center text-3xl font-bold text-gray-900">
+          <h2 className="mb-2 text-center text-3xl font-bold text-white">
             {c.steps.title}
           </h2>
-          <p className="mb-10 text-center text-gray-500">{c.steps.sub}</p>
+          <p className="mb-10 text-center text-white/55">{c.steps.sub}</p>
           <div className="grid gap-6 md:grid-cols-3">
             {c.steps.items.map((step, i) => (
-              <div
-                key={step.title}
-                className="relative rounded-2xl border border-gray-200 bg-gray-50 p-6 text-center"
-              >
-                <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-full bg-gray-900 text-sm font-bold text-white mx-auto">
+              <div key={step.title} className={`relative ${card} p-6 text-center`}>
+                <div className="mx-auto mb-3 flex h-10 w-10 items-center justify-center rounded-full bg-white text-sm font-bold text-[#0a0a0b]">
                   {i + 1}
                 </div>
                 <div className="mb-2 text-3xl">{step.emoji}</div>
-                <h3 className="font-bold text-gray-900">{step.title}</h3>
-                <p className="mt-1.5 text-sm text-gray-500">{step.desc}</p>
+                <h3 className="font-bold text-white">{step.title}</h3>
+                <p className="mt-1.5 text-sm text-white/55">{step.desc}</p>
               </div>
             ))}
           </div>
@@ -171,18 +173,18 @@ export default async function Home({
       {/* ════════════════════════════════════════
           ANTES / DESPUÉS
       ════════════════════════════════════════ */}
-      <section className="bg-white px-4 py-12 md:py-16">
+      <section className={`${dark2} border-y border-white/5 px-4 py-12 md:py-16`}>
         <div className="mx-auto max-w-4xl">
-          <h2 className="mb-2 text-center text-3xl font-bold text-gray-900">
+          <h2 className="mb-2 text-center text-3xl font-bold text-white">
             La diferencia se nota
           </h2>
-          <p className="mb-8 text-center text-gray-500">
+          <p className="mb-8 text-center text-white/55">
             Lo que cambia en tu perfil cuando dejás de pasar desapercibido.
           </p>
           <div className="grid gap-4 md:grid-cols-2">
             {/* Antes */}
-            <div className="rounded-2xl border border-gray-200 bg-gray-50 p-6">
-              <div className="mb-4 inline-flex items-center gap-2 rounded-full bg-gray-200 px-3 py-1 text-xs font-bold uppercase tracking-wide text-gray-600">
+            <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-6">
+              <div className="mb-4 inline-flex items-center gap-2 rounded-full bg-white/10 px-3 py-1 text-xs font-bold uppercase tracking-wide text-white/60">
                 Antes
               </div>
               <ul className="flex flex-col gap-3">
@@ -192,15 +194,15 @@ export default async function Home({
                   "El algoritmo no te muestra a nadie nuevo",
                   "Clientes que dudan antes de escribirte",
                 ].map((t) => (
-                  <li key={t} className="flex items-start gap-2.5 text-sm text-gray-500">
+                  <li key={t} className="flex items-start gap-2.5 text-sm text-white/50">
                     <span className="mt-0.5 text-red-400">✕</span> {t}
                   </li>
                 ))}
               </ul>
             </div>
             {/* Después */}
-            <div className="rounded-2xl border-2 border-gray-900 bg-white p-6 shadow-xl">
-              <div className="mb-4 inline-flex items-center gap-2 rounded-full bg-gray-900 px-3 py-1 text-xs font-bold uppercase tracking-wide text-white">
+            <div className="rounded-2xl border-2 border-white/80 bg-white/[0.06] p-6 shadow-xl">
+              <div className="mb-4 inline-flex items-center gap-2 rounded-full bg-white px-3 py-1 text-xs font-bold uppercase tracking-wide text-[#0a0a0b]">
                 ▲ Con {site.name}
               </div>
               <ul className="flex flex-col gap-3">
@@ -210,8 +212,8 @@ export default async function Home({
                   "Más alcance: el algoritmo te impulsa",
                   "Clientes que confían y te compran",
                 ].map((t) => (
-                  <li key={t} className="flex items-start gap-2.5 text-sm font-medium text-gray-900">
-                    <span className="mt-0.5 text-green-600">✓</span> {t}
+                  <li key={t} className="flex items-start gap-2.5 text-sm font-medium text-white">
+                    <span className="mt-0.5 text-green-400">✓</span> {t}
                   </li>
                 ))}
               </ul>
@@ -223,15 +225,15 @@ export default async function Home({
       {/* ════════════════════════════════════════
           PACKS DE CREDIBILIDAD
       ════════════════════════════════════════ */}
-      <section className="border-y border-gray-100 bg-gray-50 px-4 py-12 md:py-16">
+      <section className={`${dark1} px-4 py-12 md:py-16`}>
         <div className="mx-auto max-w-5xl">
-          <div className="mb-2 text-center text-xs font-semibold uppercase tracking-widest text-green-600">
+          <div className="mb-2 text-center text-xs font-semibold uppercase tracking-widest text-green-400">
             ⚡ 65% de descuento por tiempo limitado
           </div>
-          <h2 className="mb-2 text-center text-3xl font-bold text-gray-900">
+          <h2 className="mb-2 text-center text-3xl font-bold text-white">
             Packs de credibilidad
           </h2>
-          <p className="mb-10 text-center text-gray-500">
+          <p className="mb-10 text-center text-white/55">
             Instagram · Seguidores + Likes + Vistas. Todo lo que necesitás para dominar el feed.
           </p>
           <div className="grid gap-6 md:grid-cols-3">
@@ -244,31 +246,31 @@ export default async function Home({
               return (
                 <div
                   key={bundle.slug}
-                  className={`relative flex flex-col rounded-2xl border p-6 transition-all duration-200 hover:-translate-y-1 hover:shadow-xl ${
+                  className={`relative flex flex-col rounded-2xl border p-6 transition-all duration-200 hover:-translate-y-1 ${
                     bundle.badge
-                      ? "border-gray-900 bg-white shadow-xl"
-                      : "border-gray-200 bg-white shadow-sm"
+                      ? "border-white/40 bg-white/[0.07] shadow-xl"
+                      : "border-white/10 bg-white/[0.04]"
                   }`}
                 >
                   {bundle.badge && (
-                    <div className="absolute -top-3 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-full bg-gray-900 px-4 py-1 text-xs font-bold text-white">
+                    <div className="absolute -top-3 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-full bg-white px-4 py-1 text-xs font-bold text-[#0a0a0b]">
                       🔥 {bundle.badge}
                     </div>
                   )}
-                  <div className="text-3xl mb-2">{bundle.emoji}</div>
-                  <h3 className="text-lg font-bold text-gray-900">{bundle.name}</h3>
+                  <div className="mb-2 text-3xl">{bundle.emoji}</div>
+                  <h3 className="text-lg font-bold text-white">{bundle.name}</h3>
                   <ul className="mt-3 flex flex-col gap-1.5">
                     {items.map((item) => (
-                      <li key={item} className="flex items-center gap-2 text-sm text-gray-700">
-                        <span className="text-green-500">✓</span> {item}
+                      <li key={item} className="flex items-center gap-2 text-sm text-white/75">
+                        <span className="text-green-400">✓</span> {item}
                       </li>
                     ))}
                   </ul>
                   <div className="mt-5">
-                    <span className="text-sm text-gray-400 line-through">
+                    <span className="text-sm text-white/40 line-through">
                       {displayPrice(bundle.originalPrice, locale)}
                     </span>
-                    <div className="text-3xl font-extrabold text-gray-900">
+                    <div className="text-3xl font-extrabold text-white">
                       {displayPrice(bundle.price, locale)}
                     </div>
                   </div>
@@ -276,8 +278,8 @@ export default async function Home({
                     href={p(`/packs/${bundle.slug}`)}
                     className={`mt-5 rounded-full py-3 text-center text-sm font-bold transition-colors ${
                       bundle.badge
-                        ? "bg-gray-900 text-white hover:bg-gray-700"
-                        : "border border-gray-300 bg-white text-gray-900 hover:bg-gray-50"
+                        ? "bg-white text-[#0a0a0b] hover:bg-white/90"
+                        : "border border-white/20 text-white hover:bg-white/10"
                     }`}
                   >
                     Quiero este pack →
@@ -286,7 +288,7 @@ export default async function Home({
               );
             })}
           </div>
-          <p className="mt-6 text-center text-xs text-gray-400">
+          <p className="mt-6 text-center text-xs text-white/40">
             ✓ Incluye garantía de reposición · ✓ Sin contraseña · ✓ Entrega total en menos de 4 hs
           </p>
         </div>
@@ -295,20 +297,17 @@ export default async function Home({
       {/* ════════════════════════════════════════
           CONFIANZA (4 PILARES)
       ════════════════════════════════════════ */}
-      <section className="bg-white px-4 py-12 md:py-16">
+      <section className={`${dark2} border-y border-white/5 px-4 py-12 md:py-16`}>
         <div className="mx-auto max-w-5xl">
-          <h2 className="mb-10 text-center text-3xl font-bold text-gray-900">
+          <h2 className="mb-10 text-center text-3xl font-bold text-white">
             {c.trust.title}
           </h2>
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
             {c.trust.items.map((item) => (
-              <div
-                key={item.title}
-                className="rounded-2xl border border-gray-200 bg-gray-50 p-5"
-              >
+              <div key={item.title} className={`${card} p-5`}>
                 <div className="mb-3 text-3xl">{item.emoji}</div>
-                <h3 className="font-bold text-gray-900">{item.title}</h3>
-                <p className="mt-1.5 text-sm text-gray-500">{item.desc}</p>
+                <h3 className="font-bold text-white">{item.title}</h3>
+                <p className="mt-1.5 text-sm text-white/55">{item.desc}</p>
               </div>
             ))}
           </div>
@@ -318,18 +317,15 @@ export default async function Home({
       {/* ════════════════════════════════════════
           TESTIMONIOS
       ════════════════════════════════════════ */}
-      <section className="border-y border-gray-100 bg-gray-50 px-4 py-12 md:py-16">
+      <section className={`${dark1} px-4 py-12 md:py-16`}>
         <div className="mx-auto max-w-5xl">
-          <h2 className="mb-2 text-center text-3xl font-bold text-gray-900">
+          <h2 className="mb-2 text-center text-3xl font-bold text-white">
             {c.reviews.title}
           </h2>
-          <p className="mb-10 text-center text-gray-500">{c.reviews.sub}</p>
+          <p className="mb-10 text-center text-white/55">{c.reviews.sub}</p>
           <div className="grid gap-5 md:grid-cols-3">
             {c.reviews.items.map((r, i) => (
-              <div
-                key={r.name}
-                className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm"
-              >
+              <div key={r.name} className={`${card} p-5`}>
                 <div className="flex items-center gap-3">
                   <div
                     className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-sm font-bold text-white"
@@ -338,14 +334,14 @@ export default async function Home({
                     {r.name[0]}
                   </div>
                   <div>
-                    <div className="font-semibold text-gray-900">{r.name}</div>
-                    <div className="text-xs text-gray-500">
+                    <div className="font-semibold text-white">{r.name}</div>
+                    <div className="text-xs text-white/50">
                       {r.city} · {r.service}
                     </div>
                   </div>
                 </div>
                 <div className="mt-3 text-yellow-400">★★★★★</div>
-                <p className="mt-2 text-sm leading-relaxed text-gray-700">"{r.text}"</p>
+                <p className="mt-2 text-sm leading-relaxed text-white/75">"{r.text}"</p>
               </div>
             ))}
           </div>
@@ -355,26 +351,23 @@ export default async function Home({
       {/* ════════════════════════════════════════
           NO ES MAGIA. ES PRUEBA SOCIAL.
       ════════════════════════════════════════ */}
-      <section className="bg-white px-4 py-12 md:py-16">
+      <section className={`${dark2} border-y border-white/5 px-4 py-12 md:py-16`}>
         <div className="mx-auto max-w-5xl">
-          <div className="mb-2 text-center text-xs font-semibold uppercase tracking-widest text-green-600">
+          <div className="mb-2 text-center text-xs font-semibold uppercase tracking-widest text-green-400">
             La ciencia detrás del crecimiento
           </div>
-          <h2 className="mb-2 text-center text-3xl font-bold text-gray-900">
+          <h2 className="mb-2 text-center text-3xl font-bold text-white">
             No es magia. Es prueba social.
           </h2>
-          <p className="mb-10 text-center text-gray-500">
+          <p className="mb-10 text-center text-white/55">
             Así es exactamente cómo funciona el algoritmo y la psicología del seguidor.
           </p>
           <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-4">
             {PROOF_ITEMS.map((item) => (
-              <div
-                key={item.title}
-                className="rounded-2xl border border-gray-200 bg-gray-50 p-5"
-              >
+              <div key={item.title} className={`${card} p-5`}>
                 <div className="mb-3 text-3xl">{item.emoji}</div>
-                <h3 className="font-bold text-gray-900">{item.title}</h3>
-                <p className="mt-2 text-sm leading-relaxed text-gray-500">{item.desc}</p>
+                <h3 className="font-bold text-white">{item.title}</h3>
+                <p className="mt-2 text-sm leading-relaxed text-white/55">{item.desc}</p>
               </div>
             ))}
           </div>
@@ -384,24 +377,24 @@ export default async function Home({
       {/* ════════════════════════════════════════
           FAQ
       ════════════════════════════════════════ */}
-      <section className="border-y border-gray-100 bg-gray-50 px-4 py-12 md:py-16">
+      <section className={`${dark1} px-4 py-12 md:py-16`}>
         <div className="mx-auto max-w-2xl">
-          <h2 className="mb-8 text-center text-3xl font-bold text-gray-900">
+          <h2 className="mb-8 text-center text-3xl font-bold text-white">
             {c.faq.title}
           </h2>
           <div className="flex flex-col gap-2">
             {c.faq.items.map((f) => (
               <details
                 key={f.q}
-                className="group rounded-2xl border border-gray-200 bg-white px-5 py-4 open:border-gray-300"
+                className="group rounded-2xl border border-white/10 bg-white/[0.04] px-5 py-4 open:border-white/20"
               >
-                <summary className="flex cursor-pointer list-none items-center justify-between font-semibold text-gray-900 [&::-webkit-details-marker]:hidden">
+                <summary className="flex cursor-pointer list-none items-center justify-between font-semibold text-white [&::-webkit-details-marker]:hidden">
                   {f.q}
-                  <span className="ml-4 text-gray-400 transition-transform group-open:rotate-45">
+                  <span className="ml-4 text-white/40 transition-transform group-open:rotate-45">
                     +
                   </span>
                 </summary>
-                <p className="mt-3 text-sm leading-relaxed text-gray-500">{f.a}</p>
+                <p className="mt-3 text-sm leading-relaxed text-white/55">{f.a}</p>
               </details>
             ))}
           </div>
@@ -409,21 +402,21 @@ export default async function Home({
       </section>
 
       {/* ════════════════════════════════════════
-          CTA FINAL
+          CTA FINAL — tarjeta blanca (momento de contraste)
       ════════════════════════════════════════ */}
-      <section className="bg-white px-4 py-14 md:py-20">
-        <div className="mx-auto max-w-2xl rounded-3xl bg-gray-900 px-6 py-12 text-center text-white sm:px-8 sm:py-14">
+      <section className={`${dark1} px-4 py-14 md:py-20`}>
+        <div className="mx-auto max-w-2xl rounded-3xl bg-white px-6 py-12 text-center text-gray-900 sm:px-8 sm:py-14">
           <h2 className="text-3xl font-extrabold md:text-4xl">
             {c.finalCta.title}
           </h2>
-          <p className="mx-auto mt-3 max-w-lg text-white/70">{c.finalCta.sub}</p>
+          <p className="mx-auto mt-3 max-w-lg text-gray-500">{c.finalCta.sub}</p>
           <Link
             href={p("/servicios")}
-            className="mt-8 inline-block rounded-full bg-white px-10 py-4 text-lg font-bold text-gray-900 transition-colors hover:bg-gray-100"
+            className="mt-8 inline-block rounded-full bg-gray-900 px-10 py-4 text-lg font-bold text-white transition-colors hover:bg-gray-800"
           >
             {c.finalCta.cta} →
           </Link>
-          <p className="mt-3 text-xs text-white/50">
+          <p className="mt-3 text-xs text-gray-400">
             Sin contraseña · Entrega total en menos de 4 hs · Garantía incluida
           </p>
         </div>
@@ -432,21 +425,21 @@ export default async function Home({
       {/* ════════════════════════════════════════
           BARRA FIJA MÓVIL
       ════════════════════════════════════════ */}
-      <div className="fixed inset-x-0 bottom-0 z-40 border-t border-gray-200 bg-white/95 px-4 py-3 backdrop-blur md:hidden">
+      <div className="fixed inset-x-0 bottom-0 z-40 border-t border-white/10 bg-[#0a0a0b]/95 px-4 py-3 backdrop-blur md:hidden">
         <div className="flex items-center gap-3">
           <div className="leading-tight">
             <div className="text-[10px] text-yellow-400">★★★★★ 4.9</div>
-            <div className="text-base font-extrabold text-gray-900">Desde {from}</div>
+            <div className="text-base font-extrabold text-white">Desde {from}</div>
           </div>
           <Link
             href={p("/servicios")}
-            className="ml-auto flex-1 rounded-full bg-gray-900 py-3 text-center font-bold text-white"
+            className="ml-auto flex-1 rounded-full bg-white py-3 text-center font-bold text-[#0a0a0b]"
           >
             Empezá a crecer
           </Link>
         </div>
       </div>
-      <div className="h-16 md:hidden" />
+      <div className="h-16 bg-[#0a0a0b] md:hidden" />
 
       {/* Toast flotante de compras */}
       <LiveFeed
@@ -456,6 +449,6 @@ export default async function Home({
         cities={c.feed.cities}
         services={c.feed.services}
       />
-    </>
+    </div>
   );
 }

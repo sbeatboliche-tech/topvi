@@ -25,10 +25,10 @@ export default function Header({
   ];
 
   return (
-    <header className="sticky top-0 z-50 border-b border-border bg-white/95 backdrop-blur-lg">
+    <header className="sticky top-0 z-50 border-b border-white/10 bg-[#0a0a0b]/85 backdrop-blur-lg">
       <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3">
         <Link href={p("/")} className="flex items-center">
-          <Logo size="md" />
+          <Logo size="md" dark />
         </Link>
 
         <nav className="hidden items-center gap-6 md:flex">
@@ -36,7 +36,7 @@ export default function Header({
             <Link
               key={n.href}
               href={n.href}
-              className="text-sm text-gray-600 transition-colors hover:text-gray-900"
+              className="text-sm text-white/70 transition-colors hover:text-white"
             >
               {n.label}
             </Link>
@@ -44,7 +44,7 @@ export default function Header({
           <LangSwitcher locale={locale} dict={dict} />
           <Link
             href={p("/servicios")}
-            className="rounded-full bg-gray-900 px-5 py-2 text-sm font-semibold text-white transition-colors hover:bg-gray-700"
+            className="rounded-full bg-white px-5 py-2 text-sm font-semibold text-[#0a0a0b] transition-colors hover:bg-white/90"
           >
             {dict.nav.buy}
           </Link>
@@ -52,7 +52,7 @@ export default function Header({
 
         <button
           onClick={() => setOpen(!open)}
-          className="text-2xl text-gray-700 md:hidden"
+          className="text-2xl text-white md:hidden"
           aria-label="Menú"
         >
           {open ? "✕" : "☰"}
@@ -60,13 +60,13 @@ export default function Header({
       </div>
 
       {open && (
-        <nav className="flex flex-col gap-1 border-t border-border bg-white px-4 py-3 md:hidden">
+        <nav className="flex flex-col gap-1 border-t border-white/10 bg-[#0a0a0b] px-4 py-3 md:hidden">
           {nav.map((n) => (
             <Link
               key={n.href}
               href={n.href}
               onClick={() => setOpen(false)}
-              className="rounded-lg px-3 py-2 text-sm text-gray-600 hover:bg-gray-50 hover:text-gray-900"
+              className="rounded-lg px-3 py-2 text-sm text-white/70 hover:bg-white/5 hover:text-white"
             >
               {n.label}
             </Link>
@@ -77,7 +77,7 @@ export default function Header({
           <Link
             href={p("/servicios")}
             onClick={() => setOpen(false)}
-            className="mt-2 rounded-full bg-gray-900 px-5 py-2 text-center text-sm font-semibold text-white"
+            className="mt-2 rounded-full bg-white px-5 py-2 text-center text-sm font-semibold text-[#0a0a0b]"
           >
             {dict.nav.buy}
           </Link>

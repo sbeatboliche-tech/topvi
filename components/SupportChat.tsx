@@ -198,6 +198,8 @@ export default function SupportChat({ locale }: { locale: string }) {
         aria-label="Soporte"
       >
         💬
+        {/* Punto verde "en línea" para sensación de soporte activo */}
+        <span className="absolute bottom-0 right-0 h-3.5 w-3.5 rounded-full border-2 border-white bg-green-500" />
         {unread && (
           <span className="absolute -right-1 -top-1 flex h-5 w-5 items-center justify-center rounded-full bg-red-500 text-[10px] font-bold text-white">
             1
@@ -214,7 +216,10 @@ export default function SupportChat({ locale }: { locale: string }) {
         <div className="mb-4 flex items-start justify-between">
           <div>
             <p className="font-semibold">¿Cómo querés contactarnos?</p>
-            <p className="mt-0.5 text-xs text-muted">Soporte en tiempo real · Lun-Vie 10-22hs</p>
+            <p className="mt-0.5 flex items-center gap-1.5 text-xs text-muted">
+              <span className="h-1.5 w-1.5 rounded-full bg-green-500 animate-pulse" />
+              En línea ahora · responde en ~1 min
+            </p>
           </div>
           <button onClick={() => setChatState("closed")} className="ml-2 mt-0.5 text-muted hover:text-foreground">
             ✕
@@ -267,8 +272,10 @@ export default function SupportChat({ locale }: { locale: string }) {
           <div>
             <p className="text-sm font-semibold text-white">{agent.name}</p>
             <div className="flex items-center gap-1.5">
-              <span className="h-1.5 w-1.5 rounded-full bg-green-400" />
-              <p className="text-[11px] text-white/80">En línea · soporte {site.name}</p>
+              <span className="h-1.5 w-1.5 rounded-full bg-green-400 animate-pulse" />
+              <p className="text-[11px] text-white/80">
+                {isTyping ? "escribiendo…" : "En línea · responde en ~1 min"}
+              </p>
             </div>
           </div>
         </div>
@@ -283,9 +290,15 @@ export default function SupportChat({ locale }: { locale: string }) {
         </button>
       </div>
 
+      {/* Barra de seguridad — refuerza la sensación de protección */}
+      <div className="flex shrink-0 items-center justify-center gap-1.5 border-b border-border bg-surface-2 px-4 py-1.5 text-[10px] text-muted">
+        <span>🔒</span>
+        <span>Chat seguro · Nunca te pedimos tu contraseña</span>
+      </div>
+
       {/* Messages */}
       <div className="flex-1 overflow-y-auto p-4 space-y-3">
-        {messages.map((msg) => (
+        {messages.map((msg, idx) => (
           <div key={msg.id} className={`flex ${msg.from === "user" ? "justify-end" : "items-end gap-2"}`}>
             {msg.from === "agent" && (
               <div
@@ -306,8 +319,19 @@ export default function SupportChat({ locale }: { locale: string }) {
               >
                 {msg.text}
               </div>
-              <p className={`mt-1 text-[10px] text-muted ${msg.from === "user" ? "text-right" : ""}`}>
+              <p className={`mt-1 flex items-center gap-1 text-[10px] text-muted ${msg.from === "user" ? "justify-end" : ""}`}>
                 {msg.time}
+                {msg.from === "user" &&
+                  (() => {
+                    const seen =
+                      messages.slice(idx + 1).some((m) => m.from === "agent") ||
+                      (isTyping && idx === messages.length - 1);
+                    return (
+                      <span className={seen ? "text-sky-500" : ""}>
+                        {seen ? "· Visto ✓✓" : "· Enviado ✓"}
+                      </span>
+                    );
+                  })()}
               </p>
             </div>
           </div>
@@ -379,7 +403,7 @@ export default function SupportChat({ locale }: { locale: string }) {
           </button>
         </div>
         <p className="mt-1.5 text-center text-[10px] text-muted">
-          Soporte de {site.name} · Respuestas en tiempo real
+          🔒 Conversación protegida · Nunca pedimos tu contraseña
         </p>
       </div>
     </div>

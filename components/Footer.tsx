@@ -54,6 +54,16 @@ export default function Footer({
                 {dict.nav.faq}
               </Link>
             </li>
+            <li>
+              <Link href={p("/terminos")} className="hover:text-foreground">
+                Términos y condiciones
+              </Link>
+            </li>
+            <li>
+              <Link href={p("/privacidad")} className="hover:text-foreground">
+                Privacidad
+              </Link>
+            </li>
           </ul>
         </div>
 

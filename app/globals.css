@@ -78,6 +78,17 @@ html {
 }
 .animate-marquee {
   animation: marquee 28s linear infinite;
+  will-change: transform;
+}
+
+/* Respeta "reducir movimiento" del sistema: frena animaciones y scroll suave */
+@media (prefers-reduced-motion: reduce) {
+  .animate-marquee {
+    animation: none;
+  }
+  html {
+    scroll-behavior: auto;
+  }
 }
 
 /* Scroll horizontal sin barra visible (chips en móvil) */

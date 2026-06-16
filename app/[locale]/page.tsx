@@ -61,13 +61,14 @@ export default async function Home({
                 <Star key={i} className="h-3.5 w-3.5 fill-current" />
               ))}
             </span>
-            4.9/5 de +20.000 reseñas
+            4.9/5 · +4.800 reseñas reales
           </div>
 
           {/* Stats chips */}
           <div className="mb-8 flex flex-wrap justify-center gap-2">
             {[
               { icon: "👥", text: "5.000 clientes en todo el mundo" },
+              { icon: "✅", text: "+12.500 órdenes completadas" },
               { icon: "🏆", text: "Agencia #1 en crecimiento digital" },
               { icon: "⚡", text: "Entrega en menos de 12hs" },
             ].map((s) => (
@@ -127,7 +128,7 @@ export default async function Home({
       {/* ════════════════════════════════════════
           PENSADO PARA CADA NICHO
       ════════════════════════════════════════ */}
-      <section className="bg-white px-4 py-16">
+      <section className="bg-white px-4 py-12 md:py-16">
         <div className="mx-auto max-w-5xl">
           <h2 className="mb-2 text-center text-3xl font-bold text-gray-900">
             {c.niches.title}
@@ -149,7 +150,7 @@ export default async function Home({
       {/* ════════════════════════════════════════
           TRES PASOS
       ════════════════════════════════════════ */}
-      <section className="bg-white px-4 py-16">
+      <section className="bg-white px-4 py-12 md:py-16">
         <div className="mx-auto max-w-5xl">
           <h2 className="mb-2 text-center text-3xl font-bold text-gray-900">
             {c.steps.title}
@@ -176,7 +177,7 @@ export default async function Home({
       {/* ════════════════════════════════════════
           PACKS DE CREDIBILIDAD
       ════════════════════════════════════════ */}
-      <section className="border-y border-gray-100 bg-gray-50 px-4 py-16">
+      <section className="border-y border-gray-100 bg-gray-50 px-4 py-12 md:py-16">
         <div className="mx-auto max-w-5xl">
           <div className="mb-2 text-center text-xs font-semibold uppercase tracking-widest text-green-600">
             ⚡ 65% de descuento por tiempo limitado
@@ -248,7 +249,7 @@ export default async function Home({
       {/* ════════════════════════════════════════
           CONFIANZA (4 PILARES)
       ════════════════════════════════════════ */}
-      <section className="bg-white px-4 py-16">
+      <section className="bg-white px-4 py-12 md:py-16">
         <div className="mx-auto max-w-5xl">
           <h2 className="mb-10 text-center text-3xl font-bold text-gray-900">
             {c.trust.title}
@@ -271,7 +272,7 @@ export default async function Home({
       {/* ════════════════════════════════════════
           TESTIMONIOS
       ════════════════════════════════════════ */}
-      <section className="border-y border-gray-100 bg-gray-50 px-4 py-16">
+      <section className="border-y border-gray-100 bg-gray-50 px-4 py-12 md:py-16">
         <div className="mx-auto max-w-5xl">
           <h2 className="mb-2 text-center text-3xl font-bold text-gray-900">
             {c.reviews.title}
@@ -308,7 +309,7 @@ export default async function Home({
       {/* ════════════════════════════════════════
           NO ES MAGIA. ES PRUEBA SOCIAL.
       ════════════════════════════════════════ */}
-      <section className="bg-white px-4 py-16">
+      <section className="bg-white px-4 py-12 md:py-16">
         <div className="mx-auto max-w-5xl">
           <div className="mb-2 text-center text-xs font-semibold uppercase tracking-widest text-green-600">
             La ciencia detrás del crecimiento
@@ -337,7 +338,7 @@ export default async function Home({
       {/* ════════════════════════════════════════
           FAQ
       ════════════════════════════════════════ */}
-      <section className="border-y border-gray-100 bg-gray-50 px-4 py-16">
+      <section className="border-y border-gray-100 bg-gray-50 px-4 py-12 md:py-16">
         <div className="mx-auto max-w-2xl">
           <h2 className="mb-8 text-center text-3xl font-bold text-gray-900">
             {c.faq.title}
@@ -364,8 +365,8 @@ export default async function Home({
       {/* ════════════════════════════════════════
           CTA FINAL
       ════════════════════════════════════════ */}
-      <section className="bg-white px-4 py-20">
-        <div className="mx-auto max-w-2xl rounded-3xl bg-gray-900 px-8 py-14 text-center text-white">
+      <section className="bg-white px-4 py-14 md:py-20">
+        <div className="mx-auto max-w-2xl rounded-3xl bg-gray-900 px-6 py-12 text-center text-white sm:px-8 sm:py-14">
           <h2 className="text-3xl font-extrabold md:text-4xl">
             {c.finalCta.title}
           </h2>

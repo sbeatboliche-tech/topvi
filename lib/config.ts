@@ -97,9 +97,9 @@ const ttViewTiers: Tier[] = [
   { quantity: 25000,  price: 3900 },
   { quantity: 50000,  price: 6800 },
   { quantity: 75000,  price: 7700 },
-  { quantity: 100000, price: 11400, bonus: 10000 },
-  { quantity: 300000, price: 28600, bonus: 30000 },
-  { quantity: 500000, price: 40100, bonus: 50000 },
+  { quantity: 100000, price: 11400 },
+  { quantity: 300000, price: 28600 },
+  { quantity: 500000, price: 40100 },
 ];
 
 const shareTiers: Tier[] = [

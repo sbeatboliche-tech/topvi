@@ -92,7 +92,6 @@ export default function ServiceOrder({
   const price = priceFor(tier, quality);
   const bonus = bonusFor(tier, quality);
   const totalUnits = tier.quantity + bonus;
-  const interestFree = tierIdx >= svc.tiers.length - 3;
 
   const addonTier = addonSvc?.tiers[addonTierIdx];
   const addonPrice = addonOn && addonTier ? priceFor(addonTier, "global") : 0;
@@ -555,11 +554,6 @@ export default function ServiceOrder({
                   >
                     <div className="font-semibold">💳 MercadoPago</div>
                     <p className="mt-1 text-xs text-muted">{t.order.mpDesc}</p>
-                    {interestFree && (
-                      <p className="mt-1.5 text-xs font-semibold text-success">
-                        {t.order.interestFree}
-                      </p>
-                    )}
                   </button>
                 )}
                 {mpAvailable && (
@@ -640,7 +634,7 @@ export default function ServiceOrder({
                     −{Math.round(CRYPTO_DISCOUNT * 100)}% pagando en cripto 🪙
                   </p>
                 )}
-                {interestFree && (
+                {payment === "tarjeta" && (
                   <p className="mt-3 rounded-lg bg-success/10 px-3 py-2 text-center text-xs font-semibold text-success">
                     {t.order.interestFree}
                   </p>

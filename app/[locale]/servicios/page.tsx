@@ -1,6 +1,11 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { services, platformInfo, type Platform } from "@/lib/config";
+import {
+  services,
+  platformInfo,
+  type Platform,
+  type ServiceKind,
+} from "@/lib/config";
 import { getDict, isLocale, displayPrice, formatNum, type Locale } from "@/lib/i18n";
 
 export default async function ServiciosIndex({
@@ -14,125 +19,106 @@ export default async function ServiciosIndex({
   const t = getDict(locale);
   const platforms: Platform[] = ["instagram", "tiktok"];
 
-  // Precio "desde" más barato de cada plataforma para el card destacado.
+  // Color de marca por plataforma, usado SOLO como acento fino.
+  const accent: Record<Platform, string> = {
+    instagram: "#e1306c",
+    tiktok: "#25f4ee",
+  };
+
+  // Una línea de copy por tipo de servicio: qué hace, en simple.
+  const blurb: Record<ServiceKind, string> = {
+    followers: "Más seguidores en tu perfil",
+    likes: "Likes en tus publicaciones",
+    views: "Reproducciones en tus videos",
+    shares: "Más alcance con compartidos",
+    saves: "Guardados que mejoran tu posición",
+  };
+
   const fromPrice = (pf: Platform) =>
     Math.min(
       ...services.filter((s) => s.platform === pf).map((s) => s.tiers[0].price)
     );
 
-  // Identidad visual por plataforma (sólo en los cards de arriba).
-  const platformStyle: Record<
-    Platform,
-    { card: string; chip: string; glow: string }
-  > = {
-    instagram: {
-      card: "bg-gradient-to-br from-[#feda75] via-[#d62976] to-[#4f5bd5]",
-      chip: "bg-white/20 text-white",
-      glow: "shadow-[0_20px_60px_-15px_rgba(214,41,118,0.55)]",
-    },
-    tiktok: {
-      card: "bg-[#0b0b0d] ring-1 ring-white/10",
-      chip: "bg-white/10 text-white",
-      glow: "shadow-[0_20px_60px_-15px_rgba(37,244,238,0.35)]",
-    },
-  };
-
   return (
-    <div className="mx-auto max-w-6xl px-4 py-12">
-      {/* ───── Encabezado: dejá claro al instante qué se vende ───── */}
-      <div className="mb-10 text-center">
-        <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/5 px-4 py-1.5 text-xs font-medium text-white/80 backdrop-blur">
+    <div className="mx-auto max-w-5xl px-5 py-14 sm:py-20">
+      {/* ───── Encabezado ───── */}
+      <header className="mb-16 max-w-2xl">
+        <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/5 px-3.5 py-1.5 text-xs font-medium text-white/70 backdrop-blur">
           <span className="text-green-400">▲</span>
-          Crecé en Instagram & TikTok
+          Instagram &amp; TikTok
         </div>
-        <h1 className="text-balance text-3xl font-bold leading-tight md:text-5xl">
+        <h1 className="text-4xl font-bold leading-[1.05] tracking-tight sm:text-5xl">
           {t.servicesPage.title}
         </h1>
-        <p className="mx-auto mt-3 max-w-xl text-muted">{t.servicesPage.sub}</p>
-      </div>
+        <p className="mt-4 text-lg text-muted">{t.servicesPage.sub}</p>
+      </header>
 
-      {/* ───── Dos plataformas grandes y visuales ───── */}
-      <div className="mb-14 grid gap-5 md:grid-cols-2">
+      {/* ───── Una sección por plataforma ───── */}
+      <div className="space-y-16">
         {platforms.map((pf) => {
-          const st = platformStyle[pf];
           const svs = services.filter((s) => s.platform === pf);
           return (
-            <a
-              key={pf}
-              href={`#${pf}`}
-              className={`group relative overflow-hidden rounded-3xl p-7 text-white transition-transform hover:scale-[1.015] ${st.card} ${st.glow}`}
-            >
-              <div className="flex items-center justify-between">
+            <section key={pf} id={pf} className="scroll-mt-24">
+              {/* Cabecera de plataforma: barra de acento + nombre grande */}
+              <div className="mb-6 flex items-end justify-between border-b border-border pb-4">
                 <div className="flex items-center gap-3">
-                  <span className="text-4xl">{platformInfo[pf].emoji}</span>
-                  <span className="text-2xl font-bold">
+                  <span
+                    aria-hidden
+                    className="h-7 w-1 rounded-full"
+                    style={{ backgroundColor: accent[pf] }}
+                  />
+                  <h2 className="text-2xl font-bold tracking-tight sm:text-3xl">
                     {platformInfo[pf].label}
-                  </span>
+                  </h2>
                 </div>
-                <span className="text-2xl transition-transform group-hover:translate-x-1">
-                  →
+                <span className="text-sm text-muted">
+                  {svs.length} servicios · {t.servicesPage.from}{" "}
+                  <span className="font-semibold text-foreground">
+                    {displayPrice(fromPrice(pf), locale)}
+                  </span>
                 </span>
               </div>
 
-              <div className="mt-5 flex flex-wrap gap-2">
+              {/* Servicios */}
+              <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
                 {svs.map((s) => (
-                  <span
+                  <Link
                     key={s.slug}
-                    className={`rounded-full px-3 py-1 text-sm font-medium backdrop-blur ${st.chip}`}
+                    href={`/${locale}/servicios/${s.slug}`}
+                    className="group relative overflow-hidden rounded-2xl border border-border bg-surface p-5 transition-colors hover:border-white/25 hover:bg-surface-2"
                   >
-                    {s.emoji} {s.short}
-                  </span>
+                    {/* Acento que aparece al pasar el mouse */}
+                    <span
+                      aria-hidden
+                      className="absolute inset-x-0 top-0 h-0.5 origin-left scale-x-0 transition-transform duration-300 group-hover:scale-x-100"
+                      style={{ backgroundColor: accent[pf] }}
+                    />
+                    <div className="flex items-start justify-between">
+                      <span className="text-2xl">{s.emoji}</span>
+                      <span className="text-muted transition-transform group-hover:translate-x-0.5 group-hover:text-foreground">
+                        →
+                      </span>
+                    </div>
+                    <h3 className="mt-4 text-lg font-semibold">{s.short}</h3>
+                    <p className="mt-0.5 text-sm text-muted">{blurb[s.kind]}</p>
+                    <div className="mt-5 flex items-baseline gap-1.5">
+                      <span className="text-xs text-muted">
+                        {t.servicesPage.from}
+                      </span>
+                      <span className="text-base font-bold">
+                        {displayPrice(s.tiers[0].price, locale)}
+                      </span>
+                      <span className="text-xs text-muted">
+                        · {formatNum(s.tiers[0].quantity, locale)} {s.unit}
+                      </span>
+                    </div>
+                  </Link>
                 ))}
               </div>
-
-              <p className="mt-6 text-sm text-white/80">
-                {svs.length} servicios · {t.servicesPage.from}{" "}
-                <span className="font-bold text-white">
-                  {displayPrice(fromPrice(pf), locale)}
-                </span>
-              </p>
-            </a>
+            </section>
           );
         })}
       </div>
-
-      {/* ───── Detalle por plataforma ───── */}
-      {platforms.map((pf) => (
-        <section key={pf} id={pf} className="mb-12 scroll-mt-24">
-          <h2 className="mb-5 flex items-center gap-2 text-2xl font-bold">
-            <span>{platformInfo[pf].emoji}</span> {platformInfo[pf].label}
-          </h2>
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {services
-              .filter((s) => s.platform === pf)
-              .map((s) => (
-                <Link
-                  key={s.slug}
-                  href={`/${locale}/servicios/${s.slug}`}
-                  className="group rounded-2xl border border-border bg-surface p-6 transition-all hover:border-brand hover:bg-surface-2"
-                >
-                  <div className="text-3xl">{s.emoji}</div>
-                  <h3 className="mt-3 text-lg font-semibold">{s.short}</h3>
-                  <p className="mt-1 text-sm text-muted">
-                    {t.servicesPage.from} {formatNum(s.tiers[0].quantity, locale)}{" "}
-                    {s.unit}
-                  </p>
-                  <div className="mt-4 flex items-center justify-between">
-                    <span className="text-sm text-muted">
-                      {t.servicesPage.from}{" "}
-                      <span className="font-semibold text-accent">
-                        {displayPrice(s.tiers[0].price, locale)}
-                      </span>
-                    </span>
-                    <span className="text-brand-2 transition-transform group-hover:translate-x-1">
-                      →
-                    </span>
-                  </div>
-                </Link>
-              ))}
-          </div>
-        </section>
-      ))}
     </div>
   );
 }

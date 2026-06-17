@@ -168,9 +168,9 @@ export default function PackOrder({
               />
             </div>
             <div className="mt-3 rounded-xl border border-warning/40 bg-warning/10 px-4 py-3 text-sm font-medium text-warning">
-              ⚠️ Importante: tu cuenta (y los posteos) deben estar en PÚBLICO
-              mientras hacemos la entrega. Apenas termina, podés volver a ponerlo
-              en privado sin problema.
+              ⚠️ Importante: tu cuenta debe estar en PÚBLICO mientras hacemos la
+              entrega. Apenas termina, podés volver a ponerla en privado sin
+              problema.
             </div>
           </div>
 

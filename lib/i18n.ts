@@ -246,7 +246,7 @@ const es: Dict = {
     userLabel: "Usuario de {platform}",
     linkLabel: "Link del posteo / video",
     publicWarn:
-      "⚠️ Importante: tu cuenta (o el posteo) debe estar en PÚBLICO mientras hacemos la entrega. Apenas termina, podés volver a ponerlo en privado sin problema.",
+      "⚠️ Importante: tu cuenta debe estar en PÚBLICO mientras hacemos la entrega. Apenas termina, podés volver a ponerla en privado sin problema.",
     contactLabel: "Email (para avisarte)",
     contactPh: "tu@email.com",
     summary: "Resumen",
@@ -391,7 +391,7 @@ const pt: Dict = {
     userLabel: "Usuário do {platform}",
     linkLabel: "Link da publicação / vídeo",
     publicWarn:
-      "⚠️ Importante: sua conta (ou a publicação) deve estar PÚBLICA enquanto fazemos a entrega. Assim que terminar, você pode deixá-la privada de novo, sem problema.",
+      "⚠️ Importante: sua conta deve estar PÚBLICA enquanto fazemos a entrega. Assim que terminar, você pode deixá-la privada de novo, sem problema.",
     contactLabel: "E-mail (para avisar você)",
     contactPh: "seu@email.com ou +55 11...",
     summary: "Resumo",

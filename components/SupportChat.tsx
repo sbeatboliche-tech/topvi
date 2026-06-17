@@ -190,21 +190,46 @@ export default function SupportChat({ locale }: { locale: string }) {
   const showQuickReplies = messages.length === 1 && !isTyping;
 
   // ── Closed: floating button ──────────────────────────────────────
+  // Píldora "Soporte · En línea 24/7": transmite que siempre hay alguien
+  // (más confianza que un simple emoji de chat).
   if (chatState === "closed") {
     return (
       <button
         onClick={() => { setChatState("options"); setUnread(false); }}
-        className="fixed bottom-[5.5rem] right-5 z-50 flex h-14 w-14 items-center justify-center rounded-full brand-gradient text-2xl shadow-xl shadow-brand/40 transition-transform hover:scale-110"
-        aria-label="Soporte"
+        className="fixed bottom-[5.5rem] right-5 z-50 flex items-center gap-2.5 rounded-full brand-gradient py-2.5 pl-2.5 pr-4 shadow-xl shadow-brand/40 transition-transform hover:scale-105"
+        aria-label="Soporte en línea 24/7"
       >
-        💬
-        {/* Punto verde "en línea" para sensación de soporte activo */}
-        <span className="absolute bottom-0 right-0 h-3.5 w-3.5 rounded-full border-2 border-white bg-green-500" />
-        {unread && (
-          <span className="absolute -right-1 -top-1 flex h-5 w-5 items-center justify-center rounded-full bg-red-500 text-[10px] font-bold text-white">
-            1
+        {/* Ícono de auriculares con micrófono = soporte humano */}
+        <span className="relative flex h-9 w-9 items-center justify-center rounded-full bg-black/10">
+          <svg
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            className="h-5 w-5"
+          >
+            <path d="M4 14a8 8 0 0 1 16 0" />
+            <rect x="2" y="14" width="4" height="6" rx="1.5" />
+            <rect x="18" y="14" width="4" height="6" rx="1.5" />
+            <path d="M20 18v1a3 3 0 0 1-3 3h-3" />
+          </svg>
+          {/* Punto verde "en línea" */}
+          <span className="absolute -bottom-0.5 -right-0.5 h-3 w-3 rounded-full border-2 border-white bg-green-500" />
+          {/* Notificación roja "1" sobre el ícono de soporte */}
+          {unread && (
+            <span className="absolute -right-1.5 -top-1.5 flex h-5 w-5 items-center justify-center rounded-full border-2 border-white bg-red-500 text-[10px] font-bold text-white">
+              1
+            </span>
+          )}
+        </span>
+        <span className="text-left leading-tight">
+          <span className="block text-[10px] font-semibold uppercase tracking-wide opacity-70">
+            Soporte
           </span>
-        )}
+          <span className="block text-sm font-extrabold">En línea 24/7</span>
+        </span>
       </button>
     );
   }

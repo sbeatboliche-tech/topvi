@@ -680,10 +680,6 @@ export default function ServiceOrder({
                       <dd className="font-medium">{filledTargets.length}</dd>
                     </div>
                   )}
-                  <div className="flex justify-between">
-                    <dt className="text-muted">{svc.short}</dt>
-                    <dd className="font-medium">{displayPrice(price, locale)}</dd>
-                  </div>
                   {addonOn && addonTier && (
                     <div className="flex justify-between text-accent">
                       <dt>

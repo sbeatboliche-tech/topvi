@@ -1,7 +1,7 @@
 export default function AnnouncementBar() {
   return (
-    <div className="w-full bg-black py-2.5 text-center">
-      <span className="text-[13px] font-semibold text-white">
+    <div className="w-full border-b border-black/10 bg-white py-2.5 text-center">
+      <span className="text-[13px] font-semibold text-[#0a0a0b]">
         💳 3 cuotas sin interés
       </span>
     </div>

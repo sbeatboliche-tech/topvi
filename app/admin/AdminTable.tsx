@@ -28,6 +28,7 @@ export default function AdminTable({
 }) {
   const [orders, setOrders] = useState(initialOrders);
   const [filter, setFilter] = useState<OrderStatus | "all">("all");
+  const [query, setQuery] = useState("");
 
   async function setStatus(id: string, status: OrderStatus) {
     setOrders((o) => o.map((x) => (x.id === id ? { ...x, status } : x)));
@@ -53,8 +54,17 @@ export default function AdminTable({
     window.location.reload();
   }
 
-  const filtered =
-    filter === "all" ? orders : orders.filter((o) => o.status === filter);
+  const q = query.trim().toLowerCase();
+  const filtered = orders.filter((o) => {
+    if (filter !== "all" && o.status !== filter) return false;
+    if (!q) return true;
+    return (
+      o.id.toLowerCase().includes(q) ||
+      o.username.toLowerCase().includes(q) ||
+      o.contact.toLowerCase().includes(q) ||
+      String(o.amount).includes(q)
+    );
+  });
 
   const revenue = orders
     .filter((o) => o.status !== "pending_payment" && o.status !== "cancelled")
@@ -85,7 +95,14 @@ export default function AdminTable({
         </div>
       </div>
 
-      <div className="mt-6 flex flex-wrap gap-2">
+      <input
+        value={query}
+        onChange={(e) => setQuery(e.target.value)}
+        placeholder="🔎 Buscar por código de orden, monto, @usuario o contacto…"
+        className="mt-6 w-full rounded-xl border border-border bg-surface-2 px-4 py-2.5 text-sm outline-none focus:border-brand"
+      />
+
+      <div className="mt-4 flex flex-wrap gap-2">
         {(["all", "paid", "pending_payment", "delivering", "delivered"] as const).map(
           (f) => (
             <button

@@ -193,6 +193,53 @@ export async function notifyNewOrder(order: Order): Promise<void> {
   }
 }
 
+// Aviso al DUEÑO cuando un cliente dice "Ya transferí" → a verificar en el banco.
+export async function notifyTransferClaimed(order: Order): Promise<void> {
+  const key = process.env.RESEND_API_KEY;
+  const serviceLabel = SERVICE_LABELS[order.service] ?? order.service;
+  const amountFmt = new Intl.NumberFormat("es-AR", {
+    style: "currency",
+    currency: "ARS",
+    maximumFractionDigits: 0,
+  }).format(order.amount);
+  if (!key) {
+    console.log(`[email] Transferencia avisada (sin RESEND): ${order.id} ${amountFmt}`);
+    return;
+  }
+  const html = `
+<!DOCTYPE html><html lang="es"><body style="font-family:sans-serif;background:#f4f4f5;padding:24px">
+  <div style="max-width:480px;margin:0 auto;background:#fff;border-radius:12px;border:1px solid #e4e4e7;overflow:hidden">
+    <div style="background:#f59e0b;padding:18px 24px"><h1 style="color:#fff;margin:0;font-size:18px">🏦 Transferencia para verificar</h1></div>
+    <div style="padding:24px;font-size:14px">
+      <p>Un cliente avisó que ya transfirió. Verificá en el banco que entró este importe:</p>
+      <table style="width:100%;border-collapse:collapse;margin-top:8px">
+        <tr><td style="padding:8px 0;color:#666">Código / Orden</td><td style="padding:8px 0;font-weight:700">${order.id}</td></tr>
+        <tr><td style="padding:8px 0;color:#666">Importe exacto</td><td style="padding:8px 0;font-weight:700;color:#b45309">${amountFmt}</td></tr>
+        <tr><td style="padding:8px 0;color:#666">Servicio</td><td style="padding:8px 0">${serviceLabel}</td></tr>
+        <tr><td style="padding:8px 0;color:#666">Cuenta/Link</td><td style="padding:8px 0">@${order.username}</td></tr>
+        <tr><td style="padding:8px 0;color:#666">Contacto</td><td style="padding:8px 0">${order.contact}</td></tr>
+      </table>
+      <p style="margin-top:16px;color:#666">Si entró, marcá la orden como <b>Pagado</b> en /admin y entregá.</p>
+    </div>
+  </div>
+</body></html>`;
+  try {
+    const from = process.env.RESEND_FROM ?? "TopViralMarketing <onboarding@resend.dev>";
+    await fetch(RESEND_API, {
+      method: "POST",
+      headers: { Authorization: `Bearer ${key}`, "Content-Type": "application/json" },
+      body: JSON.stringify({
+        from,
+        to: [NOTIFY_TO],
+        subject: `🏦 Verificar transferencia ${amountFmt} — Orden ${order.id}`,
+        html,
+      }),
+    });
+  } catch (err) {
+    console.error("[email] Error aviso transferencia:", err);
+  }
+}
+
 // Mail de confirmación al CLIENTE cuando su compra se aprueba.
 // Solo se envía si el contacto es un email. Gated por RESEND_API_KEY.
 export async function sendOrderConfirmation(order: Order): Promise<void> {

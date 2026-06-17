@@ -8,7 +8,7 @@ const content = {
     sub: "Simple, rápido y sin riesgos para tu cuenta.",
     steps: [
       { title: "Elegí tu paquete", desc: "Seleccioná la calidad y la cantidad. El precio se calcula al instante." },
-      { title: "Ingresá tu usuario", desc: "Solo tu usuario público. NUNCA pedimos tu contraseña. La cuenta debe estar pública." },
+      { title: "Ingresá tu usuario", desc: "Solo tu usuario público. NUNCA pedimos tu contraseña. La cuenta debe estar pública hasta que llegue la totalidad de los servicios comprados." },
       { title: "Pagá de forma segura", desc: "Con MercadoPago (hasta 3 cuotas) o con USDT. El pago está protegido." },
       { title: "Recibís todo", desc: "La entrega total se completa en menos de 4 horas, de forma gradual y natural." },
       { title: "Garantía activa", desc: "Si algo cae durante el período de garantía (90 días), lo reponemos sin costo." },

@@ -40,7 +40,7 @@ export default function LiveFeed({ bought, agoText, names, cities, services }: P
       hideTimer = setTimeout(() => setVisible(false), 6000);
     };
 
-    const first = setTimeout(show, 4000);
+    const first = setTimeout(show, 2000);
     const loop = setInterval(show, 16000);
     return () => {
       clearTimeout(first);
@@ -53,8 +53,8 @@ export default function LiveFeed({ bought, agoText, names, cities, services }: P
 
   return (
     <div
-      className={`fixed bottom-40 left-4 z-40 flex max-w-[280px] items-center gap-3 rounded-2xl border border-border bg-surface/95 p-3 shadow-xl shadow-black/40 backdrop-blur transition-all duration-500 md:bottom-5 md:left-5 ${
-        visible ? "translate-y-0 opacity-100" : "pointer-events-none translate-y-4 opacity-0"
+      className={`fixed left-1/2 top-[5.5rem] z-40 flex max-w-[300px] -translate-x-1/2 items-center gap-3 rounded-2xl border border-border bg-surface/95 p-3 shadow-xl shadow-black/40 backdrop-blur transition-all duration-500 ${
+        visible ? "translate-y-0 opacity-100" : "pointer-events-none -translate-y-4 opacity-0"
       }`}
     >
       <div className="brand-gradient flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-sm font-bold text-white">

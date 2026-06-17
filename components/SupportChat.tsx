@@ -42,6 +42,7 @@ export default function SupportChat({ locale }: { locale: string }) {
   const [input, setInput] = useState("");
   const [isTyping, setIsTyping] = useState(false);
   const [unread, setUnread] = useState(false);
+  const [btnPos, setBtnPos] = useState<{ x: number; y: number } | null>(null);
 
   // Agent: persist per session so the name doesn't change on re-renders
   const [agent] = useState(() => {
@@ -189,15 +190,51 @@ export default function SupportChat({ locale }: { locale: string }) {
 
   const showQuickReplies = messages.length === 1 && !isTyping;
 
+  // ── Drag del botón de soporte (movible por toda la página) ──────────
+  const drag = useRef<{ sx: number; sy: number; moved: boolean } | null>(null);
+  function onBtnPointerDown(e: React.PointerEvent) {
+    drag.current = { sx: e.clientX, sy: e.clientY, moved: false };
+    (e.currentTarget as Element).setPointerCapture?.(e.pointerId);
+  }
+  function onBtnPointerMove(e: React.PointerEvent) {
+    const d = drag.current;
+    if (!d) return;
+    if (Math.abs(e.clientX - d.sx) > 4 || Math.abs(e.clientY - d.sy) > 4) {
+      d.moved = true;
+    }
+    if (d.moved) {
+      const m = 8;
+      const w = 180, h = 56;
+      const x = Math.min(Math.max(e.clientX - w / 2, m), window.innerWidth - w - m);
+      const y = Math.min(Math.max(e.clientY - h / 2, m), window.innerHeight - h - m);
+      setBtnPos({ x, y });
+    }
+  }
+  function onBtnPointerUp() {
+    const d = drag.current;
+    drag.current = null;
+    if (d && !d.moved) {
+      setChatState("options");
+      setUnread(false);
+    }
+  }
+
   // ── Closed: floating button ──────────────────────────────────────
   // Píldora "Soporte · En línea 24/7": transmite que siempre hay alguien
-  // (más confianza que un simple emoji de chat).
+  // (más confianza que un simple emoji de chat). Se puede arrastrar.
   if (chatState === "closed") {
     return (
       <button
-        onClick={() => { setChatState("options"); setUnread(false); }}
-        className="fixed bottom-[5.5rem] right-5 z-50 flex items-center gap-2.5 rounded-full brand-gradient py-2.5 pl-2.5 pr-4 shadow-xl shadow-brand/40 transition-transform hover:scale-105"
-        aria-label="Soporte en línea 24/7"
+        onPointerDown={onBtnPointerDown}
+        onPointerMove={onBtnPointerMove}
+        onPointerUp={onBtnPointerUp}
+        style={
+          btnPos
+            ? { left: btnPos.x, top: btnPos.y, right: "auto", bottom: "auto", touchAction: "none" }
+            : { touchAction: "none" }
+        }
+        className="fixed bottom-[5.5rem] right-5 z-50 flex cursor-grab items-center gap-2.5 rounded-full brand-gradient py-2.5 pl-2.5 pr-4 shadow-xl shadow-brand/40 transition-transform hover:scale-105 active:cursor-grabbing"
+        aria-label="Soporte en línea 24/7 (arrastrable)"
       >
         {/* Ícono de auriculares con micrófono = soporte humano */}
         <span className="relative flex h-9 w-9 items-center justify-center rounded-full bg-black/10">

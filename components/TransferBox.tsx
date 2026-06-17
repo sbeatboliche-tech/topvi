@@ -31,6 +31,7 @@ function CopyRow({ label, value }: { label: string; value: string }) {
 export default function TransferBox({
   orderId,
   amount,
+  titular,
   alias,
   cvu,
   cuit,
@@ -38,6 +39,7 @@ export default function TransferBox({
 }: {
   orderId: string;
   amount: string;
+  titular: string;
   alias: string;
   cvu: string;
   cuit: string;
@@ -69,6 +71,7 @@ export default function TransferBox({
 
       <div className="mt-3 space-y-2">
         <CopyRow label="Monto exacto (5% OFF aplicado)" value={amount} />
+        <CopyRow label="Titular" value={titular} />
         <CopyRow label="Alias" value={alias} />
         <CopyRow label="CVU" value={cvu} />
         <CopyRow label="CUIT" value={cuit} />

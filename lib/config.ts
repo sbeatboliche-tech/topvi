@@ -25,6 +25,7 @@ export const site = {
     address: "TPUthV8pJ4YwMmpsSNwfULXfAQdt5zjPW3",
   },
   transfer: {
+    titular: "Agustin Abalo",
     alias: "TOP.CRECER",
     cvu: "4530000800012857855128",
     cuit: "20-45415878-5",

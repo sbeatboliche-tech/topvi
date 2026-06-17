@@ -162,6 +162,7 @@ export default async function Gracias({
             <TransferBox
               orderId={order.id}
               amount={displayPrice(order.amount, locale)}
+              titular={site.transfer.titular}
               alias={site.transfer.alias}
               cvu={site.transfer.cvu}
               cuit={site.transfer.cuit}

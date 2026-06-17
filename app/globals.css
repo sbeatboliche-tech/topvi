@@ -41,7 +41,15 @@
 }
 
 body {
-  background: var(--background);
+  /* Mismo fondo premium del home (glow + grilla) en TODA la web.
+     fixed = se mantiene al hacer scroll, sensación consistente. */
+  background-color: var(--background);
+  background-image:
+    radial-gradient(1000px circle at 50% -10%, rgba(255, 255, 255, 0.07), transparent 60%),
+    linear-gradient(rgba(255, 255, 255, 0.025) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.025) 1px, transparent 1px);
+  background-size: 100% 100%, 46px 46px, 46px 46px;
+  background-attachment: fixed;
   color: var(--foreground);
   font-family: var(--font-sans), system-ui, sans-serif;
   -webkit-font-smoothing: antialiased;

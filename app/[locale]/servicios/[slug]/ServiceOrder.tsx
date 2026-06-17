@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 import {
   getService,
@@ -26,6 +26,8 @@ import {
 } from "@/lib/i18n";
 import AccountCheck from "@/components/AccountCheck";
 import { fbqTrack } from "@/lib/fbq";
+
+type StepKey = "quality" | "quantity" | "targets" | "addon" | "contact" | "payment";
 
 export default function ServiceOrder({
   slug,
@@ -74,10 +76,18 @@ export default function ServiceOrder({
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
 
-  const firstTargetRef = useRef<HTMLInputElement>(null);
-  const targetsRef = useRef<HTMLDivElement>(null);
-  const contactRef = useRef<HTMLInputElement>(null);
-  const addonTargetRef = useRef<HTMLInputElement>(null);
+  // ---- Wizard ----
+  const steps: StepKey[] = [
+    ...(svc.hasQuality ? (["quality"] as StepKey[]) : []),
+    "quantity",
+    "targets",
+    ...(addonSvc ? (["addon"] as StepKey[]) : []),
+    "contact",
+    "payment",
+  ];
+  const [step, setStep] = useState(0);
+  const current = steps[step];
+  const isLast = step === steps.length - 1;
 
   const tier = svc.tiers[tierIdx];
   const price = priceFor(tier, quality);
@@ -113,33 +123,63 @@ export default function ServiceOrder({
     return isFollowers ? v.trim().replace(/^@/, "") : v.trim();
   }
 
+  // Valida el paso actual. Devuelve mensaje de error o null si está OK.
+  function validateStep(s: StepKey): string | null {
+    if (s === "targets" && filledTargets.length === 0) {
+      return isFollowers ? t.order.errUser : t.order.errLink;
+    }
+    if (s === "addon" && addonOn && !addonTarget.trim()) {
+      return addonIsFollowers
+        ? "Ingresá la cuenta para los seguidores que agregaste."
+        : "Pegá el link del posteo para los likes que agregaste.";
+    }
+    if (s === "contact" && !contact.trim()) {
+      return t.order.errContact;
+    }
+    return null;
+  }
+
+  function goTo(n: number) {
+    setError("");
+    setStep(n);
+    if (typeof window !== "undefined") {
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+  }
+
+  function next() {
+    const err = validateStep(current);
+    if (err) {
+      setError(err);
+      return;
+    }
+    goTo(Math.min(step + 1, steps.length - 1));
+  }
+  function back() {
+    goTo(Math.max(step - 1, 0));
+  }
+
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
+    // Enter en un input no debe saltear pasos: si no es el último, avanzá.
+    if (!isLast) {
+      next();
+      return;
+    }
     setError("");
 
+    // Revalidación de seguridad de todos los pasos con datos obligatorios.
+    for (const s of steps) {
+      const err = validateStep(s);
+      if (err) {
+        setError(err);
+        const idx = steps.indexOf(s);
+        if (idx >= 0) setStep(idx);
+        return;
+      }
+    }
+
     const cleaned = filledTargets.map(cleanTarget).filter(Boolean);
-    if (cleaned.length === 0) {
-      setError(isFollowers ? t.order.errUser : t.order.errLink);
-      targetsRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
-      firstTargetRef.current?.focus();
-      return;
-    }
-    if (addonOn && !addonTarget.trim()) {
-      setError(
-        addonIsFollowers
-          ? "Ingresá la cuenta para los seguidores que agregaste."
-          : "Pegá el link del posteo para los likes que agregaste."
-      );
-      addonTargetRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
-      addonTargetRef.current?.focus();
-      return;
-    }
-    if (!contact.trim()) {
-      setError(t.order.errContact);
-      contactRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
-      contactRef.current?.focus();
-      return;
-    }
 
     setSubmitting(true);
     try {
@@ -188,36 +228,64 @@ export default function ServiceOrder({
   }
 
   const qkeys: Quality[] = ["global", "premium"];
-  const stepN = (n: number) => (svc.hasQuality ? n : n - 1);
-  // Numeración dinámica: el add-on (si existe) corre los pasos siguientes.
-  const targetStep = stepN(3);
-  const addonStep = stepN(4);
-  const contactStep = addonSvc ? stepN(5) : stepN(4);
-  const payStep = addonSvc ? stepN(6) : stepN(5);
+
+  const stepTitles: Record<StepKey, string> = {
+    quality: t.order.quality,
+    quantity: t.order.quantity,
+    targets: isFollowers
+      ? "¿En qué cuentas los querés?"
+      : "¿En qué posteos los querés?",
+    addon: `Sumá ${addonSvc?.short ?? ""}`,
+    contact: t.order.yourData,
+    payment: t.order.payment,
+  };
 
   return (
-    <div className="mx-auto max-w-6xl px-4 py-12">
-      <div className="mb-8 text-center">
-        <div className="mb-2 text-4xl">{svc.emoji}</div>
-        <h1 className="text-3xl font-bold md:text-4xl">
+    <div className="mx-auto max-w-2xl px-4 py-10">
+      {/* Encabezado */}
+      <div className="mb-6 text-center">
+        <div className="mb-2 text-3xl">{svc.emoji}</div>
+        <h1 className="text-2xl font-bold md:text-3xl">
           {fmt(t.order.title, { svc: "" })}{" "}
           <span className="brand-text">{svc.title}</span>
         </h1>
-        <p className="mt-2 text-muted">
+        <p className="mt-1.5 text-sm text-muted">
           {fmt(t.order.sub, { platform: platformLabel })}
         </p>
-        {isFollowers && (
-          <p className="mx-auto mt-3 max-w-xl rounded-full border border-border bg-surface px-4 py-2 text-xs font-medium text-foreground">
-            {t.order.followersBenefits}
-          </p>
-        )}
       </div>
 
-      <form onSubmit={handleSubmit} className="grid gap-6 pb-28 lg:grid-cols-[1fr_380px] lg:pb-0">
-        <div className="space-y-6">
-          {svc.hasQuality && (
-            <div className="rounded-2xl border border-border bg-surface p-6">
-              <h2 className="mb-4 font-semibold">1. {t.order.quality}</h2>
+      {/* Stepper: progreso + total en vivo */}
+      <div className="mb-6 rounded-2xl border border-border bg-surface/70 p-4 backdrop-blur">
+        <div className="mb-2 flex items-center justify-between text-sm">
+          <span className="font-semibold">
+            Paso {step + 1} de {steps.length}
+            <span className="ml-2 font-normal text-muted">
+              · {stepTitles[current]}
+            </span>
+          </span>
+          <span className="text-right leading-tight">
+            <span className="block text-[10px] uppercase tracking-wide text-muted">
+              {t.order.price}
+            </span>
+            <span className="text-lg font-extrabold">
+              {displayPrice(payTotal, locale)}
+            </span>
+          </span>
+        </div>
+        <div className="h-1.5 w-full overflow-hidden rounded-full bg-surface-2">
+          <div
+            className="brand-gradient h-full rounded-full transition-all duration-300"
+            style={{ width: `${((step + 1) / steps.length) * 100}%` }}
+          />
+        </div>
+      </div>
+
+      <form onSubmit={handleSubmit}>
+        <div className="rounded-2xl border border-border bg-surface p-6">
+          {/* ───── Paso: Calidad ───── */}
+          {current === "quality" && (
+            <div>
+              <h2 className="mb-4 font-semibold">{t.order.quality}</h2>
               <div className="grid gap-3 sm:grid-cols-2">
                 {qkeys.map((q) => (
                   <button
@@ -233,7 +301,7 @@ export default function ServiceOrder({
                     <div className="flex items-center justify-between">
                       <span className="font-semibold">{t.quality[q].label}</span>
                       {q === "premium" && (
-                        <span className="brand-gradient rounded-full px-2 py-0.5 text-[10px] font-bold text-white">
+                        <span className="brand-gradient rounded-full px-2 py-0.5 text-[10px] font-bold">
                           {t.order.recommended}
                         </span>
                       )}
@@ -246,136 +314,127 @@ export default function ServiceOrder({
             </div>
           )}
 
-          {/* Cantidad */}
-          <div className="rounded-2xl border border-border bg-surface p-6">
-            <h2 className="mb-4 font-semibold">
-              {stepN(2)}. {t.order.quantity}
-            </h2>
-            <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
-              {svc.tiers.map((tt, i) => {
-                const pp = priceFor(tt, quality);
-                const bb = bonusFor(tt, quality);
-                return (
-                  <button
-                    type="button"
-                    key={tt.quantity}
-                    onClick={() => setTierIdx(i)}
-                    className={`relative rounded-xl border p-3 text-center transition-all ${
-                      tierIdx === i
-                        ? "border-brand bg-brand/10 ring-1 ring-brand"
-                        : "border-border bg-surface-2 hover:border-brand/40"
-                    }`}
-                  >
-                    {bb > 0 && (
-                      <span className="absolute -top-2 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-full bg-success px-2 py-0.5 text-[10px] font-bold text-black">
-                        {fmt(t.order.free, { n: formatNum(bb, locale) })}
-                      </span>
-                    )}
-                    <div className="text-lg font-bold">
-                      {formatNum(tt.quantity, locale)}
-                    </div>
-                    <div className="text-xs text-muted">{svc.unit}</div>
-                    <div className="mt-1.5 text-[11px] text-muted line-through">
-                      {displayPrice(anchorPrice(pp), locale)}
-                    </div>
-                    <div className="text-sm font-semibold text-accent">
-                      {displayPrice(pp, locale)}
-                    </div>
-                  </button>
-                );
-              })}
+          {/* ───── Paso: Cantidad ───── */}
+          {current === "quantity" && (
+            <div>
+              <h2 className="mb-4 font-semibold">{t.order.quantity}</h2>
+              <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+                {svc.tiers.map((tt, i) => {
+                  const pp = priceFor(tt, quality);
+                  const bb = bonusFor(tt, quality);
+                  return (
+                    <button
+                      type="button"
+                      key={tt.quantity}
+                      onClick={() => setTierIdx(i)}
+                      className={`relative rounded-xl border p-3 text-center transition-all ${
+                        tierIdx === i
+                          ? "border-brand bg-brand/10 ring-1 ring-brand"
+                          : "border-border bg-surface-2 hover:border-brand/40"
+                      }`}
+                    >
+                      {bb > 0 && (
+                        <span className="absolute -top-2 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-full bg-success px-2 py-0.5 text-[10px] font-bold text-black">
+                          {fmt(t.order.free, { n: formatNum(bb, locale) })}
+                        </span>
+                      )}
+                      <div className="text-lg font-bold">
+                        {formatNum(tt.quantity, locale)}
+                      </div>
+                      <div className="text-xs text-muted">{svc.unit}</div>
+                      <div className="mt-1.5 text-[11px] text-muted line-through">
+                        {displayPrice(anchorPrice(pp), locale)}
+                      </div>
+                      <div className="text-sm font-semibold text-accent">
+                        {displayPrice(pp, locale)}
+                      </div>
+                    </button>
+                  );
+                })}
+              </div>
             </div>
-          </div>
+          )}
 
-          {/* Destinos: cuentas (seguidores) o posteos (likes/vistas) */}
-          <div ref={targetsRef} className="rounded-2xl border border-border bg-surface p-6">
-            <h2 className="mb-1 font-semibold">
-              {targetStep}.{" "}
-              {isFollowers
-                ? "¿En qué cuentas querés los seguidores?"
-                : "¿En qué posteos los querés?"}
-            </h2>
-            <p className="mb-4 text-sm text-muted">
-              {isFollowers
-                ? `Repartimos los ${formatNum(totalUnits, locale)} ${svc.unit} entre las cuentas que cargues (hasta ${MAX_TARGETS}).`
-                : `Repartimos los ${formatNum(totalUnits, locale)} ${svc.unit} entre los posteos que cargues (hasta ${MAX_TARGETS}).`}
-            </p>
-            <div className="space-y-3">
-              {targets.map((val, i) => (
-                <div key={i}>
-                  <div className="flex items-center gap-2">
-                    <span className="w-5 shrink-0 text-center text-sm text-muted">
-                      {i + 1}
-                    </span>
-                    {isFollowers ? (
-                      <div className="flex w-full items-center rounded-xl border border-border bg-surface-2 px-3 focus-within:border-brand">
-                        <span className="text-muted">@</span>
+          {/* ───── Paso: Destinos ───── */}
+          {current === "targets" && (
+            <div>
+              <h2 className="mb-1 font-semibold">{stepTitles.targets}</h2>
+              <p className="mb-4 text-sm text-muted">
+                {isFollowers
+                  ? `Repartimos los ${formatNum(totalUnits, locale)} ${svc.unit} entre las cuentas que cargues (hasta ${MAX_TARGETS}).`
+                  : `Repartimos los ${formatNum(totalUnits, locale)} ${svc.unit} entre los posteos que cargues (hasta ${MAX_TARGETS}).`}
+              </p>
+              <div className="space-y-3">
+                {targets.map((val, i) => (
+                  <div key={i}>
+                    <div className="flex items-center gap-2">
+                      <span className="w-5 shrink-0 text-center text-sm text-muted">
+                        {i + 1}
+                      </span>
+                      {isFollowers ? (
+                        <div className="flex w-full items-center rounded-xl border border-border bg-surface-2 px-3 focus-within:border-brand">
+                          <span className="text-muted">@</span>
+                          <input
+                            value={val}
+                            onChange={(e) => setTarget(i, e.target.value)}
+                            placeholder="usuario"
+                            className="w-full bg-transparent px-2 py-3 outline-none"
+                            autoCapitalize="none"
+                            autoCorrect="off"
+                            spellCheck={false}
+                          />
+                        </div>
+                      ) : (
                         <input
-                          ref={i === 0 ? firstTargetRef : undefined}
                           value={val}
                           onChange={(e) => setTarget(i, e.target.value)}
-                          placeholder="usuario"
-                          className="w-full bg-transparent px-2 py-3 outline-none"
+                          placeholder="https://instagram.com/..."
+                          className="w-full rounded-xl border border-border bg-surface-2 px-3 py-3 outline-none focus:border-brand"
                           autoCapitalize="none"
                           autoCorrect="off"
                           spellCheck={false}
+                          inputMode="url"
                         />
+                      )}
+                      {targets.length > 1 && (
+                        <button
+                          type="button"
+                          onClick={() => removeTarget(i)}
+                          className="shrink-0 rounded-lg border border-border px-3 py-2 text-muted hover:bg-surface-2"
+                          aria-label="Quitar"
+                        >
+                          ✕
+                        </button>
+                      )}
+                    </div>
+                    {isFollowers && svc.platform === "instagram" && (
+                      <div className="pl-7">
+                        <AccountCheck username={val} />
                       </div>
-                    ) : (
-                      <input
-                        ref={i === 0 ? firstTargetRef : undefined}
-                        value={val}
-                        onChange={(e) => setTarget(i, e.target.value)}
-                        placeholder="https://instagram.com/..."
-                        className="w-full rounded-xl border border-border bg-surface-2 px-3 py-3 outline-none focus:border-brand"
-                        autoCapitalize="none"
-                        autoCorrect="off"
-                        spellCheck={false}
-                        inputMode="url"
-                      />
-                    )}
-                    {targets.length > 1 && (
-                      <button
-                        type="button"
-                        onClick={() => removeTarget(i)}
-                        className="shrink-0 rounded-lg border border-border px-3 py-2 text-muted hover:bg-surface-2"
-                        aria-label="Quitar"
-                      >
-                        ✕
-                      </button>
                     )}
                   </div>
-                  {isFollowers && svc.platform === "instagram" && (
-                    <div className="pl-7">
-                      <AccountCheck username={val} />
-                    </div>
-                  )}
-                </div>
-              ))}
+                ))}
+              </div>
+              {targets.length < MAX_TARGETS && (
+                <button
+                  type="button"
+                  onClick={addTarget}
+                  className="mt-3 rounded-full border border-border px-4 py-2 text-sm font-medium hover:bg-surface-2"
+                >
+                  {isFollowers ? "+ Agregar otra cuenta" : "+ Agregar otro posteo"}
+                </button>
+              )}
+              <p className="mt-3 text-xs text-muted">{t.order.publicWarn}</p>
             </div>
-            {targets.length < MAX_TARGETS && (
-              <button
-                type="button"
-                onClick={addTarget}
-                className="mt-3 rounded-full border border-border px-4 py-2 text-sm font-medium hover:bg-surface-2"
-              >
-                {isFollowers ? "+ Agregar otra cuenta" : "+ Agregar otro posteo"}
-              </button>
-            )}
-            <p className="mt-3 text-xs text-muted">{t.order.publicWarn}</p>
-          </div>
+          )}
 
-          {/* Add-on / upsell cruzado */}
-          {addonSvc && addonTier && (
-            <div
-              className={`rounded-2xl border p-6 transition-all ${
-                addonOn ? "border-brand bg-brand/5" : "border-dashed border-brand/50 bg-surface"
-              }`}
-            >
+          {/* ───── Paso: Add-on / upsell ───── */}
+          {current === "addon" && addonSvc && addonTier && (
+            <div>
               <div className="flex items-start justify-between gap-3">
                 <div>
                   <h2 className="font-semibold">
-                    {addonStep}. 🔥 Sumá {addonSvc.short} y potenciá el resultado
+                    🔥 Sumá {addonSvc.short} y potenciá el resultado
                   </h2>
                   <p className="mt-1 text-sm text-muted">
                     {addonIsFollowers
@@ -389,7 +448,7 @@ export default function ServiceOrder({
                   className={`shrink-0 rounded-full px-4 py-2 text-sm font-semibold transition-colors ${
                     addonOn
                       ? "border border-border bg-surface-2"
-                      : "brand-gradient text-white"
+                      : "brand-gradient"
                   }`}
                 >
                   {addonOn ? "Quitar" : "Agregar"}
@@ -427,7 +486,6 @@ export default function ServiceOrder({
                       <div className="flex items-center rounded-xl border border-border bg-surface-2 px-3 focus-within:border-brand">
                         <span className="text-muted">@</span>
                         <input
-                          ref={addonTargetRef}
                           value={addonTarget}
                           onChange={(e) => setAddonTarget(e.target.value)}
                           placeholder="usuario"
@@ -439,7 +497,6 @@ export default function ServiceOrder({
                       </div>
                     ) : (
                       <input
-                        ref={addonTargetRef}
                         value={addonTarget}
                         onChange={(e) => setAddonTarget(e.target.value)}
                         placeholder="https://instagram.com/..."
@@ -456,186 +513,186 @@ export default function ServiceOrder({
                   </div>
                 </div>
               )}
+
+              {!addonOn && (
+                <p className="mt-4 text-xs text-muted">
+                  Es opcional. Podés continuar sin agregar nada.
+                </p>
+              )}
             </div>
           )}
 
-          {/* Contacto */}
-          <div className="rounded-2xl border border-border bg-surface p-6">
-            <h2 className="mb-4 font-semibold">
-              {contactStep}. {t.order.yourData}
-            </h2>
-            <label className="mb-1.5 block text-sm text-muted">
-              {t.order.contactLabel}
-            </label>
-            <input
-              ref={contactRef}
-              value={contact}
-              onChange={(e) => setContact(e.target.value)}
-              placeholder={t.order.contactPh}
-              className="w-full rounded-xl border border-border bg-surface-2 px-3 py-3 outline-none focus:border-brand"
-              inputMode="email"
-              autoCapitalize="none"
-              autoCorrect="off"
-              spellCheck={false}
-            />
-          </div>
-
-          {/* Pago */}
-          <div className="rounded-2xl border border-border bg-surface p-6">
-            <h2 className="mb-4 font-semibold">
-              {payStep}. {t.order.payment}
-            </h2>
-            <div className="grid gap-3 sm:grid-cols-2">
-              {mpAvailable && (
-                <button
-                  type="button"
-                  onClick={() => setPayment("mercadopago")}
-                  className={`rounded-xl border p-4 text-left transition-all ${
-                    payment === "mercadopago"
-                      ? "border-brand bg-brand/10 ring-1 ring-brand"
-                      : "border-border bg-surface-2 hover:border-brand/40"
-                  }`}
-                >
-                  <div className="font-semibold">💳 MercadoPago</div>
-                  <p className="mt-1 text-xs text-muted">{t.order.mpDesc}</p>
-                  {interestFree && (
-                    <p className="mt-1.5 text-xs font-semibold text-success">
-                      {t.order.interestFree}
-                    </p>
-                  )}
-                </button>
-              )}
-              {mpAvailable && (
-                <button
-                  type="button"
-                  onClick={() => setPayment("tarjeta")}
-                  className={`rounded-xl border p-4 text-left transition-all ${
-                    payment === "tarjeta"
-                      ? "border-brand bg-brand/10 ring-1 ring-brand"
-                      : "border-border bg-surface-2 hover:border-brand/40"
-                  }`}
-                >
-                  <div className="font-semibold">💳 {t.order.cardLabel}</div>
-                  <p className="mt-1 text-xs text-muted">{t.order.cardDesc}</p>
-                  <p className="mt-1.5 text-xs font-semibold text-success">
-                    💳 Hasta 3 cuotas sin interés
-                  </p>
-                </button>
-              )}
-              <button
-                type="button"
-                onClick={() => setPayment("usdt")}
-                className={`rounded-xl border p-4 text-left transition-all ${
-                  payment === "usdt"
-                    ? "border-brand bg-brand/10 ring-1 ring-brand"
-                    : "border-border bg-surface-2 hover:border-brand/40"
-                }`}
-              >
-                <div className="font-semibold">🪙 Crypto</div>
-                <p className="mt-1 text-xs text-muted">{t.order.usdtDesc}</p>
-              </button>
+          {/* ───── Paso: Contacto ───── */}
+          {current === "contact" && (
+            <div>
+              <h2 className="mb-4 font-semibold">{t.order.yourData}</h2>
+              <label className="mb-1.5 block text-sm text-muted">
+                {t.order.contactLabel}
+              </label>
+              <input
+                value={contact}
+                onChange={(e) => setContact(e.target.value)}
+                placeholder={t.order.contactPh}
+                className="w-full rounded-xl border border-border bg-surface-2 px-3 py-3 outline-none focus:border-brand"
+                inputMode="email"
+                autoCapitalize="none"
+                autoCorrect="off"
+                spellCheck={false}
+              />
             </div>
-          </div>
-        </div>
+          )}
 
-        {/* Resumen */}
-        <div className="lg:sticky lg:top-24 lg:self-start">
-          <div className="rounded-2xl border border-border bg-surface p-6">
-            <h2 className="mb-4 font-semibold">{t.order.summary}</h2>
-            <dl className="space-y-2 text-sm">
-              <div className="flex justify-between">
-                <dt className="text-muted">{svc.short}</dt>
-                <dd className="font-medium">{formatNum(totalUnits, locale)}</dd>
-              </div>
-              {filledTargets.length > 1 && (
-                <div className="flex justify-between text-xs">
-                  <dt className="text-muted">
-                    {isFollowers ? "Cuentas" : "Posteos"}
-                  </dt>
-                  <dd className="font-medium">{filledTargets.length}</dd>
-                </div>
-              )}
-              <div className="flex justify-between">
-                <dt className="text-muted">{svc.short}</dt>
-                <dd className="font-medium">{displayPrice(price, locale)}</dd>
-              </div>
-              {addonOn && addonTier && (
-                <div className="flex justify-between text-accent">
-                  <dt>
-                    + {formatNum(addonTier.quantity, locale)} {addonSvc!.short}
-                  </dt>
-                  <dd className="font-medium">{displayPrice(addonPrice, locale)}</dd>
-                </div>
-              )}
-            </dl>
-
-            <div className="mt-4 flex items-end justify-between border-t border-border pt-4">
-              <span className="text-muted">{t.order.price}</span>
-              <span>
-                {payment === "usdt" && (
-                  <span className="mr-2 text-sm text-muted line-through">
-                    {displayPrice(total, locale)}
-                  </span>
+          {/* ───── Paso: Pago + resumen ───── */}
+          {current === "payment" && (
+            <div>
+              <h2 className="mb-4 font-semibold">{t.order.payment}</h2>
+              <div className="grid gap-3 sm:grid-cols-2">
+                {mpAvailable && (
+                  <button
+                    type="button"
+                    onClick={() => setPayment("mercadopago")}
+                    className={`rounded-xl border p-4 text-left transition-all ${
+                      payment === "mercadopago"
+                        ? "border-brand bg-brand/10 ring-1 ring-brand"
+                        : "border-border bg-surface-2 hover:border-brand/40"
+                    }`}
+                  >
+                    <div className="font-semibold">💳 MercadoPago</div>
+                    <p className="mt-1 text-xs text-muted">{t.order.mpDesc}</p>
+                    {interestFree && (
+                      <p className="mt-1.5 text-xs font-semibold text-success">
+                        {t.order.interestFree}
+                      </p>
+                    )}
+                  </button>
                 )}
-                <span className="text-2xl font-extrabold">
-                  {displayPrice(payTotal, locale)}
-                </span>
-              </span>
+                {mpAvailable && (
+                  <button
+                    type="button"
+                    onClick={() => setPayment("tarjeta")}
+                    className={`rounded-xl border p-4 text-left transition-all ${
+                      payment === "tarjeta"
+                        ? "border-brand bg-brand/10 ring-1 ring-brand"
+                        : "border-border bg-surface-2 hover:border-brand/40"
+                    }`}
+                  >
+                    <div className="font-semibold">💳 {t.order.cardLabel}</div>
+                    <p className="mt-1 text-xs text-muted">{t.order.cardDesc}</p>
+                    <p className="mt-1.5 text-xs font-semibold text-success">
+                      💳 Hasta 3 cuotas sin interés
+                    </p>
+                  </button>
+                )}
+                <button
+                  type="button"
+                  onClick={() => setPayment("usdt")}
+                  className={`rounded-xl border p-4 text-left transition-all ${
+                    payment === "usdt"
+                      ? "border-brand bg-brand/10 ring-1 ring-brand"
+                      : "border-border bg-surface-2 hover:border-brand/40"
+                  }`}
+                >
+                  <div className="font-semibold">🪙 Crypto</div>
+                  <p className="mt-1 text-xs text-muted">{t.order.usdtDesc}</p>
+                </button>
+              </div>
+
+              {/* Resumen final */}
+              <div className="mt-6 rounded-xl border border-border bg-surface-2 p-4">
+                <h3 className="mb-3 text-sm font-semibold">{t.order.summary}</h3>
+                <dl className="space-y-2 text-sm">
+                  <div className="flex justify-between">
+                    <dt className="text-muted">{svc.short}</dt>
+                    <dd className="font-medium">{formatNum(totalUnits, locale)}</dd>
+                  </div>
+                  {filledTargets.length > 1 && (
+                    <div className="flex justify-between text-xs">
+                      <dt className="text-muted">
+                        {isFollowers ? "Cuentas" : "Posteos"}
+                      </dt>
+                      <dd className="font-medium">{filledTargets.length}</dd>
+                    </div>
+                  )}
+                  <div className="flex justify-between">
+                    <dt className="text-muted">{svc.short}</dt>
+                    <dd className="font-medium">{displayPrice(price, locale)}</dd>
+                  </div>
+                  {addonOn && addonTier && (
+                    <div className="flex justify-between text-accent">
+                      <dt>
+                        + {formatNum(addonTier.quantity, locale)} {addonSvc!.short}
+                      </dt>
+                      <dd className="font-medium">{displayPrice(addonPrice, locale)}</dd>
+                    </div>
+                  )}
+                </dl>
+                <div className="mt-3 flex items-end justify-between border-t border-border pt-3">
+                  <span className="text-muted">{t.order.price}</span>
+                  <span>
+                    {payment === "usdt" && (
+                      <span className="mr-2 text-sm text-muted line-through">
+                        {displayPrice(total, locale)}
+                      </span>
+                    )}
+                    <span className="text-2xl font-extrabold">
+                      {displayPrice(payTotal, locale)}
+                    </span>
+                  </span>
+                </div>
+                {payment === "usdt" && (
+                  <p className="mt-1 text-right text-xs font-semibold text-success">
+                    −{Math.round(CRYPTO_DISCOUNT * 100)}% pagando en cripto 🪙
+                  </p>
+                )}
+                {interestFree && (
+                  <p className="mt-3 rounded-lg bg-success/10 px-3 py-2 text-center text-xs font-semibold text-success">
+                    {t.order.interestFree}
+                  </p>
+                )}
+              </div>
             </div>
-            {payment === "usdt" && (
-              <p className="mt-1 text-right text-xs font-semibold text-success">
-                −{Math.round(CRYPTO_DISCOUNT * 100)}% pagando en cripto 🪙
-              </p>
-            )}
-
-            {interestFree && (
-              <p className="mt-3 rounded-lg bg-success/10 px-3 py-2 text-center text-xs font-semibold text-success">
-                {t.order.interestFree}
-              </p>
-            )}
-
-            {error && (
-              <p className="mt-3 rounded-lg bg-warning/10 px-3 py-2 text-sm text-warning">
-                {error}
-              </p>
-            )}
-
-            <button
-              type="submit"
-              disabled={submitting}
-              className="brand-gradient mt-4 w-full rounded-full py-3.5 font-semibold text-white shadow-lg shadow-brand/30 transition-transform hover:scale-[1.02] disabled:opacity-60"
-            >
-              {submitting ? t.order.processing : t.order.pay}
-            </button>
-            <p className="mt-3 text-center text-xs text-muted">{t.order.secure}</p>
-          </div>
-        </div>
-
-        {/* Barra fija de pago en MÓVIL */}
-        <div className="fixed inset-x-0 bottom-0 z-40 border-t border-border bg-surface/95 px-4 py-3 backdrop-blur lg:hidden">
-          {error && (
-            <p className="mb-2 rounded-lg bg-warning/10 px-3 py-1.5 text-center text-xs font-medium text-warning">
-              {error}
-            </p>
           )}
-          <div className="flex items-center gap-3 pr-14">
-            <div className="leading-tight">
-              <div className="text-[10px] uppercase text-muted">
-                {t.order.price}
-              </div>
-              <div className="text-lg font-extrabold">
-                {displayPrice(payTotal, locale)}
-              </div>
-            </div>
+        </div>
+
+        {/* Error */}
+        {error && (
+          <p className="mt-4 rounded-lg bg-warning/10 px-3 py-2 text-sm text-warning">
+            {error}
+          </p>
+        )}
+
+        {/* Navegación */}
+        <div className="mt-5 flex items-center gap-3">
+          {step > 0 && (
+            <button
+              type="button"
+              onClick={back}
+              className="rounded-full border border-border px-6 py-3 text-sm font-semibold text-muted transition-colors hover:bg-surface-2"
+            >
+              ← Atrás
+            </button>
+          )}
+          {!isLast ? (
+            <button
+              type="button"
+              onClick={next}
+              className="brand-gradient ml-auto flex-1 rounded-full py-3.5 font-semibold shadow-lg shadow-brand/30 transition-transform hover:scale-[1.02] sm:flex-none sm:px-12"
+            >
+              Continuar →
+            </button>
+          ) : (
             <button
               type="submit"
               disabled={submitting}
-              className="brand-gradient ml-auto flex-1 rounded-full py-3 text-center font-semibold text-white shadow-lg shadow-brand/30 disabled:opacity-60"
+              className="brand-gradient ml-auto flex-1 rounded-full py-3.5 font-semibold shadow-lg shadow-brand/30 transition-transform hover:scale-[1.02] disabled:opacity-60 sm:flex-none sm:px-12"
             >
               {submitting ? t.order.processing : t.order.pay}
             </button>
-          </div>
+          )}
         </div>
+        {isLast && (
+          <p className="mt-3 text-center text-xs text-muted">{t.order.secure}</p>
+        )}
       </form>
     </div>
   );

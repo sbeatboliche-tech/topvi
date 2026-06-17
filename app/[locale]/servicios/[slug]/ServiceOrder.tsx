@@ -65,8 +65,10 @@ export default function ServiceOrder({
   // Multi-target: cuentas (seguidores) o links de posteo (likes/vistas/etc).
   const [targets, setTargets] = useState<string[]>([""]);
   const [contact, setContact] = useState("");
-  const [payment, setPayment] = useState<"mercadopago" | "tarjeta" | "usdt">(
-    mpAvailable ? "mercadopago" : "usdt"
+  // Sin método preseleccionado cuando hay varias opciones: el cliente elige.
+  // (Si no hay MercadoPago, solo queda Crypto → lo dejamos elegido.)
+  const [payment, setPayment] = useState<"mercadopago" | "tarjeta" | "usdt" | "">(
+    mpAvailable ? "" : "usdt"
   );
 
   // ---- Add-on / upsell cruzado ----
@@ -202,6 +204,11 @@ export default function ServiceOrder({
       return;
     }
     setError("");
+
+    if (!payment) {
+      setError("Elegí un método de pago para continuar.");
+      return;
+    }
 
     // Revalidación de seguridad de todos los pasos con datos obligatorios.
     for (const s of steps) {
@@ -743,10 +750,10 @@ export default function ServiceOrder({
           ) : (
             <button
               type="submit"
-              disabled={submitting}
+              disabled={submitting || !payment}
               className="brand-gradient ml-auto flex-1 rounded-full py-3.5 font-semibold shadow-lg shadow-brand/30 transition-transform hover:scale-[1.02] disabled:opacity-60 sm:flex-none sm:px-12"
             >
-              {submitting ? t.order.processing : t.order.pay}
+              {submitting ? t.order.processing : !payment ? "Elegí un método de pago" : t.order.pay}
             </button>
           )}
         </div>

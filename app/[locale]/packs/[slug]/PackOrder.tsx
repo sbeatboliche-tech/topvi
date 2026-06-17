@@ -25,8 +25,9 @@ export default function PackOrder({
   const [username, setUsername] = useState("");
   const [posts, setPosts] = useState<string[]>([""]);
   const [contact, setContact] = useState("");
-  const [payment, setPayment] = useState<"mercadopago" | "tarjeta" | "usdt">(
-    mpAvailable ? "mercadopago" : "usdt"
+  // Sin método preseleccionado cuando hay varias opciones: el cliente elige.
+  const [payment, setPayment] = useState<"mercadopago" | "tarjeta" | "usdt" | "">(
+    mpAvailable ? "" : "usdt"
   );
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
@@ -84,6 +85,10 @@ export default function PackOrder({
       setError("Dejanos un email para avisarte.");
       contactRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
       contactRef.current?.focus();
+      return;
+    }
+    if (!payment) {
+      setError("Elegí un método de pago para continuar.");
       return;
     }
 
@@ -361,10 +366,10 @@ export default function PackOrder({
 
             <button
               type="submit"
-              disabled={submitting}
+              disabled={submitting || !payment}
               className="brand-gradient mt-4 w-full rounded-full py-3.5 font-semibold text-white shadow-lg shadow-brand/30 transition-transform hover:scale-[1.02] disabled:opacity-60"
             >
-              {submitting ? "Procesando..." : "Pagar y comprar"}
+              {submitting ? "Procesando..." : !payment ? "Elegí un método de pago" : "Pagar y comprar"}
             </button>
             <p className="mt-3 text-center text-xs text-muted">
               🔒 Pago seguro · Sin contraseña · Garantía incluida
@@ -388,10 +393,10 @@ export default function PackOrder({
             </div>
             <button
               type="submit"
-              disabled={submitting}
+              disabled={submitting || !payment}
               className="brand-gradient ml-auto flex-1 rounded-full py-3 text-center font-semibold text-white shadow-lg shadow-brand/30 disabled:opacity-60"
             >
-              {submitting ? "Procesando..." : "Pagar y comprar"}
+              {submitting ? "Procesando..." : !payment ? "Elegí un método de pago" : "Pagar y comprar"}
             </button>
           </div>
         </div>

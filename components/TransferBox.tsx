@@ -72,14 +72,7 @@ export default function TransferBox({
         <CopyRow label="Alias" value={alias} />
         <CopyRow label="CVU" value={cvu} />
         <CopyRow label="CUIT" value={cuit} />
-        <CopyRow label="Código (ponelo en el concepto)" value={orderId} />
       </div>
-
-      <p className="mt-3 rounded-lg bg-surface-2 px-4 py-3 text-sm text-muted">
-        💡 Importante: poné el <b className="text-foreground">código {orderId}</b> en
-        el <b className="text-foreground">concepto/mensaje</b> de la transferencia. Así
-        identificamos tu pago al instante.
-      </p>
 
       <div className="mt-4 flex flex-wrap gap-3">
         {state === "sent" ? (

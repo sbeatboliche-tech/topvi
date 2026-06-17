@@ -192,3 +192,83 @@ export async function notifyNewOrder(order: Order): Promise<void> {
     console.error("[email] Error enviando notificación:", err);
   }
 }
+
+// Mail de confirmación al CLIENTE cuando su compra se aprueba.
+// Solo se envía si el contacto es un email. Gated por RESEND_API_KEY.
+export async function sendOrderConfirmation(order: Order): Promise<void> {
+  const key = process.env.RESEND_API_KEY;
+  if (!key) return;
+  if (!order.contact.includes("@")) return; // contacto por teléfono, no email
+
+  const serviceLabel = SERVICE_LABELS[order.service] ?? order.service;
+  const target = order.username.startsWith("http")
+    ? order.username
+    : `@${order.username}`;
+
+  const html = `
+<!DOCTYPE html>
+<html lang="es">
+<body style="font-family:sans-serif;background:#0a0a0b;padding:24px;color:#f4f4f5">
+  <div style="max-width:480px;margin:0 auto;background:#141417;border-radius:16px;overflow:hidden;border:1px solid #2a2a31">
+    <div style="padding:28px 24px;text-align:center">
+      <div style="font-size:40px">✅</div>
+      <h1 style="margin:12px 0 0;font-size:22px;color:#fff">¡Recibimos tu compra!</h1>
+      <p style="margin:10px 0 0;color:#9aa0aa;font-size:14px">
+        Ya estamos preparando tu pedido. La entrega arranca en breve (suele tardar menos de 4 hs).
+      </p>
+    </div>
+    <div style="padding:0 24px 24px">
+      <table style="width:100%;border-collapse:collapse;font-size:14px;color:#f4f4f5">
+        <tr style="border-bottom:1px solid #2a2a31">
+          <td style="padding:10px 0;color:#9aa0aa;width:45%">Pedido</td>
+          <td style="padding:10px 0;font-weight:600;text-align:right">${order.id}</td>
+        </tr>
+        <tr style="border-bottom:1px solid #2a2a31">
+          <td style="padding:10px 0;color:#9aa0aa">Servicio</td>
+          <td style="padding:10px 0;font-weight:600;text-align:right">${serviceLabel}</td>
+        </tr>
+        <tr style="border-bottom:1px solid #2a2a31">
+          <td style="padding:10px 0;color:#9aa0aa">Cantidad</td>
+          <td style="padding:10px 0;text-align:right">${order.totalFollowers.toLocaleString("es-AR")}</td>
+        </tr>
+        <tr>
+          <td style="padding:10px 0;color:#9aa0aa">Cuenta / Posteo</td>
+          <td style="padding:10px 0;font-weight:600;text-align:right">${target}</td>
+        </tr>
+      </table>
+      <div style="margin-top:18px;background:#102a1f;border:1px solid #1f5f43;border-radius:10px;padding:14px;text-align:center">
+        <p style="margin:0;font-size:13px;color:#34d399">
+          🔒 Recordá tener tu cuenta en <b>público</b> mientras hacemos la entrega.
+        </p>
+      </div>
+      <p style="margin:18px 0 0;text-align:center;color:#6b7280;font-size:12px">
+        ¿Dudas? Respondé este mail o escribinos por Instagram. ${site.name}
+      </p>
+    </div>
+  </div>
+</body>
+</html>`;
+
+  try {
+    const from =
+      process.env.RESEND_FROM ?? "TopViralMarketing <onboarding@resend.dev>";
+    const res = await fetch(RESEND_API, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${key}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        from,
+        to: [order.contact],
+        subject: `✅ Confirmamos tu compra en ${site.name} (${order.id})`,
+        html,
+      }),
+    });
+    if (!res.ok) {
+      console.error("[email] Confirmación cliente error:", res.status, await res.text());
+    }
+  } catch (err) {
+    console.error("[email] Error enviando confirmación al cliente:", err);
+  }
+}

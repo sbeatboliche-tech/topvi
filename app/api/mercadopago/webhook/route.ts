@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getPaymentStatus } from "@/lib/mercadopago";
 import { getOrder, updateStatus } from "@/lib/db";
-import { notifyNewOrder } from "@/lib/email";
+import { notifyNewOrder, sendOrderConfirmation } from "@/lib/email";
 import { markLeadCustomer } from "@/lib/leads";
 
 // MercadoPago notifica acá cuando cambia el estado de un pago.
@@ -20,6 +20,7 @@ export async function POST(req: NextRequest) {
         const order = await getOrder(orderId);
         if (order) {
           await notifyNewOrder(order);
+          await sendOrderConfirmation(order).catch(() => {});
           await markLeadCustomer(order.contact).catch(() => {});
         }
         // TODO (entrega automática): si en el futuro conectás la API

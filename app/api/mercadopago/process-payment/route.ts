@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getOrder, updateStatus } from "@/lib/db";
 import { processCardPayment } from "@/lib/mercadopago";
-import { notifyNewOrder } from "@/lib/email";
+import { notifyNewOrder, sendOrderConfirmation } from "@/lib/email";
 import { markLeadCustomer } from "@/lib/leads";
 
 // Procesa el pago con tarjeta (Checkout Transparente). El navegador manda el
@@ -31,6 +31,7 @@ export async function POST(req: NextRequest) {
     if (result.status === "approved") {
       await updateStatus(order.id, "paid");
       await notifyNewOrder(order);
+      await sendOrderConfirmation(order).catch(() => {});
       await markLeadCustomer(order.contact).catch(() => {});
     }
 

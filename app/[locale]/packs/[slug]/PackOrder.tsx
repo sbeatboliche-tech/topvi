@@ -26,8 +26,8 @@ export default function PackOrder({
   const [posts, setPosts] = useState<string[]>([""]);
   const [contact, setContact] = useState("");
   // Sin método preseleccionado cuando hay varias opciones: el cliente elige.
-  const [payment, setPayment] = useState<"mercadopago" | "tarjeta" | "usdt" | "">(
-    mpAvailable ? "" : "usdt"
+  const [payment, setPayment] = useState<"mercadopago" | "tarjeta" | "usdt" | "transferencia" | "">(
+    mpAvailable ? "" : "transferencia"
   );
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
@@ -280,9 +280,6 @@ export default function PackOrder({
                   <p className="mt-1 text-xs text-muted">
                     Tarjeta o dinero en cuenta. Pagá en cuotas.
                   </p>
-                  <p className="mt-1.5 text-xs font-semibold text-success">
-                    💳 3 cuotas SIN interés
-                  </p>
                 </button>
               )}
               {mpAvailable && (
@@ -316,6 +313,23 @@ export default function PackOrder({
                 <div className="font-semibold">🪙 Crypto</div>
                 <p className="mt-1 text-xs text-muted">
                   Pago en cripto (USDT). Te pasamos la wallet al confirmar.
+                </p>
+              </button>
+              <button
+                type="button"
+                onClick={() => setPayment("transferencia")}
+                className={`rounded-xl border p-4 text-left transition-all ${
+                  payment === "transferencia"
+                    ? "border-brand bg-brand/10 ring-1 ring-brand"
+                    : "border-border bg-surface-2 hover:border-brand/40"
+                }`}
+              >
+                <div className="font-semibold">🏦 Transferencia</div>
+                <p className="mt-1 text-xs text-muted">
+                  Pagá por CBU/alias. Te pasamos los datos al confirmar.
+                </p>
+                <p className="mt-1.5 text-xs font-semibold text-success">
+                  5% OFF pagando por transferencia
                 </p>
               </button>
             </div>

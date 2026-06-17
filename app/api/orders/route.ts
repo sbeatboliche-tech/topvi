@@ -16,10 +16,12 @@ import {
 import { isLocale, defaultLocale } from "@/lib/i18n";
 import { markLeadOrdered } from "@/lib/leads";
 
-type Payment = "mercadopago" | "tarjeta" | "usdt";
+type Payment = "mercadopago" | "tarjeta" | "usdt" | "transferencia";
 
 function isValidPayment(p: unknown): p is Payment {
-  return p === "mercadopago" || p === "tarjeta" || p === "usdt";
+  return (
+    p === "mercadopago" || p === "tarjeta" || p === "usdt" || p === "transferencia"
+  );
 }
 
 export async function POST(req: NextRequest) {

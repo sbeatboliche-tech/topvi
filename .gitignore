@@ -39,3 +39,7 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# Meta Ads credentials
+.claude/skills/meta-ads/.env
+**/.env

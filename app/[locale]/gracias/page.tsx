@@ -155,6 +155,41 @@ export default async function Gracias({
               </p>
             </div>
           )}
+
+          {/* Instrucciones TRANSFERENCIA */}
+          {method === "transferencia" && (
+            <div className="mt-6 rounded-2xl border border-warning/40 bg-warning/5 p-6 text-left">
+              <h2 className="font-semibold">🏦 Pagá por transferencia</h2>
+              <p className="mt-2 text-sm text-muted">
+                Transferí{" "}
+                <b className="text-foreground">{displayPrice(order.amount, locale)}</b>{" "}
+                (ya con el 5% de descuento aplicado) a estos datos:
+              </p>
+              <div className="mt-3 space-y-2">
+                <div className="flex items-center justify-between rounded-lg bg-surface-2 p-3 text-sm">
+                  <span className="text-muted">Alias</span>
+                  <code className="font-semibold">{site.transfer.alias}</code>
+                </div>
+                <div className="flex items-center justify-between rounded-lg bg-surface-2 p-3 text-sm">
+                  <span className="text-muted">CVU</span>
+                  <code className="break-all font-semibold">{site.transfer.cvu}</code>
+                </div>
+                <div className="flex items-center justify-between rounded-lg bg-surface-2 p-3 text-sm">
+                  <span className="text-muted">CUIT</span>
+                  <code className="font-semibold">{site.transfer.cuit}</code>
+                </div>
+              </div>
+              <p className="mt-3 text-sm text-muted">
+                Cuando transfieras, mandanos el comprobante y arrancamos la entrega.
+              </p>
+              <a
+                href={`mailto:${site.email}?subject=${encodeURIComponent(`Comprobante transferencia - Orden ${order.id}`)}`}
+                className="mt-4 inline-block brand-gradient rounded-full px-6 py-3 font-semibold"
+              >
+                Enviar comprobante
+              </a>
+            </div>
+          )}
         </>
       ) : (
         <p className="mt-3 text-muted">{t.gracias.noOrder}</p>

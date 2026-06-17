@@ -24,6 +24,11 @@ export const site = {
     network: "TRC20",
     address: "TPUthV8pJ4YwMmpsSNwfULXfAQdt5zjPW3",
   },
+  transfer: {
+    alias: "TOP.CRECER",
+    cvu: "4530000800012857855128",
+    cuit: "20-45415878-5",
+  },
 
   // ---- Social proof ----
   stats: {
@@ -366,9 +371,14 @@ export function anchorPrice(price: number): number {
   return Math.round(price * ANCHOR_MULTIPLIER);
 }
 
-// Aplica el descuento por método de pago (solo USDT). Se recalcula en el server.
+// Descuento del 5% pagando por transferencia (mismo % que cripto).
+export const TRANSFER_DISCOUNT = 0.05;
+
+// Aplica el descuento por método de pago (USDT o transferencia). Se recalcula en el server.
 export function applyPaymentDiscount(amount: number, payment: string): number {
-  return payment === "usdt" ? Math.round(amount * (1 - CRYPTO_DISCOUNT)) : amount;
+  if (payment === "usdt") return Math.round(amount * (1 - CRYPTO_DISCOUNT));
+  if (payment === "transferencia") return Math.round(amount * (1 - TRANSFER_DISCOUNT));
+  return amount;
 }
 
 // ---- Cupones de descuento (remarketing por email) ----

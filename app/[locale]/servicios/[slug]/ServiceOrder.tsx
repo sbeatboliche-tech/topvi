@@ -67,8 +67,8 @@ export default function ServiceOrder({
   const [contact, setContact] = useState("");
   // Sin método preseleccionado cuando hay varias opciones: el cliente elige.
   // (Si no hay MercadoPago, solo queda Crypto → lo dejamos elegido.)
-  const [payment, setPayment] = useState<"mercadopago" | "tarjeta" | "usdt" | "">(
-    mpAvailable ? "" : "usdt"
+  const [payment, setPayment] = useState<"mercadopago" | "tarjeta" | "usdt" | "transferencia" | "">(
+    mpAvailable ? "" : "transferencia"
   );
 
   // ---- Add-on / upsell cruzado ----
@@ -652,6 +652,23 @@ export default function ServiceOrder({
                 )}
                 <button
                   type="button"
+                  onClick={() => setPayment("transferencia")}
+                  className={`rounded-xl border p-4 text-left transition-all ${
+                    payment === "transferencia"
+                      ? "border-brand bg-brand/10 ring-1 ring-brand"
+                      : "border-border bg-surface-2 hover:border-brand/40"
+                  }`}
+                >
+                  <div className="font-semibold">🏦 Transferencia</div>
+                  <p className="mt-1 text-xs text-muted">
+                    Pagá por CBU/alias. Te pasamos los datos al confirmar.
+                  </p>
+                  <p className="mt-1.5 text-xs font-semibold text-success">
+                    5% OFF pagando por transferencia
+                  </p>
+                </button>
+                <button
+                  type="button"
                   onClick={() => setPayment("usdt")}
                   className={`rounded-xl border p-4 text-left transition-all ${
                     payment === "usdt"
@@ -692,7 +709,7 @@ export default function ServiceOrder({
                 <div className="mt-3 flex items-end justify-between border-t border-border pt-3">
                   <span className="text-muted">{t.order.price}</span>
                   <span>
-                    {payment === "usdt" && (
+                    {(payment === "usdt" || payment === "transferencia") && (
                       <span className="mr-2 text-sm text-muted line-through">
                         {displayPrice(total, locale)}
                       </span>
@@ -705,6 +722,11 @@ export default function ServiceOrder({
                 {payment === "usdt" && (
                   <p className="mt-1 text-right text-xs font-semibold text-success">
                     −{Math.round(CRYPTO_DISCOUNT * 100)}% pagando en cripto 🪙
+                  </p>
+                )}
+                {payment === "transferencia" && (
+                  <p className="mt-1 text-right text-xs font-semibold text-success">
+                    −5% pagando por transferencia 🏦
                   </p>
                 )}
                 {payment === "tarjeta" && (

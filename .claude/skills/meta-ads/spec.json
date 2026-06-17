@@ -1,0 +1,81 @@
+{
+  "campaign_name": "TopViral · IG · AR · Test jun26",
+  "objective": "OUTCOME_TRAFFIC",
+  "status": "PAUSED",
+  "special_ad_categories": [],
+  "identity": {
+    "page_id": "990038874192743"
+  },
+  "landing_url": "https://www.topviralmarketing.com.ar/ar",
+  "ad_sets": [
+    {
+      "name": "Seguidores — AR 18-45 broad",
+      "daily_budget": 2500.00,
+      "optimization_goal": "LANDING_PAGE_VIEWS",
+      "billing_event": "IMPRESSIONS",
+      "targeting": {
+        "countries": ["AR"],
+        "age_min": 18,
+        "age_max": 45,
+        "interests": ["Instagram", "Social media marketing", "Entrepreneurship"],
+        "publisher_platforms": ["instagram", "facebook"],
+        "advantage_audience": false
+      },
+      "image_path": "C:/Users/Agus/Desktop/proyectoseguidores/branding/meta/SEGUID0RES.png",
+      "ads": [
+        {
+          "name": "Seguidores_PruebaSocial",
+          "message": "¿Tu perfil tiene pocos seguidores? La gente confía en lo que ya es popular. Sumá seguidores reales y convertí visitas en clientes. Sin contraseña · Garantía 90 días · Entrega en menos de 4 hs. 3 cuotas sin interés.",
+          "headline": "Más seguidores, más ventas",
+          "cta": "SHOP_NOW"
+        }
+      ]
+    },
+    {
+      "name": "Likes — AR 18-45 broad",
+      "daily_budget": 2500.00,
+      "optimization_goal": "LANDING_PAGE_VIEWS",
+      "billing_event": "IMPRESSIONS",
+      "targeting": {
+        "countries": ["AR"],
+        "age_min": 18,
+        "age_max": 45,
+        "interests": ["Instagram", "Social media marketing", "Entrepreneurship"],
+        "publisher_platforms": ["instagram", "facebook"],
+        "advantage_audience": false
+      },
+      "image_path": "C:/Users/Agus/Desktop/proyectoseguidores/branding/meta/likes (2).png",
+      "ads": [
+        {
+          "name": "Likes_Oferta",
+          "message": "Tus posteos rinden más con likes reales. Más interacción = más alcance = más ventas. Precio transparente, sin contraseña y con garantía. ⚡ Entrega rápida.",
+          "headline": "Likes reales al mejor precio",
+          "cta": "SHOP_NOW"
+        }
+      ]
+    },
+    {
+      "name": "Vistas — AR 18-45 broad",
+      "daily_budget": 2500.00,
+      "optimization_goal": "LANDING_PAGE_VIEWS",
+      "billing_event": "IMPRESSIONS",
+      "targeting": {
+        "countries": ["AR"],
+        "age_min": 18,
+        "age_max": 45,
+        "interests": ["Instagram", "TikTok", "Social media marketing"],
+        "publisher_platforms": ["instagram", "facebook"],
+        "advantage_audience": false
+      },
+      "image_path": "C:/Users/Agus/Desktop/proyectoseguidores/branding/meta/vistas (2).png",
+      "ads": [
+        {
+          "name": "Vistas_Alcance",
+          "message": "Que tus videos exploten. Sumá reproducciones reales y ganá alcance en Instagram y TikTok. Sin contraseña, con garantía y entrega en menos de 4 hs.",
+          "headline": "Más vistas, más alcance",
+          "cta": "SHOP_NOW"
+        }
+      ]
+    }
+  ]
+}

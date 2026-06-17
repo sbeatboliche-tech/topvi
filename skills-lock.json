@@ -1,0 +1,11 @@
+{
+  "version": 1,
+  "skills": {
+    "meta-ads": {
+      "source": "hoodini/ai-agents-skills",
+      "sourceType": "github",
+      "skillPath": "skills/meta-ads/SKILL.md",
+      "computedHash": "94afb3dc2dc3b7ceb2d1264dd11cef11fcaffcf64ce9811598cd5c788fada893"
+    }
+  }
+}

@@ -25,7 +25,7 @@ export interface Order {
   quality: string;
   totalFollowers: number;
   amount: number; // ARS
-  payment: "mercadopago" | "tarjeta" | "usdt";
+  payment: "mercadopago" | "tarjeta" | "usdt" | "transferencia";
   status: OrderStatus;
   notes?: string; // desglose del pack + links de posteos (para entregar)
 }
@@ -135,6 +135,16 @@ export async function updateStatus(id: string, status: OrderStatus) {
   } else {
     const o = memory.find((x) => x.id === id);
     if (o) o.status = status;
+  }
+}
+
+export async function deleteOrder(id: string) {
+  if (hasSupabase) {
+    const client = await sb();
+    await client.from("orders").delete().eq("id", id);
+  } else {
+    const i = memory.findIndex((x) => x.id === id);
+    if (i >= 0) memory.splice(i, 1);
   }
 }
 

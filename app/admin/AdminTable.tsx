@@ -38,6 +38,16 @@ export default function AdminTable({
     });
   }
 
+  async function deleteOrder(id: string) {
+    if (!confirm(`¿Eliminar la orden ${id}? Esta acción no se puede deshacer.`)) return;
+    setOrders((o) => o.filter((x) => x.id !== id));
+    await fetch("/api/admin/orders", {
+      method: "DELETE",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ id }),
+    });
+  }
+
   async function logout() {
     await fetch("/api/admin/login", { method: "DELETE" });
     window.location.reload();
@@ -175,19 +185,29 @@ export default function AdminTable({
                   </span>
                 </td>
                 <td className="p-3">
-                  <select
-                    value={o.status}
-                    onChange={(e) =>
-                      setStatus(o.id, e.target.value as OrderStatus)
-                    }
-                    className="rounded-lg border border-border bg-surface-2 px-2 py-1 text-xs outline-none"
-                  >
-                    {Object.entries(statusLabels).map(([k, v]) => (
-                      <option key={k} value={k}>
-                        {v}
-                      </option>
-                    ))}
-                  </select>
+                  <div className="flex items-center gap-2">
+                    <select
+                      value={o.status}
+                      onChange={(e) =>
+                        setStatus(o.id, e.target.value as OrderStatus)
+                      }
+                      className="rounded-lg border border-border bg-surface-2 px-2 py-1 text-xs outline-none"
+                    >
+                      {Object.entries(statusLabels).map(([k, v]) => (
+                        <option key={k} value={k}>
+                          {v}
+                        </option>
+                      ))}
+                    </select>
+                    <button
+                      onClick={() => deleteOrder(o.id)}
+                      title="Eliminar"
+                      aria-label="Eliminar orden"
+                      className="rounded-lg border border-border px-2 py-1 text-muted transition-colors hover:border-warning/50 hover:text-warning"
+                    >
+                      🗑️
+                    </button>
+                  </div>
                 </td>
               </tr>
             ))}

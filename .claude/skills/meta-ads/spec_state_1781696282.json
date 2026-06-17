@@ -1,0 +1,109 @@
+{
+  "ok": true,
+  "account_id": "act_367942291799216",
+  "currency": "ARS",
+  "created_at": 1781696283,
+  "objects": [
+    {
+      "type": "campaign",
+      "id": "120251516027000712",
+      "name": "TopViral · IG · AR · Test jun26"
+    },
+    {
+      "type": "image",
+      "hash": "bfdc39a6145d4a19cd8a0669744b6682",
+      "file": "SEGUID0RES.png"
+    },
+    {
+      "type": "adset",
+      "id": "120251516041080712",
+      "name": "Seguidores — AR 18-45 broad"
+    },
+    {
+      "type": "creative",
+      "id": "1356200506406986",
+      "name": "Creative_Seguidores_PruebaSocial"
+    },
+    {
+      "type": "ad",
+      "id": "120251516056420712",
+      "name": "Ad_Seguidores_PruebaSocial"
+    },
+    {
+      "type": "image",
+      "hash": "307a3cf0ae50157a7602f53b258e3905",
+      "file": "likes (2).png"
+    },
+    {
+      "type": "adset",
+      "id": "120251516072710712",
+      "name": "Likes — AR 18-45 broad"
+    },
+    {
+      "type": "creative",
+      "id": "1494563782144603",
+      "name": "Creative_Likes_Oferta"
+    },
+    {
+      "type": "ad",
+      "id": "120251516088930712",
+      "name": "Ad_Likes_Oferta"
+    },
+    {
+      "type": "image",
+      "hash": "ae08119397e0eec7d73d06edc1d33785",
+      "file": "vistas (2).png"
+    },
+    {
+      "type": "adset",
+      "id": "120251516103630712",
+      "name": "Vistas — AR 18-45 broad"
+    },
+    {
+      "type": "creative",
+      "id": "1929356684420979",
+      "name": "Creative_Vistas_Alcance"
+    },
+    {
+      "type": "ad",
+      "id": "120251516119440712",
+      "name": "Ad_Vistas_Alcance"
+    }
+  ],
+  "campaign_id": "120251516027000712",
+  "ad_sets": [
+    {
+      "adset_id": "120251516041080712",
+      "image_hash": "bfdc39a6145d4a19cd8a0669744b6682",
+      "ads": [
+        {
+          "ad_id": "120251516056420712",
+          "creative_id": "1356200506406986",
+          "name": "Seguidores_PruebaSocial"
+        }
+      ]
+    },
+    {
+      "adset_id": "120251516072710712",
+      "image_hash": "307a3cf0ae50157a7602f53b258e3905",
+      "ads": [
+        {
+          "ad_id": "120251516088930712",
+          "creative_id": "1494563782144603",
+          "name": "Likes_Oferta"
+        }
+      ]
+    },
+    {
+      "adset_id": "120251516103630712",
+      "image_hash": "ae08119397e0eec7d73d06edc1d33785",
+      "ads": [
+        {
+          "ad_id": "120251516119440712",
+          "creative_id": "1929356684420979",
+          "name": "Vistas_Alcance"
+        }
+      ]
+    }
+  ]
+}

@@ -1,8 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 
-// Caja de pago por transferencia: datos con botón de copiar + aviso "Ya transferí".
+// Caja de pago por transferencia: datos con copiar + subir captura del pago
+// con respuesta automática (IA) de "pago recibido".
 function CopyRow({ label, value }: { label: string; value: string }) {
   const [done, setDone] = useState(false);
   function copy() {
@@ -35,7 +36,6 @@ export default function TransferBox({
   alias,
   cvu,
   cuit,
-  mailto,
 }: {
   orderId: string;
   amount: string;
@@ -43,30 +43,57 @@ export default function TransferBox({
   alias: string;
   cvu: string;
   cuit: string;
-  mailto: string;
 }) {
-  const [state, setState] = useState<"idle" | "sending" | "sent">("idle");
+  const fileRef = useRef<HTMLInputElement>(null);
+  const [state, setState] = useState<"idle" | "uploading" | "typing" | "done">(
+    "idle"
+  );
+  const [reply, setReply] = useState("");
+  const [fileName, setFileName] = useState("");
+  const [error, setError] = useState("");
 
-  async function avisar() {
-    setState("sending");
-    try {
-      await fetch("/api/orders/transferred", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ id: orderId }),
-      });
-    } catch {
-      /* no rompemos el flujo */
+  async function onFile(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setError("");
+    if (!file.type.startsWith("image/")) {
+      setError("Subí una imagen (captura de la transferencia).");
+      return;
     }
-    setState("sent");
+    if (file.size > 10 * 1024 * 1024) {
+      setError("La imagen es muy pesada (máx 10 MB).");
+      return;
+    }
+    setFileName(file.name);
+    setState("uploading");
+
+    const fd = new FormData();
+    fd.append("file", file);
+    fd.append("orderId", orderId);
+
+    let data: { reply?: string } = {};
+    try {
+      const res = await fetch("/api/transfer-proof", { method: "POST", body: fd });
+      data = await res.json();
+    } catch {
+      /* seguimos igual con el mensaje por defecto */
+    }
+
+    // Efecto "escribiendo…" para que se sienta como un agente real.
+    setState("typing");
+    await new Promise((r) => setTimeout(r, 1800));
+    setReply(
+      data.reply ||
+        "✅ ¡Pago recibido! En unos minutos vas a estar recibiendo tu pedido. ¡Gracias por elegirnos! 🚀"
+    );
+    setState("done");
   }
 
   return (
     <div className="mt-6 rounded-2xl border border-warning/40 bg-warning/5 p-6 text-left">
       <h2 className="font-semibold">🏦 Pagá por transferencia</h2>
       <p className="mt-2 text-sm text-muted">
-        Transferí el monto exacto a estos datos. Es lo que más rápido nos permite
-        identificar tu pago:
+        Transferí el monto exacto a estos datos:
       </p>
 
       <div className="mt-3 space-y-2">
@@ -77,28 +104,63 @@ export default function TransferBox({
         <CopyRow label="CUIT" value={cuit} />
       </div>
 
-      <div className="mt-4 flex flex-wrap gap-3">
-        {state === "sent" ? (
-          <span className="inline-flex items-center gap-2 rounded-full bg-success/15 px-5 py-3 text-sm font-semibold text-success">
-            ✓ ¡Aviso recibido! Verificamos y arrancamos la entrega.
-          </span>
-        ) : (
+      <input
+        ref={fileRef}
+        type="file"
+        accept="image/*"
+        onChange={onFile}
+        className="hidden"
+      />
+
+      {state !== "done" ? (
+        <>
+          <p className="mt-5 text-sm font-medium">
+            📸 Enviá la captura del pago y confirmamos al instante:
+          </p>
           <button
             type="button"
-            onClick={avisar}
-            disabled={state === "sending"}
-            className="brand-gradient rounded-full px-6 py-3 font-semibold shadow-lg shadow-brand/30 disabled:opacity-60"
+            onClick={() => fileRef.current?.click()}
+            disabled={state === "uploading" || state === "typing"}
+            className="brand-gradient mt-3 w-full rounded-full py-3.5 font-semibold shadow-lg shadow-brand/30 transition-transform hover:scale-[1.02] disabled:opacity-60"
           >
-            {state === "sending" ? "Enviando…" : "✅ Ya transferí"}
+            {state === "uploading"
+              ? "Subiendo captura…"
+              : state === "typing"
+              ? "Verificando…"
+              : "📎 Enviar captura del pago"}
           </button>
-        )}
-        <a
-          href={mailto}
-          className="rounded-full border border-border bg-surface px-6 py-3 font-semibold hover:bg-surface-2"
-        >
-          Enviar comprobante
-        </a>
-      </div>
+          {error && <p className="mt-2 text-sm text-warning">{error}</p>}
+        </>
+      ) : (
+        <div className="mt-5">
+          {fileName && (
+            <p className="mb-2 text-right text-xs text-muted">
+              📎 {fileName} enviado ✓
+            </p>
+          )}
+          {/* Respuesta tipo chat de soporte */}
+          <div className="flex items-end gap-2">
+            <div className="brand-gradient flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-sm font-bold">
+              S
+            </div>
+            <div className="rounded-2xl rounded-bl-none bg-surface-2 px-4 py-3 text-sm leading-relaxed">
+              {reply}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Indicador "escribiendo" mientras la IA responde */}
+      {state === "typing" && (
+        <div className="mt-3 flex items-center gap-2 text-xs text-muted">
+          <span className="brand-gradient flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-sm font-bold">
+            S
+          </span>
+          <span className="rounded-2xl rounded-bl-none bg-surface-2 px-4 py-3">
+            escribiendo…
+          </span>
+        </div>
+      )}
     </div>
   );
 }

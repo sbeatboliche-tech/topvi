@@ -166,7 +166,6 @@ export default async function Gracias({
               alias={site.transfer.alias}
               cvu={site.transfer.cvu}
               cuit={site.transfer.cuit}
-              mailto={`mailto:${site.email}?subject=${encodeURIComponent(`Comprobante transferencia - Orden ${order.id}`)}`}
             />
           )}
         </>

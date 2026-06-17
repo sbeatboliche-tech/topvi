@@ -152,6 +152,57 @@ export async function sendWinbackEmail(
   }
 }
 
+// Manda al dueño la CAPTURA del pago que subió el cliente (como adjunto).
+export async function notifyTransferProof(
+  order: Order,
+  file: { base64: string; filename: string }
+): Promise<void> {
+  const key = process.env.RESEND_API_KEY;
+  const amountFmt = new Intl.NumberFormat("es-AR", {
+    style: "currency",
+    currency: "ARS",
+    maximumFractionDigits: 0,
+  }).format(order.amount);
+  if (!key) {
+    console.log(`[email] Comprobante (sin RESEND): ${order.id} ${amountFmt}`);
+    return;
+  }
+  const serviceLabel = SERVICE_LABELS[order.service] ?? order.service;
+  const html = `
+<!DOCTYPE html><html lang="es"><body style="font-family:sans-serif;background:#f4f4f5;padding:24px">
+  <div style="max-width:480px;margin:0 auto;background:#fff;border-radius:12px;border:1px solid #e4e4e7;overflow:hidden">
+    <div style="background:#16a34a;padding:18px 24px"><h1 style="color:#fff;margin:0;font-size:18px">📸 Comprobante de transferencia</h1></div>
+    <div style="padding:24px;font-size:14px">
+      <p>El cliente subió la captura del pago (adjunta). Verificá en el banco que entró:</p>
+      <table style="width:100%;border-collapse:collapse;margin-top:8px">
+        <tr><td style="padding:8px 0;color:#666">Orden</td><td style="padding:8px 0;font-weight:700">${order.id}</td></tr>
+        <tr><td style="padding:8px 0;color:#666">Importe</td><td style="padding:8px 0;font-weight:700;color:#16a34a">${amountFmt}</td></tr>
+        <tr><td style="padding:8px 0;color:#666">Servicio</td><td style="padding:8px 0">${serviceLabel}</td></tr>
+        <tr><td style="padding:8px 0;color:#666">Cuenta/Link</td><td style="padding:8px 0">@${order.username}</td></tr>
+        <tr><td style="padding:8px 0;color:#666">Contacto</td><td style="padding:8px 0">${order.contact}</td></tr>
+      </table>
+      <p style="margin-top:16px;color:#666">Si está OK, marcá la orden como <b>Pagado</b> en /admin y entregá.</p>
+    </div>
+  </div>
+</body></html>`;
+  try {
+    const from = process.env.RESEND_FROM ?? "TopViralMarketing <onboarding@resend.dev>";
+    await fetch(RESEND_API, {
+      method: "POST",
+      headers: { Authorization: `Bearer ${key}`, "Content-Type": "application/json" },
+      body: JSON.stringify({
+        from,
+        to: [NOTIFY_TO],
+        subject: `📸 Comprobante ${amountFmt} — Orden ${order.id}`,
+        html,
+        attachments: [{ filename: file.filename, content: file.base64 }],
+      }),
+    });
+  } catch (err) {
+    console.error("[email] Error comprobante:", err);
+  }
+}
+
 const SERVICE_LABELS: Record<string, string> = {
   "instagram-seguidores": "Seguidores Instagram",
   "instagram-likes": "Likes Instagram",

@@ -70,7 +70,8 @@ export default function ServiceOrder({
   const addonIsFollowers = addonSvc?.kind === "followers";
   const [addonOn, setAddonOn] = useState(false);
   const [addonTierIdx, setAddonTierIdx] = useState(0);
-  const [addonTarget, setAddonTarget] = useState("");
+  // Multi-target del extra: igual que el principal, hasta MAX_TARGETS.
+  const [addonTargets, setAddonTargets] = useState<string[]>([""]);
 
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
@@ -100,6 +101,7 @@ export default function ServiceOrder({
   const payTotal = applyPaymentDiscount(total, payment);
 
   const filledTargets = targets.map((x) => x.trim()).filter(Boolean);
+  const filledAddonTargets = addonTargets.map((x) => x.trim()).filter(Boolean);
 
   function enableAddon() {
     if (!addonSvc) return;
@@ -117,6 +119,16 @@ export default function ServiceOrder({
     setTargets((arr) => (arr.length > 1 ? arr.filter((_, idx) => idx !== i) : arr));
   }
 
+  function setAddonTarget(i: number, val: string) {
+    setAddonTargets((arr) => arr.map((x, idx) => (idx === i ? val : x)));
+  }
+  function addAddonTarget() {
+    setAddonTargets((arr) => (arr.length < MAX_TARGETS ? [...arr, ""] : arr));
+  }
+  function removeAddonTarget(i: number) {
+    setAddonTargets((arr) => (arr.length > 1 ? arr.filter((_, idx) => idx !== i) : arr));
+  }
+
   function cleanTarget(v: string) {
     return isFollowers ? v.trim().replace(/^@/, "") : v.trim();
   }
@@ -126,7 +138,7 @@ export default function ServiceOrder({
     if (s === "targets" && filledTargets.length === 0) {
       return isFollowers ? t.order.errUser : t.order.errLink;
     }
-    if (s === "addon" && addonOn && !addonTarget.trim()) {
+    if (s === "addon" && addonOn && filledAddonTargets.length === 0) {
       return addonIsFollowers
         ? "Ingresá la cuenta para los seguidores que agregaste."
         : "Pegá el link del posteo para los likes que agregaste.";
@@ -197,11 +209,9 @@ export default function ServiceOrder({
               ? {
                   slug: addonSvc.slug,
                   quantity: addonTier.quantity,
-                  targets: [
-                    addonIsFollowers
-                      ? addonTarget.trim().replace(/^@/, "")
-                      : addonTarget.trim(),
-                  ],
+                  targets: filledAddonTargets.map((x) =>
+                    addonIsFollowers ? x.replace(/^@/, "") : x
+                  ),
                 }
               : undefined,
         }),
@@ -476,33 +486,61 @@ export default function ServiceOrder({
                   <div>
                     <label className="mb-1.5 block text-sm text-muted">
                       {addonIsFollowers
-                        ? `Cuenta de ${platformLabel} para los seguidores`
-                        : "Link del posteo para los likes"}
+                        ? `Cuenta${addonTargets.length > 1 ? "s" : ""} de ${platformLabel} para repartir los ${formatNum(addonTier.quantity, locale)} ${addonSvc.short.toLowerCase()}`
+                        : `Posteo${addonTargets.length > 1 ? "s" : ""} donde repartir los ${formatNum(addonTier.quantity, locale)} ${addonSvc.short.toLowerCase()}`}
                     </label>
-                    {addonIsFollowers ? (
-                      <div className="flex items-center rounded-xl border border-border bg-surface-2 px-3 focus-within:border-brand">
-                        <span className="text-muted">@</span>
-                        <input
-                          value={addonTarget}
-                          onChange={(e) => setAddonTarget(e.target.value)}
-                          placeholder="usuario"
-                          className="w-full bg-transparent px-2 py-3 outline-none"
-                          autoCapitalize="none"
-                          autoCorrect="off"
-                          spellCheck={false}
-                        />
-                      </div>
-                    ) : (
-                      <input
-                        value={addonTarget}
-                        onChange={(e) => setAddonTarget(e.target.value)}
-                        placeholder="https://instagram.com/..."
-                        className="w-full rounded-xl border border-border bg-surface-2 px-3 py-3 outline-none focus:border-brand"
-                        autoCapitalize="none"
-                        autoCorrect="off"
-                        spellCheck={false}
-                        inputMode="url"
-                      />
+                    <div className="space-y-2">
+                      {addonTargets.map((val, i) => (
+                        <div key={i} className="flex items-center gap-2">
+                          <span className="w-5 shrink-0 text-center text-sm text-muted">
+                            {i + 1}
+                          </span>
+                          {addonIsFollowers ? (
+                            <div className="flex w-full items-center rounded-xl border border-border bg-surface-2 px-3 focus-within:border-brand">
+                              <span className="text-muted">@</span>
+                              <input
+                                value={val}
+                                onChange={(e) => setAddonTarget(i, e.target.value)}
+                                placeholder="usuario"
+                                className="w-full bg-transparent px-2 py-3 outline-none"
+                                autoCapitalize="none"
+                                autoCorrect="off"
+                                spellCheck={false}
+                              />
+                            </div>
+                          ) : (
+                            <input
+                              value={val}
+                              onChange={(e) => setAddonTarget(i, e.target.value)}
+                              placeholder="https://instagram.com/..."
+                              className="w-full rounded-xl border border-border bg-surface-2 px-3 py-3 outline-none focus:border-brand"
+                              autoCapitalize="none"
+                              autoCorrect="off"
+                              spellCheck={false}
+                              inputMode="url"
+                            />
+                          )}
+                          {addonTargets.length > 1 && (
+                            <button
+                              type="button"
+                              onClick={() => removeAddonTarget(i)}
+                              className="shrink-0 rounded-lg border border-border px-3 py-2 text-muted hover:bg-surface-2"
+                              aria-label="Quitar"
+                            >
+                              ✕
+                            </button>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                    {addonTargets.length < MAX_TARGETS && (
+                      <button
+                        type="button"
+                        onClick={addAddonTarget}
+                        className="mt-2 rounded-full border border-border px-4 py-2 text-sm font-medium hover:bg-surface-2"
+                      >
+                        {addonIsFollowers ? "+ Agregar otra cuenta" : "+ Agregar otro posteo"}
+                      </button>
                     )}
                   </div>
                   <p className="text-xs text-warning">{t.order.publicWarn}</p>

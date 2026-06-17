@@ -618,7 +618,31 @@ export default function ServiceOrder({
           {current === "payment" && (
             <div>
               <h2 className="mb-4 font-semibold">{t.order.payment}</h2>
-              <div className="grid gap-3 sm:grid-cols-2">
+
+              {/* Transferencia: DESTACADO y arriba de todo */}
+              <button
+                type="button"
+                onClick={() => setPayment("transferencia")}
+                className={`relative w-full overflow-hidden rounded-xl border-2 p-4 text-left transition-all ${
+                  payment === "transferencia"
+                    ? "border-success bg-success/10 ring-2 ring-success"
+                    : "border-success/60 bg-success/5 hover:border-success"
+                }`}
+              >
+                <span className="absolute right-3 top-3 rounded-full bg-success px-2.5 py-0.5 text-[10px] font-bold text-black">
+                  5% OFF · RECOMENDADO
+                </span>
+                <div className="font-semibold">🏦 Transferencia bancaria</div>
+                <p className="mt-1 pr-24 text-xs text-muted">
+                  La opción más rápida y conveniente. Pagás por CBU/alias y te
+                  pasamos los datos al confirmar.
+                </p>
+                <p className="mt-1.5 text-xs font-semibold text-success">
+                  💸 Ahorrás un 5% pagando por transferencia
+                </p>
+              </button>
+
+              <div className="mt-3 grid gap-3 sm:grid-cols-2">
                 {mpAvailable && (
                   <button
                     type="button"
@@ -647,23 +671,6 @@ export default function ServiceOrder({
                     <p className="mt-1 text-xs text-muted">{t.order.cardDesc}</p>
                   </button>
                 )}
-                <button
-                  type="button"
-                  onClick={() => setPayment("transferencia")}
-                  className={`rounded-xl border p-4 text-left transition-all ${
-                    payment === "transferencia"
-                      ? "border-brand bg-brand/10 ring-1 ring-brand"
-                      : "border-border bg-surface-2 hover:border-brand/40"
-                  }`}
-                >
-                  <div className="font-semibold">🏦 Transferencia</div>
-                  <p className="mt-1 text-xs text-muted">
-                    Pagá por CBU/alias. Te pasamos los datos al confirmar.
-                  </p>
-                  <p className="mt-1.5 text-xs font-semibold text-success">
-                    5% OFF pagando por transferencia
-                  </p>
-                </button>
                 <button
                   type="button"
                   onClick={() => setPayment("usdt")}

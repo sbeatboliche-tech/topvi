@@ -3,9 +3,83 @@
 // Requiere RESEND_API_KEY en .env.local.
 // Si no está configurado, solo loguea en consola (modo dev).
 import type { Order } from "@/lib/db";
+import { site } from "@/lib/config";
 
 const RESEND_API = "https://api.resend.com/emails";
 const NOTIFY_TO = "abalo7272@gmail.com";
+
+// Envía el mail de descuento a un lead que no compró (remarketing).
+// Devuelve true si se envió. Gated por RESEND_API_KEY.
+export async function sendDiscountEmail(
+  email: string,
+  code: string,
+  percent: number,
+  locale = "ar"
+): Promise<boolean> {
+  const key = process.env.RESEND_API_KEY;
+  if (!key) {
+    console.log(`[email] Sin RESEND_API_KEY — descuento ${code} a ${email}`);
+    return false;
+  }
+  const base =
+    process.env.PUBLIC_BASE_URL ?? `https://www.${site.domain}`;
+  const link = `${base}/${locale}/servicios?promo=${encodeURIComponent(code)}`;
+  const pct = Math.round(percent * 100);
+
+  const html = `
+<!DOCTYPE html>
+<html lang="es">
+<body style="font-family:sans-serif;background:#0a0a0b;padding:24px;color:#f4f4f5">
+  <div style="max-width:480px;margin:0 auto;background:#141417;border-radius:16px;overflow:hidden;border:1px solid #2a2a31">
+    <div style="padding:28px 24px;text-align:center">
+      <div style="font-size:40px">🎁</div>
+      <h1 style="margin:12px 0 0;font-size:22px;color:#fff">Tu descuento del ${pct}% te espera</h1>
+      <p style="margin:10px 0 0;color:#9aa0aa;font-size:14px">
+        Quedaste a un paso de hacer crecer tu cuenta. Volvé y aprovechá tu cupón.
+      </p>
+      <div style="margin:22px auto;display:inline-block;border:2px dashed #34d399;border-radius:12px;padding:12px 20px">
+        <span style="color:#9aa0aa;font-size:12px;display:block">Tu cupón</span>
+        <span style="color:#34d399;font-size:24px;font-weight:800;letter-spacing:1px">${code}</span>
+      </div>
+      <div>
+        <a href="${link}" style="display:inline-block;background:#fff;color:#0a0a0b;font-weight:700;text-decoration:none;border-radius:999px;padding:14px 28px;font-size:15px">
+          Usar mi ${pct}% de descuento →
+        </a>
+      </div>
+      <p style="margin:20px 0 0;color:#6b7280;font-size:12px">
+        El cupón ya viene aplicado al abrir el link. ${site.name}
+      </p>
+    </div>
+  </div>
+</body>
+</html>`;
+
+  try {
+    const from =
+      process.env.RESEND_FROM ?? "TopViralMarketing <onboarding@resend.dev>";
+    const res = await fetch(RESEND_API, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${key}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        from,
+        to: [email],
+        subject: `🎁 Tu ${pct}% de descuento en ${site.name} te espera`,
+        html,
+      }),
+    });
+    if (!res.ok) {
+      console.error("[email] Resend descuento error:", res.status, await res.text());
+      return false;
+    }
+    return true;
+  } catch (err) {
+    console.error("[email] Error enviando descuento:", err);
+    return false;
+  }
+}
 
 const SERVICE_LABELS: Record<string, string> = {
   "instagram-seguidores": "Seguidores Instagram",

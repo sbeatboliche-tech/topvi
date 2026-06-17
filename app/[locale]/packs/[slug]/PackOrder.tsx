@@ -39,6 +39,22 @@ export default function PackOrder({
   // Total a pagar (con descuento si elige cripto). Se recalcula en el server.
   const payTotal = applyPaymentDiscount(pack.price, payment);
 
+  // Captura el email para remarketing apenas lo escriben (aunque no compren).
+  function captureEmail() {
+    const email = contact.trim();
+    if (!email.includes("@")) return;
+    fetch("/api/leads", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        contact: email,
+        locale,
+        service: pack.slug,
+        source: "pack",
+      }),
+    }).catch(() => {});
+  }
+
   function setPost(i: number, val: string) {
     setPosts((arr) => arr.map((p, idx) => (idx === i ? val : p)));
   }
@@ -231,6 +247,7 @@ export default function PackOrder({
               ref={contactRef}
               value={contact}
               onChange={(e) => setContact(e.target.value)}
+              onBlur={captureEmail}
               placeholder="tu@email.com"
               className="w-full rounded-xl border border-border bg-surface-2 px-3 py-3 outline-none focus:border-brand"
               inputMode="email"

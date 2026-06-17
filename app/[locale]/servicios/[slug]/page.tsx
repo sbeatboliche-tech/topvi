@@ -30,10 +30,10 @@ export default async function Page({
   searchParams,
 }: {
   params: Promise<{ locale: string; slug: string }>;
-  searchParams: Promise<{ qty?: string; q?: string }>;
+  searchParams: Promise<{ qty?: string; q?: string; promo?: string }>;
 }) {
   const { locale, slug } = await params;
-  const { qty, q } = await searchParams;
+  const { qty, q, promo } = await searchParams;
   const svc = getService(slug);
   if (!svc || !isLocale(locale)) notFound();
   const initialQty = qty ? Number(qty) : undefined;
@@ -46,6 +46,7 @@ export default async function Page({
         locale={locale as Locale}
         initialQty={initialQty}
         initialQuality={initialQuality}
+        coupon={promo}
       />
     </>
   );

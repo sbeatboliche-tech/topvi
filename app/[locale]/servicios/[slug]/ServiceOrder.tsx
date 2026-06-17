@@ -11,6 +11,8 @@ import {
   bonusFor,
   anchorPrice,
   applyPaymentDiscount,
+  applyCoupon,
+  couponDiscount,
   CRYPTO_DISCOUNT,
   MAX_TARGETS,
   type Quality,
@@ -33,11 +35,13 @@ export default function ServiceOrder({
   locale,
   initialQty,
   initialQuality,
+  coupon: couponProp,
 }: {
   slug: string;
   locale: Locale;
   initialQty?: number;
   initialQuality?: Quality;
+  coupon?: string;
 }) {
   const svc = getService(slug)!;
   const t = getDict(locale);
@@ -97,8 +101,12 @@ export default function ServiceOrder({
   const addonTier = addonSvc?.tiers[addonTierIdx];
   const addonPrice = addonOn && addonTier ? priceFor(addonTier, "global") : 0;
   const total = price + addonPrice;
-  // Total a pagar (con descuento si elige cripto). Se recalcula igual en el server.
-  const payTotal = applyPaymentDiscount(total, payment);
+  // Cupón de remarketing (llega por ?promo= en el link del mail de descuento).
+  const coupon = (couponProp ?? "").trim().toUpperCase();
+  const couponPct = couponDiscount(coupon);
+  const totalWithCoupon = applyCoupon(total, coupon);
+  // Total a pagar (cupón + descuento cripto). Se recalcula igual en el server.
+  const payTotal = applyPaymentDiscount(totalWithCoupon, payment);
 
   const filledTargets = targets.map((x) => x.trim()).filter(Boolean);
   const filledAddonTargets = addonTargets.map((x) => x.trim()).filter(Boolean);
@@ -133,6 +141,22 @@ export default function ServiceOrder({
     return isFollowers ? v.trim().replace(/^@/, "") : v.trim();
   }
 
+  // Captura el email para remarketing apenas lo escriben (aunque no compren).
+  function captureEmail() {
+    const email = contact.trim();
+    if (!email.includes("@")) return;
+    fetch("/api/leads", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        contact: email,
+        locale,
+        service: svc.slug,
+        source: "checkout",
+      }),
+    }).catch(() => {});
+  }
+
   // Valida el paso actual. Devuelve mensaje de error o null si está OK.
   function validateStep(s: StepKey): string | null {
     if (s === "targets" && filledTargets.length === 0) {
@@ -163,6 +187,7 @@ export default function ServiceOrder({
       setError(err);
       return;
     }
+    if (current === "contact") captureEmail();
     goTo(Math.min(step + 1, steps.length - 1));
   }
   function back() {
@@ -204,6 +229,7 @@ export default function ServiceOrder({
           quality,
           payment,
           locale,
+          coupon: couponPct > 0 ? coupon : undefined,
           addon:
             addonOn && addonSvc && addonTier
               ? {
@@ -260,6 +286,11 @@ export default function ServiceOrder({
         <p className="mt-1.5 text-sm text-muted">
           {fmt(t.order.sub, { platform: platformLabel })}
         </p>
+        {couponPct > 0 && (
+          <div className="mx-auto mt-3 inline-flex items-center gap-2 rounded-full border border-success/40 bg-success/10 px-4 py-1.5 text-sm font-semibold text-success">
+            🎁 Cupón {coupon} aplicado · −{Math.round(couponPct * 100)}%
+          </div>
+        )}
       </div>
 
       {/* Stepper: progreso + total en vivo */}
@@ -565,6 +596,7 @@ export default function ServiceOrder({
               <input
                 value={contact}
                 onChange={(e) => setContact(e.target.value)}
+                onBlur={captureEmail}
                 placeholder={t.order.contactPh}
                 className="w-full rounded-xl border border-border bg-surface-2 px-3 py-3 outline-none focus:border-brand"
                 inputMode="email"

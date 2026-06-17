@@ -371,6 +371,24 @@ export function applyPaymentDiscount(amount: number, payment: string): number {
   return payment === "usdt" ? Math.round(amount * (1 - CRYPTO_DISCOUNT)) : amount;
 }
 
+// ---- Cupones de descuento (remarketing por email) ----
+// El mail automático a quien NO compró lleva este código.
+export const COUPONS: Record<string, number> = {
+  VOLVE15: 0.15, // 15% off — recuperación de carrito
+};
+// Código que usa el mail automático de descuento.
+export const RETURN_COUPON = "VOLVE15";
+
+export function couponDiscount(code: unknown): number {
+  if (!code) return 0;
+  return COUPONS[String(code).trim().toUpperCase()] ?? 0;
+}
+// Aplica el descuento de un cupón válido (si no, devuelve el monto igual).
+export function applyCoupon(amount: number, code: unknown): number {
+  const d = couponDiscount(code);
+  return d > 0 ? Math.round(amount * (1 - d)) : amount;
+}
+
 export function priceFor(tier: Tier, quality: Quality): number {
   if (quality === "premium" && tier.pricePremium != null)
     return tier.pricePremium;

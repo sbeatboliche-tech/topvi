@@ -7,12 +7,14 @@ import {
   priceFor,
   bonusFor,
   applyPaymentDiscount,
+  applyCoupon,
   MAX_PACK_POSTS,
   MAX_TARGETS,
   formatNumber,
   type Quality,
 } from "@/lib/config";
 import { isLocale, defaultLocale } from "@/lib/i18n";
+import { markLeadOrdered } from "@/lib/leads";
 
 type Payment = "mercadopago" | "tarjeta" | "usdt";
 
@@ -82,11 +84,12 @@ export async function POST(req: NextRequest) {
         bonus: 0,
         quality: "global",
         totalFollowers: pack.followers,
-        amount: applyPaymentDiscount(pack.price, payment),
+        amount: applyPaymentDiscount(applyCoupon(pack.price, body.coupon), payment),
         payment,
         notes,
       });
 
+      await markLeadOrdered(contact, pack.slug, loc).catch(() => {});
       return finishOrder(order, payment, req);
     }
 
@@ -174,11 +177,12 @@ export async function POST(req: NextRequest) {
       bonus,
       quality: q,
       totalFollowers,
-      amount: applyPaymentDiscount(amount, payment),
+      amount: applyPaymentDiscount(applyCoupon(amount, body.coupon), payment),
       payment,
       notes,
     });
 
+    await markLeadOrdered(contact, svc.slug, loc).catch(() => {});
     return finishOrder(order, payment, req);
   } catch (err) {
     console.error("[api/orders]", err);

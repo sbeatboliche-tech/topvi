@@ -59,12 +59,20 @@ export default function AdminTable({
             {orders.length} órdenes · {formatARS(revenue)} facturado (base ARS)
           </p>
         </div>
-        <button
-          onClick={logout}
-          className="rounded-full border border-border bg-surface px-4 py-2 text-sm hover:bg-surface-2"
-        >
-          Salir
-        </button>
+        <div className="flex gap-2">
+          <a
+            href="/admin/leads"
+            className="rounded-full border border-border bg-surface px-4 py-2 text-sm hover:bg-surface-2"
+          >
+            Leads
+          </a>
+          <button
+            onClick={logout}
+            className="rounded-full border border-border bg-surface px-4 py-2 text-sm hover:bg-surface-2"
+          >
+            Salir
+          </button>
+        </div>
       </div>
 
       <div className="mt-6 flex flex-wrap gap-2">

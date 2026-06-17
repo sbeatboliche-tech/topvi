@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getOrder, updateStatus } from "@/lib/db";
 import { processCardPayment } from "@/lib/mercadopago";
 import { notifyNewOrder } from "@/lib/email";
+import { markLeadCustomer } from "@/lib/leads";
 
 // Procesa el pago con tarjeta (Checkout Transparente). El navegador manda el
 // token de la tarjeta + cuotas; acá creamos el pago real en MercadoPago.
@@ -30,6 +31,7 @@ export async function POST(req: NextRequest) {
     if (result.status === "approved") {
       await updateStatus(order.id, "paid");
       await notifyNewOrder(order);
+      await markLeadCustomer(order.contact).catch(() => {});
     }
 
     return NextResponse.json({ status: result.status, detail: result.detail });

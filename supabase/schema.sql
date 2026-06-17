@@ -41,3 +41,25 @@ create table if not exists free_trials (
 create index if not exists free_trials_key_idx on free_trials (lookup_key);
 
 alter table free_trials enable row level security;
+
+-- ---- Leads / suscriptores (captura de email para remarketing) ----
+-- Se guarda el email apenas lo escriben en el checkout, aunque no compren.
+-- status: 'lead' (no compró) | 'customer' (pago confirmado).
+create table if not exists leads (
+  email            text primary key,
+  created_at       timestamptz not null default now(),
+  updated_at       timestamptz not null default now(),
+  locale           text,
+  service          text,          -- último servicio de interés
+  source           text,          -- 'checkout' | 'pack' | 'trial'
+  status           text not null default 'lead',
+  ordered_at       timestamptz,   -- creó una orden (haya pagado o no)
+  purchased_at     timestamptz,   -- pago confirmado
+  discount_code    text,          -- código de descuento asignado
+  discount_sent_at timestamptz    -- cuándo se le mandó el mail de descuento
+);
+
+create index if not exists leads_status_idx on leads (status);
+create index if not exists leads_created_idx on leads (created_at desc);
+
+alter table leads enable row level security;

@@ -296,9 +296,6 @@ export default function PackOrder({
                   <p className="mt-1 text-xs text-muted">
                     Pagá con tu tarjeta acá mismo, sin salir de la web.
                   </p>
-                  <p className="mt-1.5 text-xs font-semibold text-success">
-                    💳 Hasta 3 cuotas sin interés
-                  </p>
                 </button>
               )}
               <button

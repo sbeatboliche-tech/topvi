@@ -645,9 +645,6 @@ export default function ServiceOrder({
                   >
                     <div className="font-semibold">💳 {t.order.cardLabel}</div>
                     <p className="mt-1 text-xs text-muted">{t.order.cardDesc}</p>
-                    <p className="mt-1.5 text-xs font-semibold text-success">
-                      💳 Hasta 3 cuotas sin interés
-                    </p>
                   </button>
                 )}
                 <button
@@ -727,11 +724,6 @@ export default function ServiceOrder({
                 {payment === "transferencia" && (
                   <p className="mt-1 text-right text-xs font-semibold text-success">
                     −5% pagando por transferencia 🏦
-                  </p>
-                )}
-                {payment === "tarjeta" && (
-                  <p className="mt-3 rounded-lg bg-success/10 px-3 py-2 text-center text-xs font-semibold text-success">
-                    {t.order.interestFree}
                   </p>
                 )}
               </div>

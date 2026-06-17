@@ -384,10 +384,13 @@ export function applyPaymentDiscount(amount: number, payment: string): number {
 // ---- Cupones de descuento (remarketing por email) ----
 // El mail automático a quien NO compró lleva este código.
 export const COUPONS: Record<string, number> = {
-  VOLVE15: 0.15, // 15% off — recuperación de carrito
+  VOLVE15: 0.15, // 15% off — recuperación de carrito (no compró)
+  GRACIAS10: 0.1, // 10% off — win-back (cliente que no volvió a los 15 días)
 };
-// Código que usa el mail automático de descuento.
+// Código que usa el mail de recuperación (a quien NO compró).
 export const RETURN_COUPON = "VOLVE15";
+// Código que usa el mail de win-back (a quien compró y no volvió).
+export const WINBACK_COUPON = "GRACIAS10";
 
 export function couponDiscount(code: unknown): number {
   if (!code) return 0;

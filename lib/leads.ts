@@ -17,6 +17,7 @@ export interface Lead {
   purchasedAt?: string | null;
   discountCode?: string | null;
   discountSentAt?: string | null;
+  winbackSentAt?: string | null;
 }
 
 const hasSupabase =
@@ -125,8 +126,15 @@ export async function markLeadCustomer(rawEmail: unknown): Promise<void> {
 
   if (hasSupabase) {
     const client = await sb();
+    // Nueva compra → reinicia el ciclo de win-back (winback_sent_at a null).
     await client.from("leads").upsert(
-      { email, status: "customer", purchased_at: now, updated_at: now },
+      {
+        email,
+        status: "customer",
+        purchased_at: now,
+        winback_sent_at: null,
+        updated_at: now,
+      },
       { onConflict: "email" }
     );
     return;
@@ -144,6 +152,7 @@ export async function markLeadCustomer(rawEmail: unknown): Promise<void> {
     purchasedAt: now,
     discountCode: prev?.discountCode ?? null,
     discountSentAt: prev?.discountSentAt ?? null,
+    winbackSentAt: null,
   });
 }
 
@@ -187,6 +196,53 @@ export async function leadsNeedingDiscount(
   );
 }
 
+// Clientes que compraron hace >= minDays y todavía no recibieron el win-back.
+export async function customersForWinback(minDays: number): Promise<Lead[]> {
+  const cutoff = new Date(Date.now() - minDays * 86_400_000).toISOString();
+  if (hasSupabase) {
+    const client = await sb();
+    const { data } = await client
+      .from("leads")
+      .select("*")
+      .eq("status", "customer")
+      .not("purchased_at", "is", null)
+      .is("winback_sent_at", null)
+      .lt("purchased_at", cutoff)
+      .limit(200);
+    return (data ?? []).map(fromRow);
+  }
+  return [...memory.values()].filter(
+    (l) =>
+      l.status === "customer" &&
+      !!l.purchasedAt &&
+      !l.winbackSentAt &&
+      l.purchasedAt < cutoff
+  );
+}
+
+export async function markWinbackSent(
+  rawEmail: unknown,
+  code: string
+): Promise<void> {
+  const email = normalizeEmail(rawEmail);
+  if (!email) return;
+  const now = new Date().toISOString();
+  if (hasSupabase) {
+    const client = await sb();
+    await client
+      .from("leads")
+      .update({ discount_code: code, winback_sent_at: now, updated_at: now })
+      .eq("email", email);
+    return;
+  }
+  const prev = memory.get(email);
+  if (prev) {
+    prev.discountCode = code;
+    prev.winbackSentAt = now;
+    prev.updatedAt = now;
+  }
+}
+
 export async function markDiscountSent(
   rawEmail: unknown,
   code: string
@@ -224,5 +280,6 @@ function fromRow(r: any): Lead {
     purchasedAt: r.purchased_at ?? null,
     discountCode: r.discount_code ?? null,
     discountSentAt: r.discount_sent_at ?? null,
+    winbackSentAt: r.winback_sent_at ?? null,
   };
 }

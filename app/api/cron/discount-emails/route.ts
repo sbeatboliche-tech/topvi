@@ -1,15 +1,21 @@
 import { NextRequest, NextResponse } from "next/server";
-import { leadsNeedingDiscount, markDiscountSent } from "@/lib/leads";
-import { sendDiscountEmail } from "@/lib/email";
-import { RETURN_COUPON, couponDiscount } from "@/lib/config";
+import {
+  leadsNeedingDiscount,
+  markDiscountSent,
+  customersForWinback,
+  markWinbackSent,
+} from "@/lib/leads";
+import { sendDiscountEmail, sendWinbackEmail } from "@/lib/email";
+import { RETURN_COUPON, WINBACK_COUPON, couponDiscount } from "@/lib/config";
 
-// Cron: manda el mail de descuento a los leads que NO compraron, pasadas
-// HOURS_BEFORE_DISCOUNT horas, una sola vez por lead.
-// Lo dispara Vercel Cron (ver vercel.json). También se puede llamar manual
-// con el header Authorization: Bearer <CRON_SECRET>.
+// Cron diario (ver vercel.json). Dos flujos:
+//  1) Recuperación: lead que NO compró, pasadas HOURS_BEFORE_DISCOUNT horas → 15% (VOLVE15).
+//  2) Win-back: cliente que compró y a los DAYS_BEFORE_WINBACK días no volvió → 10% (GRACIAS10).
+// Cada mail se manda una sola vez por persona/ciclo.
 export const dynamic = "force-dynamic";
 
 const HOURS_BEFORE_DISCOUNT = 2;
+const DAYS_BEFORE_WINBACK = 15;
 
 function authorized(req: NextRequest): boolean {
   // Vercel Cron agrega este header automáticamente.
@@ -27,22 +33,42 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: "No autorizado" }, { status: 401 });
   }
 
-  const pct = couponDiscount(RETURN_COUPON);
+  // 1) Recuperación de carrito (no compró)
+  const recoveryPct = couponDiscount(RETURN_COUPON);
   const leads = await leadsNeedingDiscount(HOURS_BEFORE_DISCOUNT);
-
-  let sent = 0;
+  let recoverySent = 0;
   for (const lead of leads) {
     const ok = await sendDiscountEmail(
       lead.email,
       RETURN_COUPON,
-      pct,
+      recoveryPct,
       lead.locale ?? "ar"
     );
     if (ok) {
       await markDiscountSent(lead.email, RETURN_COUPON);
-      sent++;
+      recoverySent++;
     }
   }
 
-  return NextResponse.json({ candidates: leads.length, sent });
+  // 2) Win-back (compró y no volvió en 15 días)
+  const winbackPct = couponDiscount(WINBACK_COUPON);
+  const customers = await customersForWinback(DAYS_BEFORE_WINBACK);
+  let winbackSent = 0;
+  for (const c of customers) {
+    const ok = await sendWinbackEmail(
+      c.email,
+      WINBACK_COUPON,
+      winbackPct,
+      c.locale ?? "ar"
+    );
+    if (ok) {
+      await markWinbackSent(c.email, WINBACK_COUPON);
+      winbackSent++;
+    }
+  }
+
+  return NextResponse.json({
+    recovery: { candidates: leads.length, sent: recoverySent },
+    winback: { candidates: customers.length, sent: winbackSent },
+  });
 }

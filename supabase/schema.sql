@@ -56,10 +56,14 @@ create table if not exists leads (
   ordered_at       timestamptz,   -- creó una orden (haya pagado o no)
   purchased_at     timestamptz,   -- pago confirmado
   discount_code    text,          -- código de descuento asignado
-  discount_sent_at timestamptz    -- cuándo se le mandó el mail de descuento
+  discount_sent_at timestamptz,   -- cuándo se le mandó el mail de recuperación
+  winback_sent_at  timestamptz    -- cuándo se le mandó el mail de win-back (cliente)
 );
 
 create index if not exists leads_status_idx on leads (status);
 create index if not exists leads_created_idx on leads (created_at desc);
 
 alter table leads enable row level security;
+
+-- Si ya tenías la tabla leads creada, corré también:
+--   alter table leads add column if not exists winback_sent_at timestamptz;

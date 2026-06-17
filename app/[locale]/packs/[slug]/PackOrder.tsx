@@ -9,7 +9,6 @@ import {
   CRYPTO_DISCOUNT,
 } from "@/lib/config";
 import { displayPrice, formatNum, localeConfig, localAmount, type Locale } from "@/lib/i18n";
-import AccountCheck from "@/components/AccountCheck";
 import { fbqTrack } from "@/lib/fbq";
 
 export default function PackOrder({
@@ -168,10 +167,11 @@ export default function PackOrder({
                 spellCheck={false}
               />
             </div>
-            <AccountCheck username={username} />
-            <p className="mt-1.5 text-xs text-muted">
-              ⚠️ Tu cuenta debe estar pública hasta recibir todo.
-            </p>
+            <div className="mt-3 rounded-xl border border-warning/40 bg-warning/10 px-4 py-3 text-sm font-medium text-warning">
+              ⚠️ Importante: tu cuenta (y los posteos) deben estar en PÚBLICO
+              mientras hacemos la entrega. Apenas termina, podés volver a ponerlo
+              en privado sin problema.
+            </div>
           </div>
 
           {/* 2. Posteos para likes/vistas */}

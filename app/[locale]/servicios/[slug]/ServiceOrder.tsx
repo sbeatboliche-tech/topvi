@@ -24,7 +24,6 @@ import {
   fmt,
   type Locale,
 } from "@/lib/i18n";
-import AccountCheck from "@/components/AccountCheck";
 import { fbqTrack } from "@/lib/fbq";
 
 type StepKey = "quality" | "quantity" | "targets" | "addon" | "contact" | "payment";
@@ -364,6 +363,11 @@ export default function ServiceOrder({
                   ? `Repartimos los ${formatNum(totalUnits, locale)} ${svc.unit} entre las cuentas que cargues (hasta ${MAX_TARGETS}).`
                   : `Repartimos los ${formatNum(totalUnits, locale)} ${svc.unit} entre los posteos que cargues (hasta ${MAX_TARGETS}).`}
               </p>
+
+              {/* Aviso destacado: la cuenta/posteo tiene que estar en público */}
+              <div className="mb-4 rounded-xl border border-warning/40 bg-warning/10 px-4 py-3 text-sm font-medium text-warning">
+                {t.order.publicWarn}
+              </div>
               <div className="space-y-3">
                 {targets.map((val, i) => (
                   <div key={i}>
@@ -407,11 +411,6 @@ export default function ServiceOrder({
                         </button>
                       )}
                     </div>
-                    {isFollowers && svc.platform === "instagram" && (
-                      <div className="pl-7">
-                        <AccountCheck username={val} />
-                      </div>
-                    )}
                   </div>
                 ))}
               </div>
@@ -424,7 +423,6 @@ export default function ServiceOrder({
                   {isFollowers ? "+ Agregar otra cuenta" : "+ Agregar otro posteo"}
                 </button>
               )}
-              <p className="mt-3 text-xs text-muted">{t.order.publicWarn}</p>
             </div>
           )}
 
@@ -507,10 +505,8 @@ export default function ServiceOrder({
                         inputMode="url"
                       />
                     )}
-                    {addonIsFollowers && addonSvc.platform === "instagram" && (
-                      <AccountCheck username={addonTarget} />
-                    )}
                   </div>
+                  <p className="text-xs text-warning">{t.order.publicWarn}</p>
                 </div>
               )}
 

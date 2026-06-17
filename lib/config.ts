@@ -73,7 +73,6 @@ const likeTiers: Tier[] = [
 
 // Vistas de Reels de Instagram (hasta 1.000.000).
 const viewTiers: Tier[] = [
-  { quantity: 500,     price: 190 },
   { quantity: 1000,    price: 350 },
   { quantity: 2000,    price: 620 },
   { quantity: 5000,    price: 990 },
@@ -89,7 +88,6 @@ const viewTiers: Tier[] = [
 
 // Reproducciones de TikTok = precios de IG +15%, hasta 500.000.
 const ttViewTiers: Tier[] = [
-  { quantity: 500,    price: 220 },
   { quantity: 1000,   price: 400 },
   { quantity: 2000,   price: 710 },
   { quantity: 5000,   price: 1140 },

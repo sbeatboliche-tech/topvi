@@ -8,7 +8,6 @@ import { RETURN_COUPON, couponDiscount } from "@/lib/config";
 // Lo dispara Vercel Cron (ver vercel.json). También se puede llamar manual
 // con el header Authorization: Bearer <CRON_SECRET>.
 export const dynamic = "force-dynamic";
-export const maxDuration = 60;
 
 const HOURS_BEFORE_DISCOUNT = 2;
 

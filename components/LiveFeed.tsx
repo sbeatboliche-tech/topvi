@@ -41,7 +41,7 @@ export default function LiveFeed({ bought, agoText, names, cities, services }: P
     };
 
     const first = setTimeout(show, 2000);
-    const loop = setInterval(show, 8000);
+    const loop = setInterval(show, 10000);
     return () => {
       clearTimeout(first);
       clearInterval(loop);

@@ -37,11 +37,11 @@ export default function LiveFeed({ bought, agoText, names, cities, services }: P
         ago: 2 + Math.floor(Math.random() * 28),
       });
       setVisible(true);
-      hideTimer = setTimeout(() => setVisible(false), 6000);
+      hideTimer = setTimeout(() => setVisible(false), 4500);
     };
 
     const first = setTimeout(show, 2000);
-    const loop = setInterval(show, 16000);
+    const loop = setInterval(show, 6000);
     return () => {
       clearTimeout(first);
       clearInterval(loop);
@@ -53,7 +53,7 @@ export default function LiveFeed({ bought, agoText, names, cities, services }: P
 
   return (
     <div
-      className={`fixed left-4 top-[5.5rem] z-40 flex max-w-[300px] items-center gap-3 rounded-2xl border border-border bg-surface/95 p-3 shadow-xl shadow-black/40 backdrop-blur transition-all duration-500 ease-out ${
+      className={`fixed left-4 top-16 z-[60] flex max-w-[300px] items-center gap-3 rounded-2xl border border-border bg-surface/95 p-3 shadow-xl shadow-black/40 backdrop-blur transition-all duration-500 ease-out ${
         visible ? "translate-x-0 opacity-100" : "pointer-events-none -translate-x-8 opacity-0"
       }`}
     >

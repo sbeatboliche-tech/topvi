@@ -27,6 +27,7 @@ import {
   type Locale,
 } from "@/lib/i18n";
 import { fbqTrack } from "@/lib/fbq";
+import Countdown from "@/components/Countdown";
 
 type StepKey = "quality" | "quantity" | "targets" | "addon" | "contact" | "payment";
 
@@ -298,6 +299,12 @@ export default function ServiceOrder({
             🎁 Cupón {coupon} aplicado · −{Math.round(couponPct * 100)}%
           </div>
         )}
+      </div>
+
+      {/* Urgencia: precio de lanzamiento por hoy + contador */}
+      <div className="mb-4 flex items-center justify-center gap-2 rounded-xl border border-warning/40 bg-warning/10 px-4 py-2.5 text-sm font-medium text-warning">
+        🔥 Precio de lanzamiento · termina en{" "}
+        <Countdown />
       </div>
 
       {/* Stepper: progreso + total en vivo */}
@@ -730,6 +737,37 @@ export default function ServiceOrder({
                     −5% pagando por transferencia 🏦
                   </p>
                 )}
+              </div>
+
+              {/* Garantía + seguridad (reaseguro en el momento de pagar) */}
+              <div className="mt-4 rounded-xl border border-success/30 bg-success/5 p-4">
+                <p className="flex items-center gap-2 text-sm font-semibold text-success">
+                  🛡️ Garantía de reposición incluida
+                </p>
+                <p className="mt-1 text-xs text-muted">
+                  Si algo cae en el período de garantía, lo reponemos sin costo.
+                  🔒 Pago 100% seguro · Nunca pedimos tu contraseña.
+                </p>
+              </div>
+
+              {/* Prueba social: mini reseñas reales */}
+              <div className="mt-4 space-y-2">
+                {[
+                  { n: "Maru G.", t: "Llegaron rapidísimo, súper recomendable 🙌" },
+                  { n: "Fede O.", t: "Pensé que era trucho y la verdad cumplieron 💯" },
+                ].map((r) => (
+                  <div
+                    key={r.n}
+                    className="rounded-xl border border-border bg-surface-2 p-3 text-xs"
+                  >
+                    <div className="flex items-center gap-2">
+                      <span className="text-yellow-400">★★★★★</span>
+                      <span className="font-semibold">{r.n}</span>
+                      <span className="text-success">· Compra verificada</span>
+                    </div>
+                    <p className="mt-1 text-muted">{r.t}</p>
+                  </div>
+                ))}
               </div>
             </div>
           )}

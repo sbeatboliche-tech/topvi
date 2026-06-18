@@ -60,6 +60,17 @@ create table if not exists leads (
   winback_sent_at  timestamptz    -- cuándo se le mandó el mail de win-back (cliente)
 );
 
+-- ---- Chat de soporte (para ver/responder desde /admin) ----
+create table if not exists chat_messages (
+  id              bigint generated always as identity primary key,
+  conversation_id text not null,
+  role            text not null,   -- 'user' | 'agent' (IA) | 'admin' (vos)
+  text            text not null,
+  created_at      timestamptz not null default now()
+);
+create index if not exists chat_conv_idx on chat_messages (conversation_id, id);
+alter table chat_messages enable row level security;
+
 create index if not exists leads_status_idx on leads (status);
 create index if not exists leads_created_idx on leads (created_at desc);
 

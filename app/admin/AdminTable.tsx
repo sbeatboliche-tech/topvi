@@ -86,6 +86,12 @@ export default function AdminTable({
           >
             Leads
           </a>
+          <a
+            href="/admin/chats"
+            className="rounded-full border border-border bg-surface px-4 py-2 text-sm hover:bg-surface-2"
+          >
+            Soporte
+          </a>
           <button
             onClick={logout}
             className="rounded-full border border-border bg-surface px-4 py-2 text-sm hover:bg-surface-2"

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getOrder } from "@/lib/db";
 import { getService } from "@/lib/config";
+import { addMessage, messagesAfter } from "@/lib/chat";
 
 // ---------- Pattern-matching fallback ----------
 const PATTERNS: Array<{ re: RegExp; reply: (agent: string) => string }> = [
@@ -146,57 +147,65 @@ Reglas:
   }
 }
 
+async function computeReply(message: string, agentName: string): Promise<string> {
+  const { text: ctx, orderId } = await orderContext(message);
+
+  // 1. Claude si hay API key
+  const aiReply = await callClaude(message, agentName, ctx);
+  if (aiReply) return aiReply;
+
+  // 2. Respuesta directa por orden
+  if (orderId) {
+    const order = await getOrder(orderId);
+    if (order) {
+      const s = order.status;
+      if (s === "paid" || s === "delivering")
+        return `¡Tu pedido ${order.id} fue recibido exitosamente! 🎉 Estamos procesando ${order.totalFollowers.toLocaleString("es-AR")} unidades para @${order.username}. Llega en 20 minutos a 3 horas.`;
+      if (s === "delivered")
+        return `Tu pedido ${order.id} fue entregado exitosamente. ¿Todo llegó bien a @${order.username}? Si algo faltó, recordá que tenés garantía de reposición. 😊`;
+      return `Tu pedido ${order.id} está pendiente de pago. Completá el pago y en 10 minutos a 3 horas ya tenés todo. Si ya pagaste, puede tardar unos minutos en actualizarse.`;
+    }
+    return `No encontré el pedido ${orderId}. Verificá que el número esté bien escrito (formato ORD-XXXXX). Si creés que hay un error, escribinos por Instagram DM o email. 😊`;
+  }
+
+  // 3. Pattern matching
+  const match = patternMatch(message, agentName);
+  if (match) return match;
+
+  // 4. Default
+  return "Entendido. ¿Podés contarme un poco más? Si tenés un número de pedido (formato ORD-XXXXX) compartímelo y lo reviso de inmediato. 😊";
+}
+
 // ---------- Route ----------
 export async function POST(req: NextRequest) {
   try {
-    const { message, agentName } = await req.json();
+    const { message, agentName, conversationId } = await req.json();
+    const cid = conversationId ? String(conversationId) : null;
     if (!message?.trim()) {
       return NextResponse.json({ reply: "Hola, ¿en qué te puedo ayudar? 😊" });
     }
 
-    const { text: ctx, orderId } = await orderContext(String(message));
+    // Guardamos el mensaje del cliente (para que lo veas en /admin)
+    if (cid) await addMessage(cid, "user", String(message)).catch(() => {});
 
-    // 1. Try Claude if API key is configured
-    const aiReply = await callClaude(String(message), agentName ?? "Valentina", ctx);
-    if (aiReply) return NextResponse.json({ reply: aiReply });
+    const reply = await computeReply(String(message), agentName ?? "Valentina");
 
-    // 2. Direct order response if order was found/not-found
-    if (orderId) {
-      const order = await getOrder(orderId);
-      if (order) {
-        const s = order.status;
-        if (s === "paid" || s === "delivering") {
-          return NextResponse.json({
-            reply: `¡Tu pedido ${order.id} fue recibido exitosamente! 🎉 Estamos procesando ${order.totalFollowers.toLocaleString("es-AR")} unidades para @${order.username}. Llega en 20 minutos a 3 horas.`,
-          });
-        }
-        if (s === "delivered") {
-          return NextResponse.json({
-            reply: `Tu pedido ${order.id} fue entregado exitosamente. ¿Todo llegó bien a @${order.username}? Si algo faltó, recordá que tenés garantía de reposición. 😊`,
-          });
-        }
-        return NextResponse.json({
-          reply: `Tu pedido ${order.id} está pendiente de pago. Completá el pago y en 10 minutos a 3 horas ya tenés todo. Si ya pagaste, puede tardar unos minutos en actualizarse.`,
-        });
-      } else {
-        return NextResponse.json({
-          reply: `No encontré el pedido ${orderId}. Verificá que el número esté bien escrito (formato ORD-XXXXX). Si creés que hay un error, escribinos por Instagram DM o email. 😊`,
-        });
-      }
-    }
+    if (cid) await addMessage(cid, "agent", reply).catch(() => {});
 
-    // 3. Pattern matching
-    const match = patternMatch(String(message), agentName ?? "nosotros");
-    if (match) return NextResponse.json({ reply: match });
-
-    // 4. Default
-    return NextResponse.json({
-      reply: "Entendido. ¿Podés contarme un poco más? Si tenés un número de pedido (formato ORD-XXXXX) compartímelo y lo reviso de inmediato. 😊",
-    });
+    return NextResponse.json({ reply });
   } catch (err) {
     console.error("[support/chat]", err);
     return NextResponse.json({
       reply: "Disculpá, tuve un problema de conexión. Podés escribirnos por Instagram DM o email y te ayudamos al instante. 😊",
     });
   }
+}
+
+// Polling del cliente: trae mensajes nuevos (ej. respuestas del admin).
+export async function GET(req: NextRequest) {
+  const cid = req.nextUrl.searchParams.get("cid");
+  const after = Number(req.nextUrl.searchParams.get("after") ?? "0");
+  if (!cid) return NextResponse.json({ messages: [] });
+  const messages = await messagesAfter(cid, after);
+  return NextResponse.json({ messages });
 }

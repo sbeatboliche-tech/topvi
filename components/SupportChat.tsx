@@ -37,6 +37,22 @@ export default function SupportChat({ locale }: { locale: string }) {
   const STORAGE_KEY = "tvm_chat_messages";
   const AGENT_KEY   = "tvm_chat_agent";
   const STATE_KEY   = "tvm_chat_state";
+  const CID_KEY     = "tvm_chat_cid";
+
+  // ID de conversación persistente (para que el admin vea/responda).
+  const [conversationId] = useState(() => {
+    try {
+      let c = localStorage.getItem(CID_KEY);
+      if (!c) {
+        c = crypto.randomUUID?.() ?? `c_${Date.now()}_${Math.random().toString(36).slice(2)}`;
+        localStorage.setItem(CID_KEY, c);
+      }
+      return c;
+    } catch {
+      return `c_${Date.now()}`;
+    }
+  });
+  const lastSrvId = useRef(0);
 
   const [chatState, setChatStateRaw] = useState<ChatState>("closed");
   const [messages, setMessages] = useState<Message[]>([]);
@@ -108,7 +124,7 @@ export default function SupportChat({ locale }: { locale: string }) {
         const res = await fetch("/api/support/chat", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ message: userMessage, agentName: agent.name, locale }),
+          body: JSON.stringify({ message: userMessage, agentName: agent.name, locale, conversationId }),
         });
         const data = await res.json();
         const reply: string = data.reply || "Un momento, te ayudo enseguida. 😊";
@@ -121,8 +137,28 @@ export default function SupportChat({ locale }: { locale: string }) {
         setIsTyping(false);
       }
     },
-    [agent.name, locale, addMsg]
+    [agent.name, locale, addMsg, conversationId]
   );
+
+  // Polling: trae respuestas del admin (vos) en vivo mientras el chat está abierto.
+  useEffect(() => {
+    if (chatState !== "chat") return;
+    const poll = async () => {
+      try {
+        const r = await fetch(
+          `/api/support/chat?cid=${encodeURIComponent(conversationId)}&after=${lastSrvId.current}`
+        );
+        const d = await r.json();
+        for (const m of d.messages ?? []) {
+          if (m.id > lastSrvId.current) lastSrvId.current = m.id;
+          if (m.role === "admin") addMsg("agent", m.text);
+        }
+      } catch { /* noop */ }
+    };
+    poll();
+    const i = setInterval(poll, 5000);
+    return () => clearInterval(i);
+  }, [chatState, conversationId, addMsg]);
 
   // Initial greeting when chat opens
   useEffect(() => {

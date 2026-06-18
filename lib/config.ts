@@ -143,14 +143,14 @@ const igFollowerTiers: Tier[] = [
 ];
 
 const ttFollowerTiers: Tier[] = [
-  { quantity: 100, price: 1500, pricePremium: 2200 },
-  { quantity: 250, price: 2900, pricePremium: 4200 },
-  { quantity: 500, price: 4900, pricePremium: 7200 },
-  { quantity: 1000, price: 8900, pricePremium: 12500 },
-  { quantity: 2500, price: 19900, pricePremium: 27900, bonus: 250 },
-  { quantity: 5000, price: 35900, pricePremium: 49900, bonus: 500 },
-  { quantity: 10000, price: 67900, pricePremium: 89900, bonus: 1000 },
-  { quantity: 20000, price: 124900, pricePremium: 169900, bonus: 2000 },
+  { quantity: 100, price: 1800, pricePremium: 2600 },
+  { quantity: 250, price: 3500, pricePremium: 5000 },
+  { quantity: 500, price: 5900, pricePremium: 8600 },
+  { quantity: 1000, price: 10700, pricePremium: 15000 },
+  { quantity: 2500, price: 23900, pricePremium: 33500, bonus: 250 },
+  { quantity: 5000, price: 43100, pricePremium: 59900, bonus: 500 },
+  { quantity: 10000, price: 81500, pricePremium: 107900, bonus: 1000 },
+  { quantity: 20000, price: 149900, pricePremium: 203900, bonus: 2000 },
 ];
 
 export const services: ServiceDef[] = [

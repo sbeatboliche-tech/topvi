@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef, useCallback } from "react";
+import { usePathname } from "next/navigation";
 import { site } from "@/lib/config";
 
 const AGENTS = [
@@ -43,6 +44,9 @@ export default function SupportChat({ locale }: { locale: string }) {
   const [isTyping, setIsTyping] = useState(false);
   const [unread, setUnread] = useState(false);
   const [btnPos, setBtnPos] = useState<{ x: number; y: number } | null>(null);
+  const pathname = usePathname();
+  // En la sección de servicios el botón baja un poco (animación leve).
+  const lowerBtn = !!pathname && pathname.includes("/servicios");
 
   // Agent: persist per session so the name doesn't change on re-renders
   const [agent] = useState(() => {
@@ -233,7 +237,9 @@ export default function SupportChat({ locale }: { locale: string }) {
             ? { left: btnPos.x, top: btnPos.y, right: "auto", bottom: "auto", touchAction: "none" }
             : { touchAction: "none" }
         }
-        className="fixed bottom-[5.5rem] right-5 z-50 flex cursor-grab items-center gap-2.5 rounded-full brand-gradient py-2.5 pl-2.5 pr-4 shadow-xl shadow-brand/40 transition-transform hover:scale-105 active:cursor-grabbing"
+        className={`fixed bottom-[5.5rem] right-5 z-50 flex cursor-grab items-center gap-2.5 rounded-full brand-gradient py-2.5 pl-2.5 pr-4 shadow-xl shadow-brand/40 transition-transform duration-500 ease-out hover:scale-105 active:cursor-grabbing ${
+          !btnPos && lowerBtn ? "translate-y-12" : ""
+        }`}
         aria-label="Soporte en línea 24/7 (arrastrable)"
       >
         {/* Ícono de auriculares con micrófono = soporte humano */}

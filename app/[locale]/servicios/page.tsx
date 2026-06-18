@@ -9,6 +9,8 @@ import {
   type ServiceKind,
 } from "@/lib/config";
 import { getDict, isLocale, displayPrice, formatNum, type Locale } from "@/lib/i18n";
+import { getHomeCopy } from "@/lib/home-copy";
+import LiveFeed from "@/components/LiveFeed";
 
 export default async function ServiciosIndex({
   params,
@@ -19,6 +21,7 @@ export default async function ServiciosIndex({
   if (!isLocale(l)) notFound();
   const locale = l as Locale;
   const t = getDict(locale);
+  const c = getHomeCopy(locale);
   const platforms: Platform[] = ["instagram", "tiktok"];
 
   const accent: Record<Platform, string> = {
@@ -144,6 +147,15 @@ export default async function ServiciosIndex({
           );
         })}
       </div>
+
+      {/* Toast flotante de compras (prueba social) */}
+      <LiveFeed
+        bought={c.feed.bought}
+        agoText={c.feed.ago}
+        names={c.feed.names}
+        cities={c.feed.cities}
+        services={c.feed.services}
+      />
 
       {/* ───── Cierre / reaseguro ───── */}
       <div className="mt-14 rounded-2xl border border-border bg-surface p-6 text-center">

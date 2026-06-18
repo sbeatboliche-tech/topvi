@@ -12,6 +12,8 @@ export async function GET(req: NextRequest) {
   }
   const url = process.env.SUPABASE_URL;
   const keySet = !!process.env.SUPABASE_SERVICE_KEY;
+  // project ref = subdominio de la URL (xxxx.supabase.co)
+  const projectRef = url ? url.replace(/^https?:\/\//, "").split(".")[0] : null;
   if (!url || !keySet) {
     return NextResponse.json({ supabase_configurado: false, url: !!url, key: keySet });
   }
@@ -30,6 +32,7 @@ export async function GET(req: NextRequest) {
 
   return NextResponse.json({
     supabase_configurado: true,
+    project_ref: projectRef,
     insert_error: insert.error?.message ?? null,
     select_error: select.error?.message ?? null,
     filas: select.data ?? [],

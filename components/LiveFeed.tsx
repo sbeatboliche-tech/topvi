@@ -37,11 +37,11 @@ export default function LiveFeed({ bought, agoText, names, cities, services }: P
         ago: 2 + Math.floor(Math.random() * 28),
       });
       setVisible(true);
-      hideTimer = setTimeout(() => setVisible(false), 4500);
+      hideTimer = setTimeout(() => setVisible(false), 3000);
     };
 
     const first = setTimeout(show, 2000);
-    const loop = setInterval(show, 6000);
+    const loop = setInterval(show, 8000);
     return () => {
       clearTimeout(first);
       clearInterval(loop);

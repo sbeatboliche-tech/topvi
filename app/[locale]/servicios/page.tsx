@@ -30,7 +30,7 @@ export default async function ServiciosIndex({
   };
 
   const blurb: Record<ServiceKind, string> = {
-    followers: "Más seguidores reales = más confianza y ventas",
+    followers: "Más seguidores = más confianza y ventas",
     likes: "Más me gusta = más alcance en cada posteo",
     views: "Reproducciones que disparan tu video",
     shares: "Compartidos que multiplican tu alcance",

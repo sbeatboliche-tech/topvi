@@ -71,6 +71,18 @@ create table if not exists chat_messages (
 create index if not exists chat_conv_idx on chat_messages (conversation_id, id);
 alter table chat_messages enable row level security;
 
+-- ---- Visitas / funnel por IP (panel admin) ----
+create table if not exists visitors (
+  ip        text primary key,
+  stage     text not null default 'home',
+  rank      integer not null default 1,
+  hits      integer not null default 1,
+  first_at  timestamptz not null default now(),
+  last_at   timestamptz not null default now()
+);
+create index if not exists visitors_last_idx on visitors (last_at desc);
+alter table visitors enable row level security;
+
 create index if not exists leads_status_idx on leads (status);
 create index if not exists leads_created_idx on leads (created_at desc);
 

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import {
   getService,
@@ -95,6 +95,17 @@ export default function ServiceOrder({
   const [step, setStep] = useState(0);
   const current = steps[step];
   const isLast = step === steps.length - 1;
+
+  // Tracking de embudo: entró al checkout / llegó al pago.
+  useEffect(() => {
+    const track = (stage: string) =>
+      fetch("/api/track", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ stage }),
+      }).catch(() => {});
+    track(current === "payment" ? "payment" : "checkout");
+  }, [current === "payment"]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const tier = svc.tiers[tierIdx];
   const price = priceFor(tier, quality);

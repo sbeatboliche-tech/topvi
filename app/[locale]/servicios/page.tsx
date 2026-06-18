@@ -11,6 +11,7 @@ import {
 import { getDict, isLocale, displayPrice, formatNum, type Locale } from "@/lib/i18n";
 import { getHomeCopy } from "@/lib/home-copy";
 import LiveFeed from "@/components/LiveFeed";
+import Track from "@/components/Track";
 
 export default async function ServiciosIndex({
   params,
@@ -39,6 +40,7 @@ export default async function ServiciosIndex({
 
   return (
     <div className="mx-auto max-w-5xl px-5 py-12 sm:py-16">
+      <Track stage="servicios" />
       {/* ───── Encabezado con prueba social ───── */}
       <header className="mb-12 text-center">
         <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/5 px-4 py-1.5 text-xs font-medium text-white/80 backdrop-blur">

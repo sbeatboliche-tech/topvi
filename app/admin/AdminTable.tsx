@@ -92,6 +92,12 @@ export default function AdminTable({
           >
             Soporte
           </a>
+          <a
+            href="/admin/visits"
+            className="rounded-full border border-border bg-surface px-4 py-2 text-sm hover:bg-surface-2"
+          >
+            Visitas
+          </a>
           <button
             onClick={logout}
             className="rounded-full border border-border bg-surface px-4 py-2 text-sm hover:bg-surface-2"

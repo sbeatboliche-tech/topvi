@@ -4,6 +4,7 @@ import { isLocale, displayPrice, formatNum, type Locale } from "@/lib/i18n";
 import { getHomeCopy } from "@/lib/home-copy";
 import { notFound } from "next/navigation";
 import LiveFeed from "@/components/LiveFeed";
+import Track from "@/components/Track";
 import { Star } from "lucide-react";
 
 // ── Prueba social / algoritmo ─────────────────────────────────
@@ -54,6 +55,7 @@ export default async function Home({
 
   return (
     <div className="bg-[#0a0a0b]">
+      <Track stage="home" />
       {/* ════════════════════════════════════════
           HERO
       ════════════════════════════════════════ */}

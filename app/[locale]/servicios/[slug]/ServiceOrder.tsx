@@ -381,35 +381,50 @@ export default function ServiceOrder({
           {/* ───── Paso: Cantidad ───── */}
           {current === "quantity" && (
             <div>
-              <h2 className="mb-4 font-semibold">{t.order.quantity}</h2>
-              <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+              <h2 className="font-semibold">{t.order.quantity}</h2>
+              <p className="mb-4 mt-1 text-sm text-muted">
+                Más cantidad, mejor precio 🎁
+              </p>
+              <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-3">
                 {svc.tiers.map((tt, i) => {
                   const pp = priceFor(tt, quality);
                   const bb = bonusFor(tt, quality);
+                  const selected = tierIdx === i;
+                  const popular = i === defaultTierIdx && bb === 0;
                   return (
                     <button
                       type="button"
                       key={tt.quantity}
                       onClick={() => setTierIdx(i)}
-                      className={`relative rounded-xl border p-3 text-center transition-all ${
-                        tierIdx === i
-                          ? "border-brand bg-brand/10 ring-1 ring-brand"
-                          : "border-border bg-surface-2 hover:border-brand/40"
+                      className={`relative rounded-2xl border p-3.5 text-center transition-all duration-200 active:scale-[0.97] ${
+                        selected
+                          ? "border-brand bg-brand/10 ring-2 ring-brand shadow-lg shadow-brand/20"
+                          : "border-border bg-surface-2 hover:border-brand/50"
                       }`}
                     >
                       {bb > 0 && (
-                        <span className="absolute -top-2 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-full bg-success px-2 py-0.5 text-[10px] font-bold text-black">
+                        <span className="absolute -top-2 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-full bg-success px-2 py-0.5 text-[10px] font-bold text-black shadow">
                           {fmt(t.order.free, { n: formatNum(bb, locale) })}
                         </span>
                       )}
-                      <div className="text-lg font-bold">
+                      {popular && (
+                        <span className="absolute -top-2 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-full bg-white px-2 py-0.5 text-[10px] font-bold text-[#0a0a0b] shadow">
+                          ⭐ MÁS ELEGIDO
+                        </span>
+                      )}
+                      {selected && (
+                        <span className="absolute right-2 top-2 flex h-5 w-5 items-center justify-center rounded-full bg-brand text-[11px] font-bold text-[#0a0a0b]">
+                          ✓
+                        </span>
+                      )}
+                      <div className="mt-1 text-xl font-extrabold tracking-tight">
                         {formatNum(tt.quantity, locale)}
                       </div>
-                      <div className="text-xs text-muted">{svc.unit}</div>
-                      <div className="mt-1.5 text-[11px] text-muted line-through">
+                      <div className="text-[11px] text-muted">{svc.unit}</div>
+                      <div className="mt-2 text-[11px] text-muted line-through">
                         {displayPrice(anchorPrice(pp), locale)}
                       </div>
-                      <div className="text-sm font-semibold text-accent">
+                      <div className="text-base font-extrabold text-accent">
                         {displayPrice(pp, locale)}
                       </div>
                     </button>

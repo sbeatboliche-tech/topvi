@@ -77,9 +77,12 @@ create table if not exists visitors (
   stage     text not null default 'home',
   rank      integer not null default 1,
   hits      integer not null default 1,
+  region    text,
   first_at  timestamptz not null default now(),
   last_at   timestamptz not null default now()
 );
+-- Si ya creaste la tabla visitors antes, corré:
+--   alter table visitors add column if not exists region text;
 create index if not exists visitors_last_idx on visitors (last_at desc);
 alter table visitors enable row level security;
 

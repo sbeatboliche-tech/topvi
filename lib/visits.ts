@@ -26,6 +26,7 @@ export interface Visitor {
   stage: string;
   rank: number;
   hits: number;
+  region?: string;
   firstAt: string;
   lastAt: string;
 }
@@ -42,22 +43,33 @@ async function sb() {
   });
 }
 
-export async function trackVisit(ip: string, stage: string): Promise<void> {
+export async function trackVisit(
+  ip: string,
+  stage: string,
+  region?: string
+): Promise<void> {
   const cleanIp = String(ip || "unknown").slice(0, 64);
   const rank = STAGE_RANK[stage] ?? 1;
+  const reg = region ? String(region).slice(0, 80) : undefined;
   const now = new Date().toISOString();
 
   if (hasSupabase) {
     const client = await sb();
     const { data } = await client
       .from("visitors")
-      .select("rank, hits")
+      .select("rank, hits, region")
       .eq("ip", cleanIp)
       .single();
     if (!data) {
-      await client
-        .from("visitors")
-        .insert({ ip: cleanIp, stage, rank, hits: 1, first_at: now, last_at: now });
+      await client.from("visitors").insert({
+        ip: cleanIp,
+        stage,
+        rank,
+        hits: 1,
+        region: reg ?? null,
+        first_at: now,
+        last_at: now,
+      });
     } else {
       const better = rank > (data.rank ?? 0);
       await client
@@ -66,6 +78,7 @@ export async function trackVisit(ip: string, stage: string): Promise<void> {
           hits: (data.hits ?? 0) + 1,
           last_at: now,
           ...(better ? { stage, rank } : {}),
+          ...(reg && !data.region ? { region: reg } : {}),
         })
         .eq("ip", cleanIp);
     }
@@ -74,7 +87,15 @@ export async function trackVisit(ip: string, stage: string): Promise<void> {
 
   const prev = memory.get(cleanIp);
   if (!prev) {
-    memory.set(cleanIp, { ip: cleanIp, stage, rank, hits: 1, firstAt: now, lastAt: now });
+    memory.set(cleanIp, {
+      ip: cleanIp,
+      stage,
+      rank,
+      hits: 1,
+      region: reg,
+      firstAt: now,
+      lastAt: now,
+    });
   } else {
     const better = rank > prev.rank;
     memory.set(cleanIp, {
@@ -83,6 +104,7 @@ export async function trackVisit(ip: string, stage: string): Promise<void> {
       lastAt: now,
       stage: better ? stage : prev.stage,
       rank: better ? rank : prev.rank,
+      region: prev.region ?? reg,
     });
   }
 }
@@ -101,6 +123,7 @@ export async function listVisitors(): Promise<Visitor[]> {
       stage: r.stage,
       rank: r.rank,
       hits: r.hits,
+      region: r.region ?? undefined,
       firstAt: r.first_at,
       lastAt: r.last_at,
     }));

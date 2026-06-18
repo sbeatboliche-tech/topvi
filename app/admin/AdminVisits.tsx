@@ -9,6 +9,7 @@ type Visitor = {
   stage: string;
   rank: number;
   hits: number;
+  region?: string;
   firstAt: string;
   lastAt: string;
 };
@@ -91,6 +92,7 @@ export default function AdminVisits() {
           <thead className="bg-surface text-left text-muted">
             <tr>
               <th className="p-3 font-medium">IP</th>
+              <th className="p-3 font-medium">Provincia / Ciudad</th>
               <th className="p-3 font-medium">Se quedó en</th>
               <th className="p-3 font-medium">Visitas</th>
               <th className="p-3 font-medium">Última vez</th>
@@ -99,7 +101,7 @@ export default function AdminVisits() {
           <tbody>
             {rows.length === 0 && (
               <tr>
-                <td colSpan={4} className="p-8 text-center text-muted">
+                <td colSpan={5} className="p-8 text-center text-muted">
                   Todavía no hay visitas registradas.
                 </td>
               </tr>
@@ -107,6 +109,7 @@ export default function AdminVisits() {
             {rows.map((r) => (
               <tr key={r.ip} className="border-t border-border bg-background/40">
                 <td className="p-3 font-mono text-xs">{r.ip}</td>
+                <td className="p-3 text-xs">{r.region ?? "—"}</td>
                 <td className="p-3">
                   <span
                     className={`rounded-full px-2.5 py-1 text-xs font-medium ${stageColor(r.rank)}`}

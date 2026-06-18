@@ -35,7 +35,13 @@ export async function POST(req: NextRequest) {
       (req.headers.get("x-forwarded-for") || "").split(",")[0].trim() ||
       req.headers.get("x-real-ip") ||
       "unknown";
-    if (stage) await trackVisit(ip, String(stage));
+    // Geo de Vercel: región/provincia y ciudad (si están disponibles).
+    const region = decodeURIComponent(
+      req.headers.get("x-vercel-ip-country-region") || ""
+    );
+    const city = decodeURIComponent(req.headers.get("x-vercel-ip-city") || "");
+    const geo = [city, region].filter(Boolean).join(", ") || undefined;
+    if (stage) await trackVisit(ip, String(stage), geo);
   } catch (err) {
     console.error("[api/track]", err);
   }

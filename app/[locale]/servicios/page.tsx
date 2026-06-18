@@ -101,6 +101,12 @@ export default async function ServiciosIndex({
                       href={`/${locale}/servicios/${s.slug}`}
                       className="group relative flex flex-col overflow-hidden rounded-2xl border border-border bg-surface p-5 transition-all duration-300 hover:-translate-y-1 hover:border-white/25 hover:shadow-xl hover:shadow-black/40"
                     >
+                      {/* brillo sutil de color al pasar/tocar */}
+                      <span
+                        aria-hidden
+                        className="pointer-events-none absolute -right-10 -top-10 h-32 w-32 rounded-full opacity-0 blur-2xl transition-opacity duration-300 group-hover:opacity-100"
+                        style={{ backgroundColor: `${accent[pf]}33` }}
+                      />
                       {/* barra de acento superior */}
                       <span
                         aria-hidden
@@ -114,8 +120,12 @@ export default async function ServiciosIndex({
                       )}
 
                       <span
-                        className="flex h-12 w-12 items-center justify-center rounded-xl text-2xl"
-                        style={{ backgroundColor: `${accent[pf]}1f` }}
+                        className="flex h-14 w-14 items-center justify-center rounded-2xl text-3xl ring-1 transition-transform duration-300 group-hover:scale-105"
+                        style={{
+                          backgroundColor: `${accent[pf]}24`,
+                          // @ts-expect-error css var
+                          "--tw-ring-color": `${accent[pf]}55`,
+                        }}
                       >
                         {s.emoji}
                       </span>

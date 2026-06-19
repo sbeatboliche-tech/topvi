@@ -441,3 +441,100 @@ export async function sendOrderConfirmation(order: Order): Promise<void> {
     console.error("[email] Error enviando confirmación al cliente:", err);
   }
 }
+
+const ARS = (n: number) =>
+  new Intl.NumberFormat("es-AR", {
+    style: "currency",
+    currency: "ARS",
+    maximumFractionDigits: 0,
+  }).format(n);
+
+async function sendResend(to: string, subject: string, html: string) {
+  const key = process.env.RESEND_API_KEY;
+  if (!key) {
+    console.log(`[email] Sin RESEND_API_KEY — ${subject} a ${to}`);
+    return;
+  }
+  try {
+    const from =
+      process.env.RESEND_FROM ?? "TopViralMarketing <onboarding@resend.dev>";
+    const res = await fetch(RESEND_API, {
+      method: "POST",
+      headers: { Authorization: `Bearer ${key}`, "Content-Type": "application/json" },
+      body: JSON.stringify({ from, to: [to], subject, html }),
+    });
+    if (!res.ok) console.error("[email] Resend error:", res.status, await res.text());
+  } catch (err) {
+    console.error("[email] Resend excepción:", err);
+  }
+}
+
+// 1) Transferencia: pedido recibido, falta el pago. Incluye datos + link a subir comprobante.
+export async function sendTransferPending(order: Order): Promise<void> {
+  if (!order.contact.includes("@")) return;
+  const base = process.env.PUBLIC_BASE_URL ?? `https://www.${site.domain}`;
+  const link = `${base}/${order.locale}/gracias?order=${order.id}&method=transferencia`;
+  const serviceLabel = SERVICE_LABELS[order.service] ?? order.service;
+  const tr = site.transfer;
+  const html = `
+<!DOCTYPE html><html lang="es"><body style="font-family:sans-serif;background:#0a0a0b;padding:24px;color:#f4f4f5">
+  <div style="max-width:480px;margin:0 auto;background:#141417;border-radius:16px;overflow:hidden;border:1px solid #2a2a31">
+    <div style="padding:28px 24px;text-align:center">
+      <div style="font-size:40px">🧾</div>
+      <h1 style="margin:12px 0 0;font-size:22px;color:#fff">¡Gracias por tu compra!</h1>
+      <p style="margin:10px 0 0;color:#9aa0aa;font-size:14px">
+        Reservamos tu pedido <b style="color:#f4f4f5">${order.id}</b> (${serviceLabel}).
+        Apenas verifiquemos tu transferencia, comenzamos la entrega (suele tardar menos de 3 hs).
+      </p>
+    </div>
+    <div style="padding:0 24px 24px">
+      <p style="font-size:14px;color:#f4f4f5;margin:0 0 8px">Transferí el monto exacto a:</p>
+      <table style="width:100%;border-collapse:collapse;font-size:14px;color:#f4f4f5">
+        <tr style="border-bottom:1px solid #2a2a31"><td style="padding:9px 0;color:#9aa0aa">Monto (5% OFF)</td><td style="padding:9px 0;font-weight:700;text-align:right;color:#34d399">${ARS(order.amount)}</td></tr>
+        <tr style="border-bottom:1px solid #2a2a31"><td style="padding:9px 0;color:#9aa0aa">Titular</td><td style="padding:9px 0;text-align:right">${tr.titular}</td></tr>
+        <tr style="border-bottom:1px solid #2a2a31"><td style="padding:9px 0;color:#9aa0aa">Alias</td><td style="padding:9px 0;font-weight:600;text-align:right">${tr.alias}</td></tr>
+        <tr style="border-bottom:1px solid #2a2a31"><td style="padding:9px 0;color:#9aa0aa">CVU</td><td style="padding:9px 0;text-align:right">${tr.cvu}</td></tr>
+        <tr><td style="padding:9px 0;color:#9aa0aa">CUIT</td><td style="padding:9px 0;text-align:right">${tr.cuit}</td></tr>
+      </table>
+      <div style="text-align:center;margin-top:22px">
+        <a href="${link}" style="display:inline-block;background:#fff;color:#0a0a0b;font-weight:700;text-decoration:none;border-radius:999px;padding:14px 28px;font-size:15px">
+          Ya transferí → subir comprobante
+        </a>
+      </div>
+      <p style="margin:18px 0 0;text-align:center;color:#6b7280;font-size:12px">
+        Cuando subas la captura del pago, confirmamos y entregamos. ${site.name}
+      </p>
+    </div>
+  </div>
+</body></html>`;
+  await sendResend(order.contact, `🧾 Recibimos tu pedido ${order.id} — confirmá tu transferencia`, html);
+}
+
+// 2) Transferencia: el cliente subió el comprobante. Agradecimiento + estamos verificando.
+export async function sendTransferProofThanks(order: Order): Promise<void> {
+  if (!order.contact.includes("@")) return;
+  const serviceLabel = SERVICE_LABELS[order.service] ?? order.service;
+  const html = `
+<!DOCTYPE html><html lang="es"><body style="font-family:sans-serif;background:#0a0a0b;padding:24px;color:#f4f4f5">
+  <div style="max-width:480px;margin:0 auto;background:#141417;border-radius:16px;overflow:hidden;border:1px solid #2a2a31">
+    <div style="padding:28px 24px;text-align:center">
+      <div style="font-size:40px">✅</div>
+      <h1 style="margin:12px 0 0;font-size:22px;color:#fff">¡Muchas gracias por tu compra!</h1>
+      <p style="margin:10px 0 0;color:#9aa0aa;font-size:14px">
+        Recibimos tu comprobante del pedido <b style="color:#f4f4f5">${order.id}</b> (${serviceLabel}).
+        Estamos <b style="color:#f4f4f5">verificando el pago</b> y, una vez confirmado,
+        comenzamos a entregar tu servicio (suele tardar menos de 3 hs).
+      </p>
+      <div style="margin-top:18px;background:#102a1f;border:1px solid #1f5f43;border-radius:10px;padding:14px">
+        <p style="margin:0;font-size:13px;color:#34d399">
+          🔒 Recordá tener tu cuenta en <b>público</b> hasta recibir todo el pedido.
+        </p>
+      </div>
+      <p style="margin:18px 0 0;color:#6b7280;font-size:12px">
+        Te avisamos por acá ante cualquier novedad. ¡Gracias por elegir ${site.name}!
+      </p>
+    </div>
+  </div>
+</body></html>`;
+  await sendResend(order.contact, `✅ Recibimos tu comprobante — verificando tu pago (${order.id})`, html);
+}

@@ -15,6 +15,7 @@ import {
 } from "@/lib/config";
 import { isLocale, defaultLocale } from "@/lib/i18n";
 import { markLeadOrdered } from "@/lib/leads";
+import { sendTransferPending } from "@/lib/email";
 
 type Payment = "mercadopago" | "tarjeta" | "usdt" | "transferencia";
 
@@ -92,6 +93,7 @@ export async function POST(req: NextRequest) {
       });
 
       await markLeadOrdered(contact, pack.slug, loc).catch(() => {});
+      if (payment === "transferencia") await sendTransferPending(order).catch(() => {});
       return finishOrder(order, payment, req);
     }
 
@@ -185,6 +187,7 @@ export async function POST(req: NextRequest) {
     });
 
     await markLeadOrdered(contact, svc.slug, loc).catch(() => {});
+    if (payment === "transferencia") await sendTransferPending(order).catch(() => {});
     return finishOrder(order, payment, req);
   } catch (err) {
     console.error("[api/orders]", err);

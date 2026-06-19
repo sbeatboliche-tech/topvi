@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getOrder } from "@/lib/db";
-import { notifyTransferProof } from "@/lib/email";
+import { notifyTransferProof, sendTransferProofThanks } from "@/lib/email";
 
 export const runtime = "nodejs";
 
@@ -50,6 +50,8 @@ export async function POST(req: NextRequest) {
           base64: buf.toString("base64"),
           filename: file.name || "comprobante.jpg",
         }).catch(() => {});
+        // Email 2 al cliente: gracias + estamos verificando el pago.
+        await sendTransferProofThanks(order).catch(() => {});
       }
     }
   } catch (err) {

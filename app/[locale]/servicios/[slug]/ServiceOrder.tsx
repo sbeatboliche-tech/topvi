@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import {
   getService,
@@ -197,12 +197,20 @@ export default function ServiceOrder({
     return null;
   }
 
+  // Scroll al tope del wizard al cambiar de paso (después del render).
+  const topRef = useRef<HTMLDivElement>(null);
+  const firstStepRender = useRef(true);
+  useEffect(() => {
+    if (firstStepRender.current) {
+      firstStepRender.current = false;
+      return;
+    }
+    topRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+  }, [step]);
+
   function goTo(n: number) {
     setError("");
     setStep(n);
-    if (typeof window !== "undefined") {
-      window.scrollTo({ top: 0, behavior: "smooth" });
-    }
   }
 
   function next() {
@@ -306,7 +314,7 @@ export default function ServiceOrder({
   };
 
   return (
-    <div className="mx-auto max-w-2xl px-4 py-10">
+    <div ref={topRef} className="mx-auto max-w-2xl scroll-mt-20 px-4 py-10">
       {/* Encabezado */}
       <div className="mb-6 text-center">
         <div className="mb-3 flex justify-center">

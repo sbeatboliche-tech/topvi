@@ -15,13 +15,21 @@ export async function GET(req: NextRequest) {
   const sb = createClient(url, process.env.SUPABASE_SERVICE_KEY!, {
     auth: { persistSession: false },
   });
-  await sb.from("visitors").insert({ ip: "diag-check", stage: "home", rank: 1 });
-  const sel = await sb.from("visitors").select("ip", { count: "exact" });
+  const sel = await sb
+    .from("visitors")
+    .select("stage, ip, region, last_at")
+    .order("last_at", { ascending: false })
+    .limit(500);
+  const rows = sel.data ?? [];
+  const byStage: Record<string, number> = {};
+  for (const r of rows) byStage[r.stage] = (byStage[r.stage] ?? 0) + 1;
   return NextResponse.json({
     supabase: true,
     project_ref: projectRef,
     table_error: sel.error?.message ?? null,
-    count: sel.count ?? (sel.data?.length ?? 0),
+    total: rows.length,
+    por_eslabon: byStage,
+    ultimos: rows.slice(0, 8),
   });
 }
 

@@ -43,12 +43,13 @@ export default async function Gracias({
 
       {order ? (
         <>
-          {isPaid && (
-            <PixelPurchase
-              value={localAmount(order.amount, locale)}
-              currency={localeConfig[locale].currency.code}
-            />
-          )}
+          {/* Evento Purchase para CUALQUIER método (incluida transferencia/crypto),
+              así Meta atribuye la venta al anuncio y puede optimizar a Ventas. */}
+          <PixelPurchase
+            value={localAmount(order.amount, locale)}
+            currency={localeConfig[locale].currency.code}
+          />
+
           <p className="mt-3 text-muted">
             {fmt(t.gracias.orderFor, { id: order.id, user: order.username })}
           </p>

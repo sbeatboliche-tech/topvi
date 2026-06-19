@@ -2,6 +2,9 @@ import { NextRequest, NextResponse } from "next/server";
 import { getOrder } from "@/lib/db";
 import { getService } from "@/lib/config";
 import { addMessage, messagesAfter } from "@/lib/chat";
+import { captureLead } from "@/lib/leads";
+
+const EMAIL_RE = /[^\s@]+@[^\s@]+\.[^\s@]{2,}/;
 
 // ---------- Pattern-matching fallback ----------
 const PATTERNS: Array<{ re: RegExp; reply: (agent: string) => string }> = [
@@ -122,7 +125,8 @@ Reglas:
 - Si no encontrás el pedido: decíles que verifiquen el número
 - No inventes información que no tenés
 - No uses tu nombre al final. No uses comillas raras ni asteriscos.
-- Para problemas graves, ofrecé escalar a Instagram DM o email${ctxText ? `\n\nDatos de la orden consultada:\n${ctxText}` : ""}`;
+- Para problemas graves, ofrecé escalar a Instagram DM o email
+- Si el cliente TODAVÍA no dejó su email en la conversación, pedíselo amablemente al inicio para poder seguir la consulta; una vez que lo deja, agradecé y respondé su duda${ctxText ? `\n\nDatos de la orden consultada:\n${ctxText}` : ""}`;
 
   try {
     const res = await fetch("https://api.anthropic.com/v1/messages", {
@@ -187,6 +191,12 @@ export async function POST(req: NextRequest) {
 
     // Guardamos el mensaje del cliente (para que lo veas en /admin)
     if (cid) await addMessage(cid, "user", String(message)).catch(() => {});
+
+    // Si dejó el email en el chat, lo guardamos como lead (origen soporte).
+    const emailHit = String(message).match(EMAIL_RE);
+    if (emailHit) {
+      await captureLead({ email: emailHit[0], source: "soporte" }).catch(() => {});
+    }
 
     const reply = await computeReply(String(message), agentName ?? "Valentina");
 

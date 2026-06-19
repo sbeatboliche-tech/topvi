@@ -5,6 +5,7 @@ import Link from "next/link";
 
 type Conv = {
   conversationId: string;
+  email: string | null;
   lastText: string;
   lastRole: string;
   lastAt: string;
@@ -115,10 +116,12 @@ export default function AdminChats() {
                 active === c.conversationId ? "bg-surface-2" : ""
               }`}
             >
-              <div className="flex items-center justify-between">
-                <span className="font-mono text-xs">{shortId(c.conversationId)}</span>
+              <div className="flex items-center justify-between gap-2">
+                <span className="truncate text-xs font-semibold">
+                  {c.email ? `📧 ${c.email}` : `👤 ${shortId(c.conversationId)}`}
+                </span>
                 {c.pendingUser && (
-                  <span className="rounded-full bg-warning px-1.5 py-0.5 text-[9px] font-bold text-black">
+                  <span className="shrink-0 rounded-full bg-warning px-1.5 py-0.5 text-[9px] font-bold text-black">
                     SIN RESPONDER
                   </span>
                 )}

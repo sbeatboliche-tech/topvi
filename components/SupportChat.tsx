@@ -170,7 +170,7 @@ export default function SupportChat({ locale }: { locale: string }) {
         setIsTyping(false);
         addMsg(
           "agent",
-          `¡Hola! 👋 Soy ${agent.name}, del equipo de soporte de ${site.name}. ¿En qué te puedo ayudar hoy?`
+          `¡Hola! 👋 Soy ${agent.name}, del equipo de soporte de ${site.name}. Para ayudarte y poder seguir la conversación, ¿me dejás tu email? 📧`
         );
       }, delay);
     }

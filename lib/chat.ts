@@ -81,9 +81,12 @@ export async function messagesAfter(
 }
 
 // Lista de conversaciones (para el admin): última actividad + sin leer.
+const EMAIL_RE = /[^\s@]+@[^\s@]+\.[^\s@]{2,}/;
+
 export async function listConversations(): Promise<
   {
     conversationId: string;
+    email: string | null;
     lastText: string;
     lastRole: ChatRole;
     lastAt: string;
@@ -117,8 +120,20 @@ export async function listConversations(): Promise<
     // "pendiente" si el último mensaje del cliente no tiene respuesta de admin posterior
     const lastUserIdx = sorted.map((m) => m.role).lastIndexOf("user");
     const lastAdminIdx = sorted.map((m) => m.role).lastIndexOf("admin");
+    // Email = primer mail que aparezca en un mensaje del cliente.
+    let email: string | null = null;
+    for (const m of sorted) {
+      if (m.role === "user") {
+        const hit = m.text.match(EMAIL_RE);
+        if (hit) {
+          email = hit[0].toLowerCase();
+          break;
+        }
+      }
+    }
     return {
       conversationId: cid,
+      email,
       lastText: last.text,
       lastRole: last.role,
       lastAt: last.createdAt,

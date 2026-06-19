@@ -57,7 +57,7 @@ export async function trackVisit(
     const client = await sb();
     const { data } = await client
       .from("visitors")
-      .select("rank, hits, region")
+      .select("rank, hits")
       .eq("ip", cleanIp)
       .single();
     if (!data) {
@@ -66,7 +66,6 @@ export async function trackVisit(
         stage,
         rank,
         hits: 1,
-        region: reg ?? null,
         first_at: now,
         last_at: now,
       });
@@ -78,9 +77,13 @@ export async function trackVisit(
           hits: (data.hits ?? 0) + 1,
           last_at: now,
           ...(better ? { stage, rank } : {}),
-          ...(reg && !data.region ? { region: reg } : {}),
         })
         .eq("ip", cleanIp);
+    }
+    // Región: best-effort. Si la columna no existe, no rompe el tracking.
+    if (reg) {
+      const upd = await client.from("visitors").update({ region: reg }).eq("ip", cleanIp);
+      if (upd.error) console.warn("[visits] region no guardada:", upd.error.message);
     }
     return;
   }

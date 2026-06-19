@@ -17,7 +17,7 @@ export async function GET(req: NextRequest) {
   });
   const sel = await sb
     .from("visitors")
-    .select("stage, ip, region, last_at")
+    .select("stage, ip, last_at")
     .order("last_at", { ascending: false })
     .limit(500);
   const rows = sel.data ?? [];

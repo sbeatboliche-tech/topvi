@@ -390,7 +390,7 @@ export default function ServiceOrder({
                   const pp = priceFor(tt, quality);
                   const bb = bonusFor(tt, quality);
                   const selected = tierIdx === i;
-                  const popular = i === defaultTierIdx && bb === 0;
+                  const popular = tt.quantity === 10000;
                   return (
                     <button
                       type="button"
@@ -402,15 +402,16 @@ export default function ServiceOrder({
                           : "border-border bg-surface-2 hover:border-brand/50"
                       }`}
                     >
-                      {bb > 0 && (
-                        <span className="absolute -top-2 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-full bg-success px-2 py-0.5 text-[10px] font-bold text-black shadow">
-                          {fmt(t.order.free, { n: formatNum(bb, locale) })}
-                        </span>
-                      )}
-                      {popular && (
+                      {popular ? (
                         <span className="absolute -top-2 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-full bg-white px-2 py-0.5 text-[10px] font-bold text-[#0a0a0b] shadow">
                           ⭐ MÁS ELEGIDO
                         </span>
+                      ) : (
+                        bb > 0 && (
+                          <span className="absolute -top-2 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-full bg-success px-2 py-0.5 text-[10px] font-bold text-black shadow">
+                            {fmt(t.order.free, { n: formatNum(bb, locale) })}
+                          </span>
+                        )
                       )}
                       {selected && (
                         <span className="absolute right-2 top-2 flex h-5 w-5 items-center justify-center rounded-full bg-brand text-[11px] font-bold text-[#0a0a0b]">
@@ -427,6 +428,11 @@ export default function ServiceOrder({
                       <div className="text-base font-extrabold text-accent">
                         {displayPrice(pp, locale)}
                       </div>
+                      {popular && bb > 0 && (
+                        <div className="mt-0.5 text-[10px] font-bold text-success">
+                          {fmt(t.order.free, { n: formatNum(bb, locale) })}
+                        </div>
+                      )}
                     </button>
                   );
                 })}

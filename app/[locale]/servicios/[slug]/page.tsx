@@ -3,7 +3,6 @@ import { notFound } from "next/navigation";
 import { services, getService } from "@/lib/config";
 import { isLocale, getDict, fmt, locales, type Locale } from "@/lib/i18n";
 import ServiceOrder from "./ServiceOrder";
-import TrialBanner from "@/components/TrialBanner";
 
 export function generateStaticParams() {
   return locales.flatMap((locale) =>
@@ -40,7 +39,6 @@ export default async function Page({
   const initialQuality = q === "premium" || q === "global" ? q : undefined;
   return (
     <>
-      {svc.slug === "instagram-likes" && <div className="mx-auto max-w-6xl px-4 pt-8"><TrialBanner /></div>}
       <ServiceOrder
         slug={svc.slug}
         locale={locale as Locale}

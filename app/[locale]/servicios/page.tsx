@@ -94,7 +94,10 @@ export default async function ServiciosIndex({
                 {svs.map((s) => {
                   const price = s.tiers[0].price;
                   const before = anchorPrice(price);
-                  const isTop = s.kind === "followers";
+                  const isTop =
+                    pf === "tiktok"
+                      ? s.kind === "likes" || s.kind === "views"
+                      : s.kind === "followers";
                   return (
                     <Link
                       key={s.slug}

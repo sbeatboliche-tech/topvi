@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useRef, useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import {
   getPack,
@@ -55,6 +55,15 @@ export default function PackOrder({
       }),
     }).catch(() => {});
   }
+
+  // Captura automática del email al terminar de escribirlo (debounce).
+  useEffect(() => {
+    const email = contact.trim();
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)) return;
+    const id = setTimeout(() => captureEmail(), 900);
+    return () => clearTimeout(id);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [contact]);
 
   function setPost(i: number, val: string) {
     setPosts((arr) => arr.map((p, idx) => (idx === i ? val : p)));

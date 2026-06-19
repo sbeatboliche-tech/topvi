@@ -222,7 +222,7 @@ const es: Dict = {
   features: [
     { title: "Soporte real", desc: "Te respondemos en ~1 minuto. Solo necesitás tu número de orden." },
     { title: "100% Seguro", desc: "Nunca te pedimos tu contraseña. Tu cuenta jamás corre riesgo." },
-    { title: "Entrega rápida", desc: "Entrega total en menos de 4 horas después de tu compra." },
+    { title: "Entrega rápida", desc: "Entrega total en menos de 3 horas después de tu compra." },
     { title: "Con garantía", desc: "Reponemos cualquier caída durante el período de garantía." },
   ],
   stats: { orders: "Órdenes completadas", clients: "Clientes felices", years: "En el mercado" },
@@ -266,7 +266,7 @@ const es: Dict = {
     usdtDesc: "Pago en cripto (USDT). Te pasamos la wallet al confirmar.",
     interestFree: "💳 3 cuotas SIN interés en este paquete",
     followersBenefits:
-      "🛡️ 90 días de garantía · 📉 Muy poca caída · 🔒 Sin contraseña · ⚡ Entrega < 4 hs",
+      "🛡️ 90 días de garantía · 📉 Muy poca caída · 🔒 Sin contraseña · ⚡ Entrega < 3 hs",
     errUser: "Ingresa tu usuario.",
     errLink: "Pega el link del posteo/video.",
     errContact: "Déjanos un email para avisarte.",
@@ -367,7 +367,7 @@ const pt: Dict = {
   features: [
     { title: "Suporte real", desc: "Respondemos em ~1 minuto. Só precisa do seu número de pedido." },
     { title: "100% Seguro", desc: "Nunca pedimos sua senha. Sua conta nunca corre risco." },
-    { title: "Entrega rápida", desc: "Entrega total em menos de 4 horas após a compra." },
+    { title: "Entrega rápida", desc: "Entrega total em menos de 3 horas após a compra." },
     { title: "Com garantia", desc: "Repomos qualquer queda durante o período de garantia." },
   ],
   stats: { orders: "Pedidos concluídos", clients: "Clientes felizes", years: "No mercado" },
@@ -411,7 +411,7 @@ const pt: Dict = {
     usdtDesc: "Pagamento em cripto (USDT). Enviamos a carteira ao confirmar.",
     interestFree: "💳 3x SEM juros neste pacote",
     followersBenefits:
-      "🛡️ 90 dias de garantia · 📉 Queda mínima · 🔒 Sem senha · ⚡ Entrega < 4h",
+      "🛡️ 90 dias de garantia · 📉 Queda mínima · 🔒 Sem senha · ⚡ Entrega < 3h",
     errUser: "Informe seu usuário.",
     errLink: "Cole o link da publicação/vídeo.",
     errContact: "Deixe um e-mail para avisarmos.",

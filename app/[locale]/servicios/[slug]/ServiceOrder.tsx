@@ -171,6 +171,16 @@ export default function ServiceOrder({
     }).catch(() => {});
   }
 
+  // Captura automática: apenas terminan de escribir un email válido,
+  // sin depender de que hagan clic en Continuar ni que lleguen al pago.
+  useEffect(() => {
+    const email = contact.trim();
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)) return;
+    const id = setTimeout(() => captureEmail(), 900);
+    return () => clearTimeout(id);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [contact]);
+
   // Valida el paso actual. Devuelve mensaje de error o null si está OK.
   function validateStep(s: StepKey): string | null {
     if (s === "targets" && filledTargets.length === 0) {
@@ -281,6 +291,8 @@ export default function ServiceOrder({
   }
 
   const qkeys: Quality[] = ["global", "premium"];
+  // Acento por plataforma del servicio (IG magenta / TikTok cyan).
+  const accent = svc.platform === "tiktok" ? "#25f4ee" : "#e1306c";
 
   const stepTitles: Record<StepKey, string> = {
     quality: t.order.quality,
@@ -297,12 +309,29 @@ export default function ServiceOrder({
     <div className="mx-auto max-w-2xl px-4 py-10">
       {/* Encabezado */}
       <div className="mb-6 text-center">
-        <div className="mb-2 text-3xl">{svc.emoji}</div>
-        <h1 className="text-2xl font-bold md:text-3xl">
+        <div className="mb-3 flex justify-center">
+          <span
+            className="reveal flex h-16 w-16 items-center justify-center rounded-2xl text-3xl ring-1"
+            style={{
+              backgroundColor: `${accent}22`,
+              // @ts-expect-error css var
+              "--tw-ring-color": `${accent}55`,
+            }}
+          >
+            {svc.emoji}
+          </span>
+        </div>
+        <h1
+          className="reveal text-2xl font-bold md:text-3xl"
+          style={{ animationDelay: "80ms" }}
+        >
           {fmt(t.order.title, { svc: "" })}{" "}
           <span className="brand-text">{svc.title}</span>
         </h1>
-        <p className="mt-1.5 text-sm text-muted">
+        <p
+          className="reveal mt-1.5 text-sm text-muted"
+          style={{ animationDelay: "140ms" }}
+        >
           {fmt(t.order.sub, { platform: platformLabel })}
         </p>
         {couponPct > 0 && (
@@ -336,9 +365,9 @@ export default function ServiceOrder({
             </span>
           </span>
         </div>
-        <div className="h-1.5 w-full overflow-hidden rounded-full bg-surface-2">
+        <div className="h-2 w-full overflow-hidden rounded-full bg-surface-2">
           <div
-            className="brand-gradient h-full rounded-full transition-all duration-300"
+            className="brand-gradient h-full rounded-full shadow-[0_0_12px_rgba(255,255,255,0.45)] transition-all duration-500 ease-out"
             style={{ width: `${((step + 1) / steps.length) * 100}%` }}
           />
         </div>
@@ -385,12 +414,13 @@ export default function ServiceOrder({
               <p className="mb-4 mt-1 text-sm text-muted">
                 Más cantidad, mejor precio 🎁
               </p>
-              <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-3">
+              <div className="reveal grid grid-cols-2 gap-2.5 sm:grid-cols-3">
                 {svc.tiers.map((tt, i) => {
                   const pp = priceFor(tt, quality);
                   const bb = bonusFor(tt, quality);
                   const selected = tierIdx === i;
                   const popular = tt.quantity === 10000;
+                  const perUnit = pp / tt.quantity;
                   return (
                     <button
                       type="button"
@@ -403,7 +433,7 @@ export default function ServiceOrder({
                       }`}
                     >
                       {popular ? (
-                        <span className="absolute -top-2 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-full bg-white px-2 py-0.5 text-[10px] font-bold text-[#0a0a0b] shadow">
+                        <span className="shimmer absolute -top-2 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-full bg-white px-2 py-0.5 text-[10px] font-bold text-[#0a0a0b] shadow">
                           ⭐ MÁS ELEGIDO
                         </span>
                       ) : (
@@ -428,6 +458,11 @@ export default function ServiceOrder({
                       <div className="text-base font-extrabold text-accent">
                         {displayPrice(pp, locale)}
                       </div>
+                      {perUnit >= 1 && (
+                        <div className="mt-0.5 text-[10px] text-muted">
+                          ≈ {displayPrice(Math.round(perUnit), locale)} c/u
+                        </div>
+                      )}
                       {popular && bb > 0 && (
                         <div className="mt-0.5 text-[10px] font-bold text-success">
                           {fmt(t.order.free, { n: formatNum(bb, locale) })}

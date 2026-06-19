@@ -168,7 +168,33 @@ input, textarea, select {
   to   { opacity: 1; transform: translateY(0); }
 }
 .reveal {
-  animation: reveal 0.45s ease both;
+  animation: reveal 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+/* Brillo que cruza una vez (badges "MÁS VENDIDO / MÁS ELEGIDO") */
+@keyframes sheen {
+  0% { transform: translateX(-120%); }
+  60%, 100% { transform: translateX(220%); }
+}
+.shimmer {
+  position: relative;
+  overflow: hidden;
+}
+.shimmer::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: 40%;
+  background: linear-gradient(
+    100deg,
+    transparent,
+    rgba(255, 255, 255, 0.55),
+    transparent
+  );
+  transform: translateX(-120%);
+  animation: sheen 3.2s ease-in-out infinite;
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -180,4 +206,5 @@ input, textarea, select {
     transform: none;
   }
   .reveal { animation: none; }
+  .shimmer::after { animation: none; display: none; }
 }

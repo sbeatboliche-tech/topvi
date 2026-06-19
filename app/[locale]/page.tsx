@@ -62,13 +62,19 @@ export default async function Home({
       <section className="hero-bg relative overflow-hidden px-4 pb-20 pt-14 text-center">
         <div className="relative mx-auto max-w-3xl">
           {/* Eyebrow con el motivo ▲ de la marca */}
-          <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/5 px-4 py-1.5 text-xs font-medium text-white/80 backdrop-blur">
+          <div
+            className="reveal mb-5 inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/5 px-4 py-1.5 text-xs font-medium text-white/80 backdrop-blur"
+            style={{ animationDelay: "0ms" }}
+          >
             <span className="text-green-400">▲</span>
             Crecimiento real en Instagram & TikTok
           </div>
 
           {/* Rating */}
-          <div className="mb-6 flex items-center justify-center gap-2 text-sm text-white/70">
+          <div
+            className="reveal mb-6 flex items-center justify-center gap-2 text-sm text-white/70"
+            style={{ animationDelay: "70ms" }}
+          >
             <span className="flex gap-0.5 text-yellow-400">
               {Array.from({ length: 5 }).map((_, i) => (
                 <Star key={i} className="h-3.5 w-3.5 fill-current" />
@@ -78,18 +84,27 @@ export default async function Home({
           </div>
 
           {/* Headline */}
-          <h1 className="text-balance text-4xl font-bold leading-[1.05] tracking-tight text-white md:text-6xl">
+          <h1
+            className="reveal text-balance text-4xl font-bold leading-[1.05] tracking-tight text-white md:text-6xl"
+            style={{ animationDelay: "140ms" }}
+          >
             Más seguidores, más confianza,{" "}
             <span className="text-white/90">más ventas</span>
           </h1>
 
           {/* Subheadline */}
-          <p className="mx-auto mt-5 max-w-xl text-lg leading-relaxed text-white/60">
+          <p
+            className="reveal mx-auto mt-5 max-w-xl text-lg leading-relaxed text-white/60"
+            style={{ animationDelay: "210ms" }}
+          >
             Un perfil con volumen genera confianza al instante y convierte visitas en clientes. Sin contraseñas, sin riesgo.
           </p>
 
           {/* CTAs */}
-          <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
+          <div
+            className="reveal mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row"
+            style={{ animationDelay: "280ms" }}
+          >
             <Link
               href={p("/servicios")}
               className="inline-flex w-full items-center justify-center gap-2 rounded-full bg-white px-8 py-4 text-base font-bold text-gray-900 shadow-lg transition-transform hover:scale-[1.02] sm:w-auto"
@@ -108,7 +123,10 @@ export default async function Home({
           </p>
 
           {/* Stats */}
-          <div className="mt-10 flex flex-wrap justify-center gap-2">
+          <div
+            className="reveal mt-10 flex flex-wrap justify-center gap-2"
+            style={{ animationDelay: "350ms" }}
+          >
             {[
               { icon: "👥", text: "5.000 clientes en todo el mundo" },
               { icon: "✅", text: "+12.500 órdenes completadas" },

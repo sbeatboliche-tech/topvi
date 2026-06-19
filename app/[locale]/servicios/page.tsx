@@ -43,22 +43,34 @@ export default async function ServiciosIndex({
       <Track stage="servicios" />
       {/* ───── Encabezado con prueba social ───── */}
       <header className="mb-12 text-center">
-        <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/5 px-4 py-1.5 text-xs font-medium text-white/80 backdrop-blur">
+        <div
+          className="reveal mb-4 inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/5 px-4 py-1.5 text-xs font-medium text-white/80 backdrop-blur"
+          style={{ animationDelay: "0ms" }}
+        >
           <span className="text-yellow-400">★★★★★</span>
           4.9/5 · +2.200 reseñas reales
         </div>
-        <h1 className="text-balance text-4xl font-bold leading-[1.05] tracking-tight sm:text-5xl">
+        <h1
+          className="reveal text-balance text-4xl font-bold leading-[1.05] tracking-tight sm:text-5xl"
+          style={{ animationDelay: "80ms" }}
+        >
           Elegí cómo querés crecer
         </h1>
-        <p className="mx-auto mt-4 max-w-xl text-lg text-muted">
+        <p
+          className="reveal mx-auto mt-4 max-w-xl text-lg text-muted"
+          style={{ animationDelay: "160ms" }}
+        >
           {t.servicesPage.sub}
         </p>
         {/* Sellos de confianza */}
-        <div className="mt-6 flex flex-wrap items-center justify-center gap-2">
+        <div
+          className="reveal mt-6 flex flex-wrap items-center justify-center gap-2"
+          style={{ animationDelay: "240ms" }}
+        >
           {[
             "🔒 Sin contraseña",
             "🛡️ Con garantía",
-            "⚡ Entrega < 4 hs",
+            "⚡ Entrega < 3 hs",
             `👥 +${site.stats.clientes} clientes`,
           ].map((chip) => (
             <span
@@ -94,6 +106,7 @@ export default async function ServiciosIndex({
                 {svs.map((s) => {
                   const price = s.tiers[0].price;
                   const before = anchorPrice(price);
+                  const off = Math.round(((before - price) / before) * 100);
                   const isTop =
                     pf === "tiktok"
                       ? s.kind === "likes" || s.kind === "views"
@@ -117,7 +130,7 @@ export default async function ServiciosIndex({
                         style={{ backgroundColor: accent[pf] }}
                       />
                       {isTop && (
-                        <span className="absolute right-4 top-4 rounded-full bg-success px-2.5 py-0.5 text-[10px] font-bold text-black">
+                        <span className="shimmer absolute right-4 top-4 rounded-full bg-success px-2.5 py-0.5 text-[10px] font-bold text-black">
                           MÁS VENDIDO
                         </span>
                       )}
@@ -142,12 +155,15 @@ export default async function ServiciosIndex({
                         <div className="text-[11px] uppercase tracking-wide text-muted">
                           Desde · {formatNum(s.tiers[0].quantity, locale)} {s.unit}
                         </div>
-                        <div className="mt-0.5 flex items-baseline gap-2">
+                        <div className="mt-0.5 flex flex-wrap items-baseline gap-2">
                           <span className="text-xl font-extrabold">
                             {displayPrice(price, locale)}
                           </span>
                           <span className="text-sm text-muted line-through">
                             {displayPrice(before, locale)}
+                          </span>
+                          <span className="rounded-md bg-success/15 px-1.5 py-0.5 text-[10px] font-bold text-success">
+                            −{off}%
                           </span>
                         </div>
                         <div className="brand-gradient mt-4 w-full rounded-full py-2.5 text-center text-sm font-bold transition-transform group-hover:scale-[1.02]">

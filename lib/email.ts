@@ -383,7 +383,7 @@ export async function sendOrderConfirmation(order: Order): Promise<void> {
       <div style="font-size:40px">✅</div>
       <h1 style="margin:12px 0 0;font-size:22px;color:#fff">¡Recibimos tu compra!</h1>
       <p style="margin:10px 0 0;color:#9aa0aa;font-size:14px">
-        Ya estamos preparando tu pedido. La entrega arranca en breve (suele tardar menos de 4 hs).
+        Ya estamos preparando tu pedido. La entrega arranca en breve (suele tardar menos de 3 hs).
       </p>
     </div>
     <div style="padding:0 24px 24px">

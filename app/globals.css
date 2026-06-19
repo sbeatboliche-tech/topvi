@@ -176,8 +176,8 @@ input, textarea, select {
   0% { transform: translateX(-120%); }
   60%, 100% { transform: translateX(220%); }
 }
+/* No fija position: los badges ya son `absolute` (no pisar su posicionamiento). */
 .shimmer {
-  position: relative;
   overflow: hidden;
 }
 .shimmer::after {

@@ -107,7 +107,7 @@ export default async function Home({
           >
             <Link
               href={p("/servicios")}
-              className="inline-flex w-full items-center justify-center gap-2 rounded-full bg-white px-8 py-4 text-base font-bold text-gray-900 shadow-lg transition-transform hover:scale-[1.02] sm:w-auto"
+              className="cta-pulse inline-flex w-full items-center justify-center gap-2 rounded-full bg-white px-9 py-4 text-lg font-extrabold text-gray-900 shadow-lg transition-transform hover:scale-[1.03] sm:w-auto"
             >
               Empezá a crecer →
             </Link>
@@ -453,9 +453,9 @@ export default async function Home({
           </div>
           <Link
             href={p("/servicios")}
-            className="ml-auto flex-1 rounded-full bg-white py-3 text-center font-bold text-[#0a0a0b]"
+            className="cta-pulse ml-auto flex-1 rounded-full bg-white py-3 text-center font-extrabold text-[#0a0a0b]"
           >
-            Empezá a crecer
+            Empezá a crecer →
           </Link>
         </div>
       </div>

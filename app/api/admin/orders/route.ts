@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { isAuthed } from "@/lib/auth";
-import { listOrders, updateStatus, deleteOrder, type OrderStatus } from "@/lib/db";
+import { listOrders, updateStatus, deleteOrder, getOrder, type OrderStatus } from "@/lib/db";
+import { markLeadCustomer } from "@/lib/leads";
 
 export async function GET() {
   if (!(await isAuthed()))
@@ -22,6 +23,11 @@ export async function POST(req: NextRequest) {
   if (!id || !valid.includes(status))
     return NextResponse.json({ error: "Datos inválidos" }, { status: 400 });
   await updateStatus(id, status);
+  // Si lo marcás Pagado/Entregando/Entregado, el lead pasa a "cliente".
+  if (["paid", "delivering", "delivered"].includes(status)) {
+    const order = await getOrder(String(id));
+    if (order) await markLeadCustomer(order.contact).catch(() => {});
+  }
   return NextResponse.json({ ok: true });
 }
 

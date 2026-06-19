@@ -113,7 +113,7 @@ export default async function Home({
               { icon: "👥", text: "5.000 clientes en todo el mundo" },
               { icon: "✅", text: "+12.500 órdenes completadas" },
               { icon: "🏆", text: "Agencia #1 en crecimiento digital" },
-              { icon: "⚡", text: "Entrega total en menos de 4 hs" },
+              { icon: "⚡", text: "Entrega total en menos de 3 hs" },
             ].map((s) => (
               <span
                 key={s.text}
@@ -291,7 +291,7 @@ export default async function Home({
             })}
           </div>
           <p className="mt-6 text-center text-xs text-white/40">
-            ✓ Incluye garantía de reposición · ✓ Sin contraseña · ✓ Entrega total en menos de 4 hs
+            ✓ Incluye garantía de reposición · ✓ Sin contraseña · ✓ Entrega total en menos de 3 hs
           </p>
         </div>
       </section>
@@ -419,7 +419,7 @@ export default async function Home({
             {c.finalCta.cta} →
           </Link>
           <p className="mt-3 text-xs text-gray-400">
-            Sin contraseña · Entrega total en menos de 4 hs · Garantía incluida
+            Sin contraseña · Entrega total en menos de 3 hs · Garantía incluida
           </p>
         </div>
       </section>

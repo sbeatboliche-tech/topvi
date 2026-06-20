@@ -39,7 +39,6 @@ export default function SupportChat({ locale }: { locale: string }) {
   const STATE_KEY   = "tvm_chat_state";
   const CID_KEY     = "tvm_chat_cid";
 
-  // ID de conversación persistente (para que el admin vea/responda).
   const [conversationId] = useState(() => {
     try {
       let c = localStorage.getItem(CID_KEY);
@@ -59,12 +58,11 @@ export default function SupportChat({ locale }: { locale: string }) {
   const [input, setInput] = useState("");
   const [isTyping, setIsTyping] = useState(false);
   const [unread, setUnread] = useState(false);
+  const [minimized, setMinimized] = useState(false);
   const [btnPos, setBtnPos] = useState<{ x: number; y: number } | null>(null);
   const pathname = usePathname();
-  // En la sección de servicios el botón baja un poco (animación leve).
   const lowerBtn = !!pathname && pathname.includes("/servicios");
 
-  // Agent: persist per session so the name doesn't change on re-renders
   const [agent] = useState(() => {
     try {
       const saved = sessionStorage.getItem(AGENT_KEY);
@@ -80,13 +78,17 @@ export default function SupportChat({ locale }: { locale: string }) {
   const msgId     = useRef(0);
   const greeted   = useRef(false);
 
-  // Persist chat state (open/closed) across navigations
+  // Ref para el botón flotante (para drag sin re-renders)
+  const btnRef = useRef<HTMLButtonElement>(null);
+  // Posición acumulada durante el drag, sin tocar React state
+  const dragPos = useRef<{ x: number; y: number } | null>(null);
+
   const setChatState = (s: ChatState) => {
+    if (s !== "chat") setMinimized(false);
     setChatStateRaw(s);
     try { sessionStorage.setItem(STATE_KEY, s); } catch { /* noop */ }
   };
 
-  // Hydrate messages + state from storage on mount
   useEffect(() => {
     try {
       const raw = localStorage.getItem(STORAGE_KEY);
@@ -95,7 +97,7 @@ export default function SupportChat({ locale }: { locale: string }) {
         if (saved.length > 0) {
           setMessages(saved);
           msgId.current = Math.max(...saved.map((m) => m.id));
-          greeted.current = true; // already greeted
+          greeted.current = true;
         }
       }
       const savedState = sessionStorage.getItem(STATE_KEY) as ChatState | null;
@@ -140,7 +142,6 @@ export default function SupportChat({ locale }: { locale: string }) {
     [agent.name, locale, addMsg, conversationId]
   );
 
-  // Polling: trae respuestas del admin (vos) en vivo mientras el chat está abierto.
   useEffect(() => {
     if (chatState !== "chat") return;
     const poll = async () => {
@@ -160,7 +161,6 @@ export default function SupportChat({ locale }: { locale: string }) {
     return () => clearInterval(i);
   }, [chatState, conversationId, addMsg]);
 
-  // Initial greeting when chat opens
   useEffect(() => {
     if (chatState === "chat" && !greeted.current) {
       greeted.current = true;
@@ -176,19 +176,16 @@ export default function SupportChat({ locale }: { locale: string }) {
     }
   }, [chatState, agent.name, addMsg]);
 
-  // Scroll to bottom on new message
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages, isTyping]);
 
-  // Focus input when chat opens
   useEffect(() => {
-    if (chatState === "chat") {
+    if (chatState === "chat" && !minimized) {
       setTimeout(() => inputRef.current?.focus(), 200);
     }
-  }, [chatState]);
+  }, [chatState, minimized]);
 
-  // Listen for external open event (from mis-pedidos page)
   useEffect(() => {
     const handler = () => {
       setChatState("chat");
@@ -198,7 +195,6 @@ export default function SupportChat({ locale }: { locale: string }) {
     return () => window.removeEventListener("open-support-chat", handler);
   }, []);
 
-  // Unread badge after 8 seconds if still closed
   useEffect(() => {
     if (chatState !== "closed") return;
     const t = setTimeout(() => setUnread(true), 8000);
@@ -230,12 +226,14 @@ export default function SupportChat({ locale }: { locale: string }) {
 
   const showQuickReplies = messages.length === 1 && !isTyping;
 
-  // ── Drag del botón de soporte (movible por toda la página) ──────────
+  // ── Drag del botón flotante — sin re-renders durante el movimiento ──
   const drag = useRef<{ sx: number; sy: number; moved: boolean } | null>(null);
+
   function onBtnPointerDown(e: React.PointerEvent) {
     drag.current = { sx: e.clientX, sy: e.clientY, moved: false };
     (e.currentTarget as Element).setPointerCapture?.(e.pointerId);
   }
+
   function onBtnPointerMove(e: React.PointerEvent) {
     const d = drag.current;
     if (!d) return;
@@ -247,24 +245,35 @@ export default function SupportChat({ locale }: { locale: string }) {
       const w = 180, h = 56;
       const x = Math.min(Math.max(e.clientX - w / 2, m), window.innerWidth - w - m);
       const y = Math.min(Math.max(e.clientY - h / 2, m), window.innerHeight - h - m);
-      setBtnPos({ x, y });
+      dragPos.current = { x, y };
+      // Mutar el DOM directamente: cero re-renders, drag 60fps
+      if (btnRef.current) {
+        btnRef.current.style.left   = `${x}px`;
+        btnRef.current.style.top    = `${y}px`;
+        btnRef.current.style.right  = "auto";
+        btnRef.current.style.bottom = "auto";
+      }
     }
   }
+
   function onBtnPointerUp() {
     const d = drag.current;
     drag.current = null;
     if (d && !d.moved) {
       setChatState("options");
       setUnread(false);
+    } else if (dragPos.current) {
+      // Un solo setState al soltar, para persistir la posición
+      setBtnPos(dragPos.current);
+      dragPos.current = null;
     }
   }
 
   // ── Closed: floating button ──────────────────────────────────────
-  // Píldora "Soporte · En línea 24/7": transmite que siempre hay alguien
-  // (más confianza que un simple emoji de chat). Se puede arrastrar.
   if (chatState === "closed") {
     return (
       <button
+        ref={btnRef}
         onPointerDown={onBtnPointerDown}
         onPointerMove={onBtnPointerMove}
         onPointerUp={onBtnPointerUp}
@@ -278,7 +287,6 @@ export default function SupportChat({ locale }: { locale: string }) {
         }`}
         aria-label="Soporte en línea 24/7 (arrastrable)"
       >
-        {/* Ícono de auriculares con micrófono = soporte humano */}
         <span className="relative flex h-9 w-9 items-center justify-center rounded-full bg-black/10">
           <svg
             viewBox="0 0 24 24"
@@ -294,9 +302,7 @@ export default function SupportChat({ locale }: { locale: string }) {
             <rect x="18" y="14" width="4" height="6" rx="1.5" />
             <path d="M20 18v1a3 3 0 0 1-3 3h-3" />
           </svg>
-          {/* Punto verde "en línea" */}
           <span className="absolute -bottom-0.5 -right-0.5 h-3 w-3 rounded-full border-2 border-white bg-green-500" />
-          {/* Notificación roja "1" sobre el ícono de soporte */}
           {unread && (
             <span className="absolute -right-1.5 -top-1.5 flex h-5 w-5 items-center justify-center rounded-full border-2 border-white bg-red-500 text-[10px] font-bold text-white">
               1
@@ -360,12 +366,18 @@ export default function SupportChat({ locale }: { locale: string }) {
   // ── Chat window ──────────────────────────────────────────────────
   return (
     <div
-      className="fixed bottom-5 right-5 z-50 flex flex-col rounded-2xl border border-border bg-surface shadow-2xl"
-      style={{ width: "min(360px, 92vw)", maxHeight: "min(520px, 80vh)" }}
+      className="fixed bottom-5 right-5 z-50 flex flex-col rounded-2xl border border-border bg-surface shadow-2xl overflow-hidden"
+      style={{
+        width: "min(360px, 92vw)",
+        maxHeight: minimized ? "none" : "min(520px, 80vh)",
+      }}
     >
-      {/* Header */}
-      <div className="flex shrink-0 items-center justify-between rounded-t-2xl px-4 py-3"
-        style={{ background: "linear-gradient(135deg,#0a0a0b,#1f2937)" }}>
+      {/* Header — siempre visible, clic en área vacía restaura si minimizado */}
+      <div
+        className={`flex shrink-0 items-center justify-between px-4 py-3 ${minimized ? "cursor-pointer" : ""}`}
+        style={{ background: "linear-gradient(135deg,#0a0a0b,#1f2937)" }}
+        onClick={minimized ? () => setMinimized(false) : undefined}
+      >
         <div className="flex items-center gap-3">
           <div
             className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border-2 border-white/30 text-sm font-bold text-white"
@@ -383,133 +395,156 @@ export default function SupportChat({ locale }: { locale: string }) {
             </div>
           </div>
         </div>
-        <button
-          onClick={() => setChatState("options")}
-          className="text-white/70 hover:text-white"
-          aria-label="Cerrar chat"
-        >
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="h-5 w-5">
-            <path d="M18 6L6 18M6 6l12 12" />
-          </svg>
-        </button>
-      </div>
 
-      {/* Barra de seguridad — refuerza la sensación de protección */}
-      <div className="flex shrink-0 items-center justify-center gap-1.5 border-b border-border bg-surface-2 px-4 py-1.5 text-[10px] text-muted">
-        <span>🔒</span>
-        <span>Chat seguro · Nunca te pedimos tu contraseña</span>
-      </div>
-
-      {/* Messages */}
-      <div className="flex-1 overflow-y-auto p-4 space-y-3">
-        {messages.map((msg, idx) => (
-          <div key={msg.id} className={`flex ${msg.from === "user" ? "justify-end" : "items-end gap-2"}`}>
-            {msg.from === "agent" && (
-              <div
-                className="mb-1 flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-[10px] font-bold text-white"
-                style={{ backgroundColor: agent.color }}
-              >
-                {agent.name[0]}
-              </div>
-            )}
-            <div className="max-w-[75%]">
-              <div
-                className={`rounded-2xl px-3.5 py-2 text-sm leading-relaxed ${
-                  msg.from === "user"
-                    ? "rounded-br-none text-white"
-                    : "rounded-bl-none bg-surface-2 text-foreground"
-                }`}
-                style={msg.from === "user" ? { background: "linear-gradient(135deg,#111827,#374151)" } : {}}
-              >
-                {msg.text}
-              </div>
-              <p className={`mt-1 flex items-center gap-1 text-[10px] text-muted ${msg.from === "user" ? "justify-end" : ""}`}>
-                {msg.time}
-                {msg.from === "user" &&
-                  (() => {
-                    const seen =
-                      messages.slice(idx + 1).some((m) => m.from === "agent") ||
-                      (isTyping && idx === messages.length - 1);
-                    return (
-                      <span className={seen ? "text-sky-500" : ""}>
-                        {seen ? "· Visto ✓✓" : "· Enviado ✓"}
-                      </span>
-                    );
-                  })()}
-              </p>
-            </div>
-          </div>
-        ))}
-
-        {/* Typing indicator */}
-        {isTyping && (
-          <div className="flex items-end gap-2">
-            <div
-              className="mb-1 flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-[10px] font-bold text-white"
-              style={{ backgroundColor: agent.color }}
-            >
-              {agent.name[0]}
-            </div>
-            <div className="rounded-2xl rounded-bl-none bg-surface-2 px-4 py-3">
-              <div className="flex gap-1">
-                {[0, 150, 300].map((d) => (
-                  <span
-                    key={d}
-                    className="h-2 w-2 rounded-full bg-muted"
-                    style={{ animation: `bounce 1s infinite ${d}ms` }}
-                  />
-                ))}
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* Quick replies — shown only after first agent message */}
-        {showQuickReplies && (
-          <div className="flex flex-wrap gap-2 pt-1">
-            {QUICK_REPLIES.map((qr) => (
-              <button
-                key={qr}
-                onClick={() => handleQuick(qr)}
-                className="rounded-full border border-brand/40 bg-brand/10 px-3 py-1.5 text-xs font-medium text-accent transition-colors hover:bg-brand/20"
-              >
-                {qr}
-              </button>
-            ))}
-          </div>
-        )}
-
-        <div ref={bottomRef} />
-      </div>
-
-      {/* Input */}
-      <div className="shrink-0 border-t border-border p-3">
-        <div className="flex items-center gap-2 rounded-xl border border-border bg-surface-2 px-3 py-2 focus-within:border-brand transition-colors">
-          <input
-            ref={inputRef}
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            onKeyDown={handleKey}
-            placeholder="Escribí tu mensaje..."
-            className="flex-1 bg-transparent text-sm outline-none placeholder:text-muted"
-            disabled={isTyping}
-          />
+        <div className="flex items-center gap-1">
+          {/* Botón minimizar / restaurar */}
           <button
-            onClick={handleSend}
-            disabled={!input.trim() || isTyping}
-            className="shrink-0 rounded-full p-1.5 text-white transition-opacity disabled:opacity-40"
-            style={{ background: "linear-gradient(135deg,#111827,#374151)" }}
-            aria-label="Enviar"
+            onClick={(e) => { e.stopPropagation(); setMinimized((m) => !m); }}
+            className="flex h-8 w-8 items-center justify-center rounded-full text-white/70 transition-colors hover:bg-white/10 hover:text-white"
+            aria-label={minimized ? "Expandir chat" : "Minimizar chat"}
           >
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" className="h-4 w-4">
-              <path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z" />
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" className="h-4 w-4">
+              {minimized
+                ? <path d="M18 15l-6-6-6 6" />   /* chevron up */
+                : <path d="M6 9l6 6 6-6" />        /* chevron down */
+              }
+            </svg>
+          </button>
+
+          {/* Botón cerrar */}
+          <button
+            onClick={() => setChatState("options")}
+            className="flex h-8 w-8 items-center justify-center rounded-full text-white/70 transition-colors hover:bg-white/10 hover:text-white"
+            aria-label="Cerrar chat"
+          >
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" className="h-4 w-4">
+              <path d="M18 6L6 18M6 6l12 12" />
             </svg>
           </button>
         </div>
-        <p className="mt-1.5 text-center text-[10px] text-muted">
-          🔒 Conversación protegida · Nunca pedimos tu contraseña
-        </p>
       </div>
+
+      {/* Cuerpo: oculto cuando minimizado */}
+      {!minimized && (
+        <>
+          {/* Barra de seguridad */}
+          <div className="flex shrink-0 items-center justify-center gap-1.5 border-b border-border bg-surface-2 px-4 py-1.5 text-[10px] text-muted">
+            <span>🔒</span>
+            <span>Chat seguro · Nunca te pedimos tu contraseña</span>
+          </div>
+
+          {/* Messages */}
+          <div className="flex-1 overflow-y-auto p-4 space-y-3">
+            {messages.map((msg, idx) => (
+              <div key={msg.id} className={`flex ${msg.from === "user" ? "justify-end" : "items-end gap-2"}`}>
+                {msg.from === "agent" && (
+                  <div
+                    className="mb-1 flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-[10px] font-bold text-white"
+                    style={{ backgroundColor: agent.color }}
+                  >
+                    {agent.name[0]}
+                  </div>
+                )}
+                <div className="max-w-[75%]">
+                  <div
+                    className={`rounded-2xl px-3.5 py-2 text-sm leading-relaxed ${
+                      msg.from === "user"
+                        ? "rounded-br-none text-white"
+                        : "rounded-bl-none bg-surface-2 text-foreground"
+                    }`}
+                    style={msg.from === "user" ? { background: "linear-gradient(135deg,#111827,#374151)" } : {}}
+                  >
+                    {msg.text}
+                  </div>
+                  <p className={`mt-1 flex items-center gap-1 text-[10px] text-muted ${msg.from === "user" ? "justify-end" : ""}`}>
+                    {msg.time}
+                    {msg.from === "user" &&
+                      (() => {
+                        const seen =
+                          messages.slice(idx + 1).some((m) => m.from === "agent") ||
+                          (isTyping && idx === messages.length - 1);
+                        return (
+                          <span className={seen ? "text-sky-500" : ""}>
+                            {seen ? "· Visto ✓✓" : "· Enviado ✓"}
+                          </span>
+                        );
+                      })()}
+                  </p>
+                </div>
+              </div>
+            ))}
+
+            {/* Typing indicator */}
+            {isTyping && (
+              <div className="flex items-end gap-2">
+                <div
+                  className="mb-1 flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-[10px] font-bold text-white"
+                  style={{ backgroundColor: agent.color }}
+                >
+                  {agent.name[0]}
+                </div>
+                <div className="rounded-2xl rounded-bl-none bg-surface-2 px-4 py-3">
+                  <div className="flex gap-1">
+                    {[0, 150, 300].map((d) => (
+                      <span
+                        key={d}
+                        className="h-2 w-2 rounded-full bg-muted"
+                        style={{ animation: `bounce 1s infinite ${d}ms` }}
+                      />
+                    ))}
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Quick replies */}
+            {showQuickReplies && (
+              <div className="flex flex-wrap gap-2 pt-1">
+                {QUICK_REPLIES.map((qr) => (
+                  <button
+                    key={qr}
+                    onClick={() => handleQuick(qr)}
+                    className="rounded-full border border-brand/40 bg-brand/10 px-3 py-1.5 text-xs font-medium text-accent transition-colors hover:bg-brand/20"
+                  >
+                    {qr}
+                  </button>
+                ))}
+              </div>
+            )}
+
+            <div ref={bottomRef} />
+          </div>
+
+          {/* Input */}
+          <div className="shrink-0 border-t border-border p-3">
+            <div className="flex items-center gap-2 rounded-xl border border-border bg-surface-2 px-3 py-2 focus-within:border-brand transition-colors">
+              <input
+                ref={inputRef}
+                value={input}
+                onChange={(e) => setInput(e.target.value)}
+                onKeyDown={handleKey}
+                placeholder="Escribí tu mensaje..."
+                className="flex-1 bg-transparent text-sm outline-none placeholder:text-muted"
+                disabled={isTyping}
+              />
+              <button
+                onClick={handleSend}
+                disabled={!input.trim() || isTyping}
+                className="shrink-0 rounded-full p-1.5 text-white transition-opacity disabled:opacity-40"
+                style={{ background: "linear-gradient(135deg,#111827,#374151)" }}
+                aria-label="Enviar"
+              >
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" className="h-4 w-4">
+                  <path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z" />
+                </svg>
+              </button>
+            </div>
+            <p className="mt-1.5 text-center text-[10px] text-muted">
+              🔒 Conversación protegida · Nunca pedimos tu contraseña
+            </p>
+          </div>
+        </>
+      )}
     </div>
   );
 }

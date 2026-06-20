@@ -265,49 +265,103 @@ export default async function Home({
           </p>
           <div className="grid gap-6 md:grid-cols-3">
             {packs.map((bundle) => {
+              const isPro = !!bundle.badge;
+              const discount = Math.round(((bundle.originalPrice - bundle.price) / bundle.originalPrice) * 100);
+              const savings = bundle.originalPrice - bundle.price;
+              // Color de acento por tier
+              const accent =
+                bundle.slug === "pack-starter" ? "#6366f1"
+                : bundle.slug === "pack-pro"   ? "#e1306c"
+                : "#f59e0b";
               const items = [
-                `${formatNum(bundle.followers, locale)} Seguidores`,
-                `${formatNum(bundle.likes, locale)} Likes`,
-                `${formatNum(bundle.views, locale)} Vistas Reels`,
+                { icon: "👥", label: `${formatNum(bundle.followers, locale)} Seguidores`, color: "#e1306c" },
+                { icon: "❤️", label: `${formatNum(bundle.likes, locale)} Likes`,          color: "#f59e0b" },
+                { icon: "▶️", label: `${formatNum(bundle.views, locale)} Vistas Reels`,  color: "#8b5cf6" },
               ];
               return (
                 <div
                   key={bundle.slug}
-                  className={`relative flex flex-col rounded-2xl border p-6 transition-all duration-200 hover:-translate-y-1 ${
-                    bundle.badge
-                      ? "border-white/40 bg-white/[0.07] shadow-xl"
+                  className={`relative flex flex-col rounded-2xl border p-6 transition-all duration-300 hover:-translate-y-1 ${
+                    isPro
+                      ? "border-white/30 bg-white/[0.07] shadow-2xl shadow-black/50"
                       : "border-white/10 bg-white/[0.04]"
                   }`}
+                  style={isPro ? { boxShadow: `0 0 40px ${accent}22, 0 20px 60px rgba(0,0,0,0.5)` } : {}}
                 >
-                  {bundle.badge && (
-                    <div className="absolute -top-3 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-full bg-white px-4 py-1 text-xs font-bold text-[#0a0a0b]">
+                  {/* Barra de color superior */}
+                  <div
+                    className="absolute inset-x-0 top-0 h-1 rounded-t-2xl"
+                    style={{ background: `linear-gradient(90deg, ${accent}99, ${accent}33)` }}
+                  />
+
+                  {/* Badge */}
+                  {isPro && (
+                    <div
+                      className="shimmer absolute -top-3 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-full px-4 py-1 text-xs font-bold text-white"
+                      style={{ background: accent }}
+                    >
                       🔥 {bundle.badge}
                     </div>
                   )}
-                  <div className="mb-2 text-3xl">{bundle.emoji}</div>
-                  <h3 className="text-lg font-bold text-white">{bundle.name}</h3>
-                  <ul className="mt-3 flex flex-col gap-1.5">
-                    {items.map((item) => (
-                      <li key={item} className="flex items-center gap-2 text-sm text-white/75">
-                        <span className="text-green-400">✓</span> {item}
+
+                  {/* Header */}
+                  <div className="mb-4 flex items-center gap-3 pt-2">
+                    <span
+                      className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl text-2xl"
+                      style={{ background: `${accent}22` }}
+                    >
+                      {bundle.emoji}
+                    </span>
+                    <div>
+                      <h3 className="font-bold text-white">{bundle.name}</h3>
+                      <span
+                        className="text-xs font-semibold"
+                        style={{ color: accent }}
+                      >
+                        −{discount}% OFF
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Items */}
+                  <ul className="flex flex-col gap-2">
+                    {items.map((it) => (
+                      <li key={it.label} className="flex items-center gap-2.5 text-sm">
+                        <span
+                          className="flex h-6 w-6 shrink-0 items-center justify-center rounded-md text-xs"
+                          style={{ background: `${it.color}22` }}
+                        >
+                          {it.icon}
+                        </span>
+                        <span className="font-medium text-white/85">{it.label}</span>
                       </li>
                     ))}
                   </ul>
-                  <div className="mt-5">
-                    <span className="text-sm text-white/40 line-through">
-                      {displayPrice(bundle.originalPrice, locale)}
-                    </span>
-                    <div className="text-3xl font-extrabold text-white">
+
+                  {/* Precio */}
+                  <div className="mt-5 border-t border-white/10 pt-4">
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm text-white/35 line-through">
+                        {displayPrice(bundle.originalPrice, locale)}
+                      </span>
+                      <span className="rounded-full bg-success/20 px-2 py-0.5 text-xs font-bold text-success">
+                        Ahorrás {displayPrice(savings, locale)}
+                      </span>
+                    </div>
+                    <div className="mt-1 text-3xl font-extrabold text-white">
                       {displayPrice(bundle.price, locale)}
                     </div>
                   </div>
+
+                  {/* CTA */}
                   <Link
                     href={p(`/packs/${bundle.slug}`)}
-                    className={`mt-5 rounded-full py-3 text-center text-sm font-bold transition-colors ${
-                      bundle.badge
-                        ? "bg-white text-[#0a0a0b] hover:bg-white/90"
-                        : "border border-white/20 text-white hover:bg-white/10"
-                    }`}
+                    className="mt-4 block rounded-full py-3.5 text-center text-sm font-bold transition-all hover:scale-[1.02]"
+                    style={{
+                      background: isPro ? accent : `${accent}22`,
+                      color: isPro ? "#fff" : accent,
+                      border: isPro ? "none" : `1.5px solid ${accent}44`,
+                    }}
                   >
                     Quiero este pack →
                   </Link>

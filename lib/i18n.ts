@@ -206,7 +206,7 @@ export interface Dict {
 }
 
 const es: Dict = {
-  nav: { home: "Inicio", services: "Servicios", how: "Cómo funciona", faq: "Preguntas", buy: "Comprar ahora", orders: "Mis pedidos" },
+  nav: { home: "Inicio", services: "Servicios", how: "Cómo funciona", faq: "Preguntas", buy: "Comprar YA", orders: "Mis pedidos" },
   hero: {
     badge: "+{years} años · +{orders} órdenes completadas",
     titlePre: "Haz crecer tus",

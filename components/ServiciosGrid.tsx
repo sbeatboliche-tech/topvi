@@ -2,8 +2,15 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { FaInstagram, FaTiktok } from "react-icons/fa";
 import { services, platformInfo, anchorPrice, type Platform } from "@/lib/config";
 import { displayPrice, type Locale } from "@/lib/i18n";
+
+const PlatformIcon = ({ pf, active }: { pf: Platform; active: boolean }) => {
+  const cls = `text-xl ${active ? "text-[#0a0a0b]" : "text-muted"}`;
+  if (pf === "instagram") return <FaInstagram className={cls} />;
+  return <FaTiktok className={cls} />;
+};
 
 const PLATFORMS: Platform[] = ["instagram", "tiktok"];
 
@@ -30,13 +37,9 @@ export default function ServiciosGrid({ locale }: { locale: Locale }) {
                 ? "text-[#0a0a0b] shadow-md"
                 : "text-muted hover:text-foreground"
             }`}
-            style={
-              active === pf
-                ? { backgroundColor: accent[pf] }
-                : {}
-            }
+            style={active === pf ? { backgroundColor: accent[pf] } : {}}
           >
-            <span className="text-lg">{platformInfo[pf].emoji}</span>
+            <PlatformIcon pf={pf} active={active === pf} />
             {platformInfo[pf].label}
           </button>
         ))}

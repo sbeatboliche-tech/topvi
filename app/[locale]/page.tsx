@@ -60,19 +60,18 @@ export default async function Home({
           HERO
       ════════════════════════════════════════ */}
       <section className="hero-bg relative overflow-hidden px-4 pb-20 pt-14 text-center">
-        {/* Glows de color — dan profundidad y calor al hero oscuro */}
-        <div aria-hidden className="pointer-events-none absolute -left-32 top-10 h-72 w-72 rounded-full bg-[#e1306c] opacity-[0.07] blur-3xl" />
-        <div aria-hidden className="pointer-events-none absolute -right-24 bottom-0 h-64 w-64 rounded-full bg-[#833ab4] opacity-[0.07] blur-3xl" />
+        {/* Glows IG — más grandes y saturados para dar identidad de marca */}
+        <div aria-hidden className="pointer-events-none absolute -left-48 -top-10 h-[500px] w-[500px] rounded-full bg-[#e1306c] opacity-[0.13] blur-[100px]" />
+        <div aria-hidden className="pointer-events-none absolute -right-40 bottom-10 h-[420px] w-[420px] rounded-full bg-[#833ab4] opacity-[0.11] blur-[90px]" />
+        <div aria-hidden className="pointer-events-none absolute left-1/2 top-0 h-72 w-72 -translate-x-1/2 rounded-full bg-[#5851db] opacity-[0.06] blur-[70px]" />
         <div className="relative mx-auto max-w-3xl">
           {/* Eyebrow con el motivo ▲ de la marca */}
           <div
-            className="reveal mb-5 inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/5 px-4 py-1.5 text-xs font-medium text-white/80 backdrop-blur"
+            className="reveal mb-5 inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/[0.06] px-4 py-1.5 text-xs font-semibold text-white/90 backdrop-blur-md shadow-sm"
             style={{ animationDelay: "0ms" }}
           >
-            🇦🇷
-            <span className="text-white/30">·</span>
-            <span className="text-green-400">▲</span>
-            Crecimiento real en Instagram & TikTok
+            <span className="flex h-1.5 w-1.5 rounded-full bg-green-400 shadow-[0_0_6px_rgba(74,222,128,0.8)]" />
+            🇦🇷 Crecimiento real en Instagram & TikTok
           </div>
 
           {/* Rating */}
@@ -85,16 +84,18 @@ export default async function Home({
                 <Star key={i} className="h-3.5 w-3.5 fill-current" />
               ))}
             </span>
-            4.9/5 · +2.200 reseñas reales
+            4.9/5 · +570 reseñas reales
           </div>
 
           {/* Headline */}
           <h1
-            className="reveal text-balance text-4xl font-bold leading-[1.05] tracking-tight text-white md:text-6xl"
+            className="reveal text-balance text-5xl font-bold leading-[1.02] tracking-tight text-white md:text-7xl"
             style={{ animationDelay: "140ms" }}
           >
-            Más seguidores, más confianza,{" "}
-            <span className="text-white/90">más ventas</span>
+            Más seguidores,{" "}
+            <br className="hidden md:block" />
+            más confianza,{" "}
+            <span className="ig-gradient-text">más ventas.</span>
           </h1>
 
           {/* Subheadline */}
@@ -127,25 +128,24 @@ export default async function Home({
             Sin contraseña · Pago 100% seguro · Desde {from}
           </p>
 
-          {/* Stats */}
+          {/* Stats grid — cuatro números grandes con peso visual */}
           <div
-            className="reveal mt-10 flex flex-wrap justify-center gap-2"
+            className="reveal mt-10 grid grid-cols-2 gap-3 sm:grid-cols-4"
             style={{ animationDelay: "350ms" }}
           >
             {[
-              { icon: "👥", text: "+700 clientes satisfechos" },
-              { icon: "✅", text: "+12.500 órdenes completadas" },
-              { icon: "🏆", text: "Agencia #1 en crecimiento digital" },
-              { icon: "⚡", text: "Entrega inmediata" },
-              { icon: "🇦🇷", text: "#1 del mercado en Argentina" },
-              { icon: "🔥", text: "#1 en mejores precios del país" },
+              { num: "+700", label: "Clientes activos" },
+              { num: "7.500+", label: "Órdenes completadas" },
+              { num: "+570", label: "Reseñas verificadas" },
+              { num: "10 min", label: "Entrega promedio" },
             ].map((s) => (
-              <span
-                key={s.text}
-                className="inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-xs font-medium text-white/75"
+              <div
+                key={s.label}
+                className="rounded-2xl border border-white/10 bg-white/[0.04] p-4 text-center"
               >
-                {s.icon} {s.text}
-              </span>
+                <div className="text-2xl font-extrabold tracking-tight text-white">{s.num}</div>
+                <div className="mt-1 text-xs text-white/45">{s.label}</div>
+              </div>
             ))}
           </div>
         </div>
@@ -185,7 +185,10 @@ export default async function Home({
           <div className="grid gap-6 md:grid-cols-3">
             {c.steps.items.map((step, i) => (
               <div key={step.title} className={`relative ${card} p-6 text-center`}>
-                <div className="mx-auto mb-3 flex h-10 w-10 items-center justify-center rounded-full bg-white text-sm font-bold text-[#0a0a0b]">
+                <div
+                  className="mx-auto mb-3 flex h-10 w-10 items-center justify-center rounded-full text-sm font-bold text-white"
+                  style={{ background: "linear-gradient(135deg, #e1306c, #833ab4)" }}
+                >
                   {i + 1}
                 </div>
                 <div className="mb-2 text-3xl">{step.emoji}</div>
@@ -227,23 +230,28 @@ export default async function Home({
                 ))}
               </ul>
             </div>
-            {/* Después */}
-            <div className="rounded-2xl border-2 border-white/80 bg-white/[0.06] p-6 shadow-xl">
-              <div className="mb-4 inline-flex items-center gap-2 rounded-full bg-white px-3 py-1 text-xs font-bold uppercase tracking-wide text-[#0a0a0b]">
-                ▲ Con {site.name}
+            {/* Después — gradient border premium */}
+            <div
+              className="relative rounded-2xl p-px shadow-2xl"
+              style={{ background: "linear-gradient(135deg, #e1306c, #833ab4, #5851db)" }}
+            >
+              <div className="h-full rounded-2xl bg-[#0f0f11] p-6">
+                <div className="mb-4 inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs font-bold uppercase tracking-wide text-white" style={{ background: "linear-gradient(135deg, #e1306c, #833ab4)" }}>
+                  ▲ Con {site.name}
+                </div>
+                <ul className="flex flex-col gap-3">
+                  {[
+                    "Perfil con volumen que impone respeto",
+                    "Publicaciones con interacción real",
+                    "Más alcance: el algoritmo te impulsa",
+                    "Clientes que confían y te compran",
+                  ].map((t) => (
+                    <li key={t} className="flex items-start gap-2.5 text-sm font-medium text-white">
+                      <span className="mt-0.5 text-green-400">✓</span> {t}
+                    </li>
+                  ))}
+                </ul>
               </div>
-              <ul className="flex flex-col gap-3">
-                {[
-                  "Perfil con volumen que impone respeto",
-                  "Publicaciones con interacción real",
-                  "Más alcance: el algoritmo te impulsa",
-                  "Clientes que confían y te compran",
-                ].map((t) => (
-                  <li key={t} className="flex items-start gap-2.5 text-sm font-medium text-white">
-                    <span className="mt-0.5 text-green-400">✓</span> {t}
-                  </li>
-                ))}
-              </ul>
             </div>
           </div>
         </div>
@@ -406,7 +414,9 @@ export default async function Home({
           <p className="mb-10 text-center text-white/55">{c.reviews.sub}</p>
           <div className="grid gap-5 md:grid-cols-3">
             {c.reviews.items.map((r, i) => (
-              <div key={r.name} className={`${card} p-5`}>
+              <div key={r.name} className={`${card} relative p-5`}>
+                {/* Quote mark decorativo */}
+                <div aria-hidden className="pointer-events-none absolute right-4 top-2 select-none text-7xl font-bold leading-none text-white/[0.055]">&ldquo;</div>
                 <div className="flex items-center gap-3">
                   <div
                     className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-sm font-bold text-white"
@@ -483,10 +493,12 @@ export default async function Home({
       </section>
 
       {/* ════════════════════════════════════════
-          CTA FINAL — tarjeta blanca (momento de contraste)
+          CTA FINAL — tarjeta blanca con glow dramático
       ════════════════════════════════════════ */}
-      <section className={`${dark1} px-4 py-14 md:py-20`}>
-        <div className="mx-auto max-w-2xl rounded-3xl bg-white px-6 py-12 text-center text-gray-900 sm:px-8 sm:py-14">
+      <section className={`${dark1} relative px-4 py-14 md:py-20`}>
+        {/* Glow IG detrás del card — da drama sin romper el blanco */}
+        <div aria-hidden className="pointer-events-none absolute left-1/2 top-1/2 h-96 w-96 -translate-x-1/2 -translate-y-1/2 rounded-full opacity-[0.13] blur-[80px]" style={{ background: "linear-gradient(135deg, #e1306c, #833ab4)" }} />
+        <div className="relative mx-auto max-w-2xl rounded-3xl bg-white px-6 py-12 text-center text-gray-900 shadow-2xl ring-1 ring-white/20 sm:px-8 sm:py-14">
           <h2 className="text-3xl font-extrabold md:text-4xl">
             {c.finalCta.title}
           </h2>

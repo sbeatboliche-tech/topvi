@@ -236,3 +236,16 @@ input, textarea, select {
   .shimmer::after { animation: none; display: none; }
   .cta-pulse { animation: none; }
 }
+
+/* IG gradient en texto (pink → purple → indigo) */
+.ig-gradient-text {
+  background: linear-gradient(135deg, #e1306c 0%, #833ab4 55%, #5851db 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+/* Gradiente IG horizontal (para líneas decorativas) */
+.ig-gradient-line {
+  background: linear-gradient(90deg, transparent, #e1306c, #833ab4, transparent);
+}

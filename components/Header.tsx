@@ -25,7 +25,9 @@ export default function Header({
   ];
 
   return (
-    <header className="sticky top-0 z-50 border-b border-white/10 bg-[#0a0a0b]/85 backdrop-blur-lg">
+    <header className="sticky top-0 z-50 bg-[#0a0a0b]/85 backdrop-blur-lg">
+      {/* Línea inferior con gradient IG */}
+      <div aria-hidden className="absolute inset-x-0 bottom-0 h-px" style={{ background: "linear-gradient(90deg, transparent, rgba(225,48,108,0.45), rgba(131,58,180,0.45), transparent)" }} />
       <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3">
         <Link href={p("/")} className="flex items-center">
           <Logo size="md" dark />

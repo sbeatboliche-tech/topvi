@@ -14,7 +14,7 @@ export const site = {
   // ---- Contacto ----
   whatsapp: "5492215793593", // sin + ni espacios
   email: "contacto@topviralmarketing.com.ar",
-  horario: "Lunes a Viernes de 10 a 22 hs",
+  horario: "24/7 siempre disponible",
 
   // ---- Redes ----
   instagram: "https://www.instagram.com/topviralmarketing",

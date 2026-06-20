@@ -40,8 +40,8 @@ export default function LiveFeed({ bought, agoText, names, cities, services }: P
       hideTimer = setTimeout(() => setVisible(false), 3000);
     };
 
-    const first = setTimeout(show, 2000);
-    const loop = setInterval(show, 10000);
+    const first = setTimeout(show, 3000);
+    const loop = setInterval(show, 12000);
     return () => {
       clearTimeout(first);
       clearInterval(loop);

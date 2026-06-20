@@ -60,12 +60,17 @@ export default async function Home({
           HERO
       ════════════════════════════════════════ */}
       <section className="hero-bg relative overflow-hidden px-4 pb-20 pt-14 text-center">
+        {/* Glows de color — dan profundidad y calor al hero oscuro */}
+        <div aria-hidden className="pointer-events-none absolute -left-32 top-10 h-72 w-72 rounded-full bg-[#e1306c] opacity-[0.07] blur-3xl" />
+        <div aria-hidden className="pointer-events-none absolute -right-24 bottom-0 h-64 w-64 rounded-full bg-[#833ab4] opacity-[0.07] blur-3xl" />
         <div className="relative mx-auto max-w-3xl">
           {/* Eyebrow con el motivo ▲ de la marca */}
           <div
             className="reveal mb-5 inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/5 px-4 py-1.5 text-xs font-medium text-white/80 backdrop-blur"
             style={{ animationDelay: "0ms" }}
           >
+            🇦🇷
+            <span className="text-white/30">·</span>
             <span className="text-green-400">▲</span>
             Crecimiento real en Instagram & TikTok
           </div>
@@ -109,7 +114,7 @@ export default async function Home({
               href={p("/servicios")}
               className="cta-pulse inline-flex w-full items-center justify-center gap-2 rounded-full bg-white px-9 py-4 text-lg font-extrabold text-gray-900 shadow-lg transition-transform hover:scale-[1.03] sm:w-auto"
             >
-              Empezá a crecer →
+              Comprar YA →
             </Link>
             <Link
               href={p("/como-funciona")}
@@ -132,6 +137,8 @@ export default async function Home({
               { icon: "✅", text: "+12.500 órdenes completadas" },
               { icon: "🏆", text: "Agencia #1 en crecimiento digital" },
               { icon: "⚡", text: "Entrega total en menos de 3 hs" },
+              { icon: "🇦🇷", text: "#1 del mercado en Argentina" },
+              { icon: "🔥", text: "#1 en mejores precios del país" },
             ].map((s) => (
               <span
                 key={s.text}
@@ -455,7 +462,7 @@ export default async function Home({
             href={p("/servicios")}
             className="cta-pulse ml-auto flex-1 rounded-full bg-white py-3 text-center font-extrabold text-[#0a0a0b]"
           >
-            Empezá a crecer →
+            Comprar YA →
           </Link>
         </div>
       </div>

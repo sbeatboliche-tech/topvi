@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { services, getService } from "@/lib/config";
 import { isLocale, getDict, fmt, locales, type Locale } from "@/lib/i18n";
 import ServiceOrder from "./ServiceOrder";
+import Track from "@/components/Track";
 
 export function generateStaticParams() {
   return locales.flatMap((locale) =>
@@ -39,6 +40,7 @@ export default async function Page({
   const initialQuality = q === "premium" || q === "global" ? q : undefined;
   return (
     <>
+      <Track stage="checkout" />
       <ServiceOrder
         slug={svc.slug}
         locale={locale as Locale}

@@ -428,7 +428,6 @@ export default function ServiceOrder({
                   const bb = bonusFor(tt, quality);
                   const selected = tierIdx === i;
                   const popular = tt.quantity === 10000;
-                  const perUnit = pp / tt.quantity;
                   return (
                     <button
                       type="button"
@@ -466,11 +465,6 @@ export default function ServiceOrder({
                       <div className="text-base font-extrabold text-accent">
                         {displayPrice(pp, locale)}
                       </div>
-                      {perUnit >= 1 && (
-                        <div className="mt-0.5 text-[10px] text-muted">
-                          ≈ {displayPrice(Math.round(perUnit), locale)} c/u
-                        </div>
-                      )}
                       {popular && bb > 0 && (
                         <div className="mt-0.5 text-[10px] font-bold text-success">
                           {fmt(t.order.free, { n: formatNum(bb, locale) })}

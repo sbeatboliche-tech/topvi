@@ -35,6 +35,7 @@ function hhmm(iso: string) {
 
 export default function AdminVisits() {
   const [rows, setRows] = useState<Visitor[]>([]);
+  const [metaClicks, setMetaClicks] = useState("");
 
   useEffect(() => {
     const load = () =>
@@ -52,7 +53,10 @@ export default function AdminVisits() {
     label: STAGE_LABEL[s],
     count: rows.filter((r) => r.rank >= STAGE_RANK[s]).length,
   }));
-  const maxCount = funnel[0]?.count || 1;
+  const homeCount = funnel[0]?.count || 1;
+  const metaN = parseInt(metaClicks) || 0;
+  const maxCount = metaN > homeCount ? metaN : homeCount;
+  const fuga = metaN > 0 ? metaN - homeCount : null;
 
   return (
     <div className="mx-auto max-w-5xl px-4 py-10">
@@ -69,9 +73,41 @@ export default function AdminVisits() {
         </Link>
       </div>
 
+      {/* Comparador Meta Ads */}
+      <div className="mt-6 rounded-2xl border border-border bg-surface p-5">
+        <h2 className="mb-3 text-sm font-semibold">Comparar con clicks de Meta Ads</h2>
+        <div className="flex items-center gap-3">
+          <input
+            type="number"
+            min={0}
+            value={metaClicks}
+            onChange={(e) => setMetaClicks(e.target.value)}
+            placeholder="Ej: 50"
+            className="w-32 rounded-xl border border-border bg-surface-2 px-3 py-2 text-sm outline-none focus:border-brand"
+          />
+          <span className="text-sm text-muted">clicks reportados por Meta hoy</span>
+        </div>
+        {fuga !== null && (
+          <div className={`mt-3 rounded-xl px-4 py-3 text-sm font-medium ${fuga > 0 ? "bg-warning/10 text-warning" : "bg-success/10 text-success"}`}>
+            {fuga > 0
+              ? `⚠️ ${fuga} personas (${Math.round((fuga / metaN) * 100)}%) tocaron el anuncio pero nunca cargaron tu sitio. Posible problema de velocidad de carga.`
+              : `✅ Todos los clicks de Meta llegaron al sitio.`}
+          </div>
+        )}
+      </div>
+
       {/* Resumen del embudo */}
-      <div className="mt-6 space-y-2 rounded-2xl border border-border bg-surface p-5">
+      <div className="mt-4 space-y-2 rounded-2xl border border-border bg-surface p-5">
         <h2 className="mb-2 text-sm font-semibold">Embudo (IPs que llegaron a cada eslabón)</h2>
+        {metaN > 0 && (
+          <div className="flex items-center gap-3 text-sm">
+            <span className="w-40 shrink-0 font-medium text-muted">Clicks Meta</span>
+            <div className="h-5 flex-1 overflow-hidden rounded-full bg-surface-2">
+              <div className="h-full rounded-full bg-white/20" style={{ width: "100%" }} />
+            </div>
+            <span className="w-10 text-right font-semibold">{metaN}</span>
+          </div>
+        )}
         {funnel.map((f) => (
           <div key={f.stage} className="flex items-center gap-3 text-sm">
             <span className="w-40 shrink-0 text-muted">{f.label}</span>

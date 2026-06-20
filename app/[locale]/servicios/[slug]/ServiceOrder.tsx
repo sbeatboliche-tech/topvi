@@ -393,11 +393,8 @@ export default function ServiceOrder({
           {/* ───── Paso: Cantidad ───── */}
           {current === "quantity" && (
             <div>
-              <h2 className="font-semibold">{t.order.quantity}</h2>
-              <p className="mb-4 mt-1 text-sm text-muted">
-                Más cantidad, mejor precio 🎁
-              </p>
-              <div className="reveal grid grid-cols-2 gap-3 sm:grid-cols-3">
+              <h2 className="mb-2 font-semibold">{t.order.quantity} <span className="text-xs font-normal text-muted">· más = mejor precio 🎁</span></h2>
+              <div className="reveal grid grid-cols-2 gap-2 sm:grid-cols-3">
                 {svc.tiers.map((tt, i) => {
                   const pp = priceFor(tt, quality);
                   const bb = bonusFor(tt, quality);
@@ -408,7 +405,7 @@ export default function ServiceOrder({
                       type="button"
                       key={tt.quantity}
                       onClick={() => setTierIdx(i)}
-                      className={`relative flex flex-col items-center rounded-2xl border p-4 text-center transition-all duration-200 active:scale-[0.97] ${
+                      className={`relative flex flex-col items-center rounded-2xl border p-3 text-center transition-all duration-200 active:scale-[0.97] ${
                         selected
                           ? "border-white/40 bg-white/[0.08] shadow-xl"
                           : "border-border bg-surface-2 hover:border-white/20 hover:bg-surface"
@@ -434,17 +431,17 @@ export default function ServiceOrder({
                       )}
 
                       {/* Cantidad */}
-                      <div className={`mt-1 text-2xl font-extrabold tracking-tight ${selected ? "text-white" : "text-white/90"}`}>
+                      <div className={`mt-1 text-xl font-extrabold tracking-tight ${selected ? "text-white" : "text-white/90"}`}>
                         {formatNum(tt.quantity, locale)}
                       </div>
-                      <div className="text-[11px] text-muted">{svc.unit}</div>
+                      <div className="text-[10px] text-muted">{svc.unit}</div>
 
                       {/* Precio */}
-                      <div className="mt-3 w-full rounded-xl border border-white/8 bg-white/5 py-2">
-                        <div className="text-[10px] text-white/35 line-through">
+                      <div className="mt-2 w-full rounded-xl border border-white/8 bg-white/5 py-1.5">
+                        <div className="text-[9px] text-white/35 line-through leading-tight">
                           {displayPrice(anchorPrice(pp), locale)}
                         </div>
-                        <div className={`text-base font-extrabold ${selected ? "text-white" : "text-accent"}`}>
+                        <div className={`text-sm font-extrabold leading-tight ${selected ? "text-white" : "text-accent"}`}>
                           {displayPrice(pp, locale)}
                         </div>
                       </div>

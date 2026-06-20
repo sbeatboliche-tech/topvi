@@ -314,75 +314,50 @@ export default function ServiceOrder({
   };
 
   return (
-    <div ref={topRef} className="mx-auto max-w-2xl scroll-mt-20 px-4 py-10">
-      {/* Encabezado */}
-      <div className="mb-6 text-center">
-        <div className="mb-3 flex justify-center">
-          <span
-            className="reveal flex h-16 w-16 items-center justify-center rounded-2xl text-3xl ring-1"
-            style={{
-              backgroundColor: `${accent}22`,
-              // @ts-expect-error css var
-              "--tw-ring-color": `${accent}55`,
-            }}
-          >
-            {svc.emoji}
-          </span>
-        </div>
-        <h1
-          className="reveal text-2xl font-bold md:text-3xl"
-          style={{ animationDelay: "80ms" }}
+    <div ref={topRef} className="mx-auto max-w-2xl scroll-mt-20 px-4 pb-10 pt-6">
+      {/* Encabezado compacto */}
+      <div className="mb-4 flex items-center gap-3">
+        <span
+          className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl text-2xl ring-1"
+          style={{ backgroundColor: `${accent}22`, "--tw-ring-color": `${accent}55` } as React.CSSProperties}
         >
-          {fmt(t.order.title, { svc: "" })}{" "}
-          <span className="brand-text">{svc.title}</span>
-        </h1>
-        <p
-          className="reveal mt-1.5 text-sm text-muted"
-          style={{ animationDelay: "140ms" }}
-        >
-          {fmt(t.order.sub, { platform: platformLabel })}
-        </p>
-        {couponPct > 0 && (
-          <div className="mx-auto mt-3 inline-flex items-center gap-2 rounded-full border border-success/40 bg-success/10 px-4 py-1.5 text-sm font-semibold text-success">
-            🎁 Cupón {coupon} aplicado · −{Math.round(couponPct * 100)}%
+          {svc.emoji}
+        </span>
+        <div className="min-w-0">
+          <h1 className="truncate text-lg font-bold leading-tight">
+            {fmt(t.order.title, { svc: "" })} <span className="brand-text">{svc.title}</span>
+          </h1>
+          <div className="flex items-center gap-2 text-xs text-muted">
+            <span className="flex items-center gap-1 text-warning">🔥 Precio de lanzamiento · <Countdown /></span>
           </div>
+        </div>
+        {couponPct > 0 && (
+          <span className="ml-auto shrink-0 rounded-full border border-success/40 bg-success/10 px-3 py-1 text-xs font-semibold text-success">
+            −{Math.round(couponPct * 100)}%
+          </span>
         )}
       </div>
 
-      {/* Urgencia: precio de lanzamiento por hoy + contador */}
-      <div className="mb-4 flex items-center justify-center gap-2 rounded-xl border border-warning/40 bg-warning/10 px-4 py-2.5 text-sm font-medium text-warning">
-        🔥 Precio de lanzamiento · termina en{" "}
-        <Countdown />
-      </div>
-
       {/* Stepper: progreso + total en vivo */}
-      <div className="mb-6 rounded-2xl border border-border bg-surface/70 p-4 backdrop-blur">
+      <div className="mb-4 rounded-2xl border border-border bg-surface/70 p-3 backdrop-blur">
         <div className="mb-2 flex items-center justify-between text-sm">
-          <span className="font-semibold">
-            Paso {step + 1} de {steps.length}
-            <span className="ml-2 font-normal text-muted">
-              · {stepTitles[current]}
-            </span>
+          <span className="text-xs font-semibold text-muted">
+            Paso {step + 1}/{steps.length} · {stepTitles[current]}
           </span>
-          <span className="text-right leading-tight">
-            <span className="block text-[10px] uppercase tracking-wide text-muted">
-              {t.order.price}
-            </span>
-            <span className="text-lg font-extrabold">
-              {displayPrice(payTotal, locale)}
-            </span>
+          <span className="text-base font-extrabold">
+            {displayPrice(payTotal, locale)}
           </span>
         </div>
-        <div className="h-2 w-full overflow-hidden rounded-full bg-surface-2">
+        <div className="h-1.5 w-full overflow-hidden rounded-full bg-surface-2">
           <div
-            className="brand-gradient h-full rounded-full shadow-[0_0_12px_rgba(255,255,255,0.45)] transition-all duration-500 ease-out"
+            className="brand-gradient h-full rounded-full shadow-[0_0_8px_rgba(255,255,255,0.4)] transition-all duration-500 ease-out"
             style={{ width: `${((step + 1) / steps.length) * 100}%` }}
           />
         </div>
       </div>
 
       <form onSubmit={handleSubmit}>
-        <div className="rounded-2xl border border-border bg-surface p-6">
+        <div key={step} className="step-enter rounded-2xl border border-border bg-surface p-6">
           {/* ───── Paso: Calidad ───── */}
           {current === "quality" && (
             <div>

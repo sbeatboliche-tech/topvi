@@ -403,7 +403,6 @@ export default function ServiceOrder({
                   const bb = bonusFor(tt, quality);
                   const selected = tierIdx === i;
                   const popular = tt.quantity === 5000;
-                  const isBonus10k = tt.quantity === 10000;
                   const off = Math.round(((anchorPrice(pp) - pp) / anchorPrice(pp)) * 100);
                   return (
                     <button
@@ -421,10 +420,6 @@ export default function ServiceOrder({
                       {popular ? (
                         <span className="shimmer absolute -top-2.5 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-full bg-white px-2.5 py-0.5 text-[10px] font-bold text-[#0a0a0b] shadow">
                           ⭐ MÁS ELEGIDO
-                        </span>
-                      ) : isBonus10k ? (
-                        <span className="absolute -top-2.5 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-full bg-amber-400 px-2.5 py-0.5 text-[10px] font-bold text-black shadow">
-                          🎁 +10% de bonus
                         </span>
                       ) : bb > 0 ? (
                         <span className="absolute -top-2.5 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-full bg-success px-2.5 py-0.5 text-[10px] font-bold text-black shadow">

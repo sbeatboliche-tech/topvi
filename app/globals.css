@@ -115,7 +115,7 @@ html {
   100% { transform: scale(1); }
 }
 .animate-pop {
-  animation: pop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+  animation: pop 0.65s cubic-bezier(0.34, 1.56, 0.64, 1) both;
 }
 
 /* Respeta "reducir movimiento" del sistema: frena animaciones y scroll suave */
@@ -124,16 +124,16 @@ html {
   to   { opacity: 1; transform: translateY(0); }
 }
 .page-enter {
-  animation: pageIn 0.4s cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation: pageIn 0.65s cubic-bezier(0.22, 1, 0.36, 1) both;
 }
 
 /* Transición entre pasos del wizard */
 @keyframes stepIn {
-  from { opacity: 0; transform: translateX(14px); }
-  to   { opacity: 1; transform: translateX(0); }
+  from { opacity: 0; transform: translate(14px, 6px); }
+  to   { opacity: 1; transform: translate(0, 0); }
 }
 .step-enter {
-  animation: stepIn 0.28s cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation: stepIn 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -164,9 +164,9 @@ a, button {
 /* ── Micro-interacciones globales (leves, sensación premium) ── */
 /* Todo lo clickeable transiciona suave y "responde" al apretar. */
 button, a, [role="button"], summary {
-  transition: transform 0.15s cubic-bezier(0.34, 1.56, 0.64, 1),
-    background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease,
-    box-shadow 0.2s ease, opacity 0.2s ease;
+  transition: transform 0.22s cubic-bezier(0.34, 1.56, 0.64, 1),
+    background-color 0.28s ease, border-color 0.28s ease, color 0.28s ease,
+    box-shadow 0.28s ease, opacity 0.28s ease;
 }
 button:active, a:active, [role="button"]:active {
   transform: scale(0.97);
@@ -176,8 +176,8 @@ button:disabled, button:disabled:active {
 }
 /* Inputs: foco suave */
 input, textarea, select {
-  transition: border-color 0.2s ease, box-shadow 0.2s ease,
-    background-color 0.2s ease;
+  transition: border-color 0.25s ease, box-shadow 0.25s ease,
+    background-color 0.25s ease;
 }
 
 /* Aparición suave de contenido (aplicar con clase .reveal) */
@@ -186,7 +186,7 @@ input, textarea, select {
   to   { opacity: 1; transform: translateY(0); }
 }
 .reveal {
-  animation: reveal 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation: reveal 0.7s cubic-bezier(0.22, 1, 0.36, 1) both;
 }
 
 /* Brillo que cruza una vez (badges "MÁS VENDIDO / MÁS ELEGIDO") */

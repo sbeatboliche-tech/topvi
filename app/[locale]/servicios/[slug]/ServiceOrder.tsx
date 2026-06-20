@@ -350,14 +350,14 @@ export default function ServiceOrder({
         </div>
         <div className="h-1.5 w-full overflow-hidden rounded-full bg-surface-2">
           <div
-            className="brand-gradient h-full rounded-full shadow-[0_0_8px_rgba(255,255,255,0.4)] transition-all duration-500 ease-out"
+            className="brand-gradient h-full rounded-full shadow-[0_0_8px_rgba(255,255,255,0.4)] transition-all duration-700 ease-out"
             style={{ width: `${((step + 1) / steps.length) * 100}%` }}
           />
         </div>
       </div>
 
       <form onSubmit={handleSubmit}>
-        <div key={step} className="step-enter rounded-2xl border border-border bg-surface p-6">
+        <div key={step} className="step-enter rounded-2xl border border-border bg-surface p-4 sm:p-6">
           {/* ───── Paso: Calidad ───── */}
           {current === "quality" && (
             <div>

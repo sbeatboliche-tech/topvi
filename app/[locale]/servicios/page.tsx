@@ -34,7 +34,6 @@ export default async function ServiciosIndex({
           {[
             `👥 +${site.stats.clientes} clientes`,
             "⭐ 4.9/5",
-            "🔒 100% seguro",
             "🇦🇷 #1 en Argentina",
           ].map((chip) => (
             <span

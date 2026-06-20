@@ -10,6 +10,7 @@ import {
 } from "@/lib/config";
 import { displayPrice, formatNum, localeConfig, localAmount, type Locale } from "@/lib/i18n";
 import { fbqTrack } from "@/lib/fbq";
+import Countdown from "@/components/Countdown";
 
 export default function PackOrder({
   slug,
@@ -25,7 +26,6 @@ export default function PackOrder({
   const [username, setUsername] = useState("");
   const [posts, setPosts] = useState<string[]>([""]);
   const [contact, setContact] = useState("");
-  // Sin método preseleccionado cuando hay varias opciones: el cliente elige.
   const [payment, setPayment] = useState<"mercadopago" | "tarjeta" | "usdt" | "transferencia" | "">(
     mpAvailable ? "" : "transferencia"
   );
@@ -37,26 +37,19 @@ export default function PackOrder({
   const contactRef = useRef<HTMLInputElement>(null);
 
   const filledPosts = posts.map((p) => p.trim()).filter(Boolean);
-  // Total a pagar (con descuento si elige cripto). Se recalcula en el server.
   const payTotal = applyPaymentDiscount(pack.price, payment);
+  const discount = Math.round(((pack.originalPrice - pack.price) / pack.originalPrice) * 100);
 
-  // Captura el email para remarketing apenas lo escriben (aunque no compren).
   function captureEmail() {
     const email = contact.trim();
     if (!email.includes("@")) return;
     fetch("/api/leads", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        contact: email,
-        locale,
-        service: pack.slug,
-        source: "pack",
-      }),
+      body: JSON.stringify({ contact: email, locale, service: pack.slug, source: "pack" }),
     }).catch(() => {});
   }
 
-  // Captura automática del email al terminar de escribirlo (debounce).
   useEffect(() => {
     const email = contact.trim();
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)) return;
@@ -135,50 +128,77 @@ export default function PackOrder({
   }
 
   const includes = [
-    { emoji: "👥", label: "Seguidores", n: pack.followers },
-    { emoji: "❤️", label: "Likes", n: pack.likes },
-    { emoji: "▶️", label: "Vistas", n: pack.views },
+    { emoji: "👥", label: "Seguidores", n: pack.followers, color: "#e1306c" },
+    { emoji: "❤️", label: "Likes",      n: pack.likes,     color: "#f59e0b" },
+    { emoji: "▶️", label: "Vistas",     n: pack.views,     color: "#8b5cf6" },
   ];
 
   return (
-    <div className="mx-auto max-w-6xl px-4 py-12">
+    <div className="mx-auto max-w-6xl px-4 py-10">
+
+      {/* ── Hero del pack ── */}
       <div className="mb-8 text-center">
-        <div className="mb-2 text-4xl">{pack.emoji}</div>
-        <h1 className="text-3xl font-bold md:text-4xl">
-          {pack.name}
-        </h1>
-        <p className="mt-2 text-muted">
-          Instagram · Entrega rápida · Sin contraseña
-        </p>
-        {pack.badge && (
-          <span className="mt-3 inline-block rounded-full bg-brand px-3 py-1 text-xs font-bold text-white">
-            🔥 {pack.badge}
+        <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/5 px-4 py-1.5 text-xs font-medium text-white/80">
+          🔥 Precio de lanzamiento · termina en <Countdown />
+        </div>
+        <div className="mb-3 text-5xl">{pack.emoji}</div>
+        <h1 className="text-3xl font-bold tracking-tight md:text-4xl">{pack.name}</h1>
+        <p className="mt-2 text-sm text-muted">Instagram · Entrega en menos de 3 hs · Sin contraseña</p>
+
+        {/* Precio destacado */}
+        <div className="mt-5 flex items-center justify-center gap-3">
+          <span className="text-lg text-muted line-through">{displayPrice(pack.originalPrice, locale)}</span>
+          <span className="text-4xl font-extrabold">{displayPrice(pack.price, locale)}</span>
+          <span className="rounded-full bg-success px-3 py-1 text-sm font-bold text-black">
+            −{discount}%
           </span>
+        </div>
+
+        {pack.badge && (
+          <div className="mt-3 inline-flex items-center gap-1.5 rounded-full border border-white/20 bg-white/10 px-4 py-1.5 text-xs font-bold text-white">
+            🏆 {pack.badge}
+          </div>
         )}
       </div>
 
       <form onSubmit={handleSubmit} className="grid gap-6 pb-28 lg:grid-cols-[1fr_380px] lg:pb-0">
-        <div className="space-y-6">
-          {/* Qué incluye */}
-          <div className="rounded-2xl border border-border bg-surface p-6">
-            <h2 className="mb-4 font-semibold">El pack incluye</h2>
+        <div className="space-y-5">
+
+          {/* ── Qué incluye ── */}
+          <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-6">
+            <h2 className="mb-5 text-center text-sm font-semibold uppercase tracking-widest text-white/50">
+              Todo lo que recibís
+            </h2>
             <div className="grid grid-cols-3 gap-3">
               {includes.map((it) => (
                 <div
                   key={it.label}
-                  className="rounded-xl border border-border bg-surface-2 p-3 text-center"
+                  className="flex flex-col items-center gap-2 rounded-2xl border border-white/10 p-4"
+                  style={{ background: `${it.color}12` }}
                 >
-                  <div className="text-2xl">{it.emoji}</div>
-                  <div className="mt-1 text-lg font-bold">
+                  <span
+                    className="flex h-12 w-12 items-center justify-center rounded-xl text-2xl"
+                    style={{ background: `${it.color}22` }}
+                  >
+                    {it.emoji}
+                  </span>
+                  <span className="text-2xl font-extrabold leading-tight">
                     {formatNum(it.n, locale)}
-                  </div>
-                  <div className="text-xs text-muted">{it.label}</div>
+                  </span>
+                  <span className="text-xs font-medium text-muted">{it.label}</span>
                 </div>
               ))}
             </div>
+            <div className="mt-4 flex flex-wrap justify-center gap-2 text-xs text-white/50">
+              <span>✓ Garantía de reposición</span>
+              <span>·</span>
+              <span>✓ Entrega total &lt; 3 hs</span>
+              <span>·</span>
+              <span>✓ Perfil en público mientras dura</span>
+            </div>
           </div>
 
-          {/* 1. Usuario */}
+          {/* ── 1. Usuario ── */}
           <div className="rounded-2xl border border-border bg-surface p-6">
             <h2 className="mb-1 font-semibold">1. Tu usuario de Instagram</h2>
             <p className="mb-4 text-sm text-muted">
@@ -198,28 +218,21 @@ export default function PackOrder({
               />
             </div>
             <div className="mt-3 rounded-xl border border-warning/40 bg-warning/10 px-4 py-3 text-sm font-medium text-warning">
-              ⚠️ Importante: tu cuenta debe estar en PÚBLICO mientras hacemos la
-              entrega. Apenas termina, podés volver a ponerla en privado sin
-              problema.
+              ⚠️ Tu cuenta debe estar en PÚBLICO durante la entrega. Después podés pasarla a privado sin problema.
             </div>
           </div>
 
-          {/* 2. Posteos para likes/vistas */}
+          {/* ── 2. Posteos ── */}
           <div ref={postsRef} className="rounded-2xl border border-border bg-surface p-6">
-            <h2 className="mb-1 font-semibold">
-              2. ¿En qué posteos querés los likes y vistas?
-            </h2>
+            <h2 className="mb-1 font-semibold">2. ¿En qué posteos querés los likes y vistas?</h2>
             <p className="mb-4 text-sm text-muted">
-              Repartimos los {formatNum(pack.likes, locale)} likes y{" "}
-              {formatNum(pack.views, locale)} vistas entre los links que cargues
-              (hasta {MAX_PACK_POSTS}). Pegá reels o publicaciones.
+              Pegá links de reels o publicaciones. Repartimos los {formatNum(pack.likes, locale)} likes
+              y {formatNum(pack.views, locale)} vistas entre los que cargues (hasta {MAX_PACK_POSTS}).
             </p>
             <div className="space-y-3">
               {posts.map((post, i) => (
                 <div key={i} className="flex items-center gap-2">
-                  <span className="w-5 shrink-0 text-center text-sm text-muted">
-                    {i + 1}
-                  </span>
+                  <span className="w-5 shrink-0 text-center text-sm text-muted">{i + 1}</span>
                   <input
                     value={post}
                     onChange={(e) => setPost(i, e.target.value)}
@@ -254,7 +267,7 @@ export default function PackOrder({
             )}
           </div>
 
-          {/* 3. Contacto */}
+          {/* ── 3. Contacto ── */}
           <div className="rounded-2xl border border-border bg-surface p-6">
             <h2 className="mb-4 font-semibold">3. ¿Dónde te avisamos?</h2>
             <input
@@ -271,9 +284,29 @@ export default function PackOrder({
             />
           </div>
 
-          {/* 4. Pago */}
+          {/* ── 4. Pago ── */}
           <div className="rounded-2xl border border-border bg-surface p-6">
             <h2 className="mb-4 font-semibold">4. Método de pago</h2>
+
+            {/* Transferencia destacada */}
+            <button
+              type="button"
+              onClick={() => setPayment("transferencia")}
+              className={`mb-3 w-full rounded-xl border-2 p-4 text-left transition-all ${
+                payment === "transferencia"
+                  ? "border-success bg-success/10 ring-2 ring-success"
+                  : "border-success/50 bg-success/5 hover:border-success"
+              }`}
+            >
+              <div className="font-semibold">🏦 Transferencia bancaria</div>
+              <p className="mt-1 text-xs text-muted">
+                La opción más rápida. Pagás por CBU/alias y te pasamos los datos al confirmar.
+              </p>
+              <span className="mt-2 inline-block rounded-full bg-success px-2.5 py-0.5 text-[10px] font-bold text-black">
+                5% OFF · RECOMENDADO
+              </span>
+            </button>
+
             <div className="grid gap-3 sm:grid-cols-2">
               {mpAvailable && (
                 <button
@@ -286,9 +319,7 @@ export default function PackOrder({
                   }`}
                 >
                   <div className="font-semibold">💳 MercadoPago</div>
-                  <p className="mt-1 text-xs text-muted">
-                    Tarjeta o dinero en cuenta. Pagá en cuotas.
-                  </p>
+                  <p className="mt-1 text-xs text-muted">Tarjeta o dinero en cuenta. Pagá en cuotas.</p>
                 </button>
               )}
               {mpAvailable && (
@@ -302,9 +333,7 @@ export default function PackOrder({
                   }`}
                 >
                   <div className="font-semibold">💳 Tarjeta de crédito</div>
-                  <p className="mt-1 text-xs text-muted">
-                    Pagá con tu tarjeta acá mismo, sin salir de la web.
-                  </p>
+                  <p className="mt-1 text-xs text-muted">Pagá con tu tarjeta sin salir de la web.</p>
                 </button>
               )}
               <button
@@ -316,89 +345,103 @@ export default function PackOrder({
                     : "border-border bg-surface-2 hover:border-brand/40"
                 }`}
               >
-                <div className="font-semibold">🪙 Crypto</div>
+                <div className="font-semibold">🪙 Crypto (USDT)</div>
                 <p className="mt-1 text-xs text-muted">
-                  Pago en cripto (USDT). Te pasamos la wallet al confirmar.
+                  −{Math.round(CRYPTO_DISCOUNT * 100)}% de descuento. Te pasamos la wallet.
                 </p>
               </button>
-              <button
-                type="button"
-                onClick={() => setPayment("transferencia")}
-                className={`rounded-xl border p-4 text-left transition-all ${
-                  payment === "transferencia"
-                    ? "border-brand bg-brand/10 ring-1 ring-brand"
-                    : "border-border bg-surface-2 hover:border-brand/40"
-                }`}
-              >
-                <div className="font-semibold">🏦 Transferencia</div>
-                <p className="mt-1 text-xs text-muted">
-                  Pagá por CBU/alias. Te pasamos los datos al confirmar.
-                </p>
-                <p className="mt-1.5 text-xs font-semibold text-success">
-                  5% OFF pagando por transferencia
-                </p>
-              </button>
+            </div>
+
+            {/* Mini reseñas */}
+            <div className="mt-5 space-y-2">
+              {[
+                { n: "Caro M.", t: "Compré el pack y en 2 horas tenía todo. Increíble 🙌" },
+                { n: "Tomás R.", t: "Pensé que era chanta pero cumplieron al 100% 💯" },
+              ].map((r) => (
+                <div key={r.n} className="rounded-xl border border-border bg-surface-2 p-3 text-xs">
+                  <div className="flex items-center gap-2">
+                    <span className="text-yellow-400">★★★★★</span>
+                    <span className="font-semibold">{r.n}</span>
+                    <span className="text-success">· Compra verificada</span>
+                  </div>
+                  <p className="mt-1 text-muted">{r.t}</p>
+                </div>
+              ))}
             </div>
           </div>
         </div>
 
-        {/* Resumen */}
+        {/* ── Resumen lateral (desktop) ── */}
         <div className="lg:sticky lg:top-24 lg:self-start">
-          <div className="rounded-2xl border border-border bg-surface p-6">
-            <h2 className="mb-4 font-semibold">Resumen</h2>
+          <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-6">
+            <h2 className="mb-4 font-semibold">Resumen del pedido</h2>
             <dl className="space-y-2 text-sm">
               {includes.map((it) => (
                 <div key={it.label} className="flex justify-between">
-                  <dt className="text-muted">
-                    {it.emoji} {it.label}
-                  </dt>
-                  <dd className="font-medium">{formatNum(it.n, locale)}</dd>
+                  <dt className="text-muted">{it.emoji} {it.label}</dt>
+                  <dd className="font-semibold">{formatNum(it.n, locale)}</dd>
                 </div>
               ))}
-              <div className="flex justify-between border-t border-border pt-2">
-                <dt className="text-muted">Posteos cargados</dt>
-                <dd className="font-medium">{filledPosts.length}</dd>
-              </div>
+              {filledPosts.length > 0 && (
+                <div className="flex justify-between text-xs">
+                  <dt className="text-muted">Posteos cargados</dt>
+                  <dd className="font-medium">{filledPosts.length}</dd>
+                </div>
+              )}
             </dl>
 
-            <div className="mt-4 flex items-end justify-between border-t border-border pt-4">
-              <div>
-                <span className="block text-xs text-muted line-through">
-                  {displayPrice(pack.originalPrice, locale)}
-                </span>
-                <span className="text-muted">Precio</span>
+            <div className="mt-4 border-t border-white/10 pt-4">
+              <div className="flex items-end justify-between">
+                <div>
+                  <div className="text-xs text-muted line-through">{displayPrice(pack.originalPrice, locale)}</div>
+                  <div className="text-xs text-muted">Total a pagar</div>
+                </div>
+                <div className="text-right">
+                  {(payment === "usdt" || payment === "transferencia") && payTotal < pack.price && (
+                    <div className="text-xs line-through text-muted">{displayPrice(pack.price, locale)}</div>
+                  )}
+                  <div className="text-3xl font-extrabold">{displayPrice(payTotal, locale)}</div>
+                </div>
               </div>
-              <span className="text-2xl font-extrabold">
-                {displayPrice(payTotal, locale)}
-              </span>
+              {payment === "transferencia" && (
+                <p className="mt-1 text-right text-xs font-semibold text-success">−5% por transferencia 🏦</p>
+              )}
+              {payment === "usdt" && (
+                <p className="mt-1 text-right text-xs font-semibold text-success">
+                  −{Math.round(CRYPTO_DISCOUNT * 100)}% pagando en cripto 🪙
+                </p>
+              )}
             </div>
-            {payment === "usdt" && (
-              <p className="mt-1 text-right text-xs font-semibold text-success">
-                −{Math.round(CRYPTO_DISCOUNT * 100)}% pagando en cripto 🪙
+
+            {/* Garantía */}
+            <div className="mt-4 rounded-xl border border-success/30 bg-success/5 p-4">
+              <p className="flex items-center gap-2 text-sm font-semibold text-success">
+                🛡️ Garantía de reposición incluida
               </p>
-            )}
+              <p className="mt-1 text-xs text-muted">
+                Si algo cae, lo reponemos sin costo. 🔒 Pago seguro · Nunca pedimos tu contraseña.
+              </p>
+            </div>
 
             {error && (
-              <p className="mt-3 rounded-lg bg-warning/10 px-3 py-2 text-sm text-warning">
-                {error}
-              </p>
+              <p className="mt-3 rounded-lg bg-warning/10 px-3 py-2 text-sm text-warning">{error}</p>
             )}
 
             <button
               type="submit"
               disabled={submitting || !payment}
-              className="brand-gradient mt-4 w-full rounded-full py-3.5 font-semibold text-white shadow-lg shadow-brand/30 transition-transform hover:scale-[1.02] disabled:opacity-60"
+              className="brand-gradient mt-4 w-full rounded-full py-4 text-base font-bold shadow-lg shadow-brand/30 transition-transform hover:scale-[1.02] disabled:opacity-60"
             >
-              {submitting ? "Procesando..." : !payment ? "Elegí un método de pago" : "Pagar y comprar"}
+              {submitting ? "Procesando..." : !payment ? "Elegí un método de pago" : "Comprar YA →"}
             </button>
             <p className="mt-3 text-center text-xs text-muted">
-              🔒 Pago seguro · Sin contraseña · Garantía incluida
+              🔒 Pago seguro · Garantía incluida · Sin contraseña
             </p>
           </div>
         </div>
 
-        {/* Barra fija mobile */}
-        <div className="fixed inset-x-0 bottom-0 z-40 border-t border-border bg-surface/95 px-4 py-3 backdrop-blur lg:hidden">
+        {/* ── Barra fija mobile ── */}
+        <div className="fixed inset-x-0 bottom-0 z-40 border-t border-border bg-[#0a0a0b]/95 px-4 py-3 backdrop-blur lg:hidden">
           {error && (
             <p className="mb-2 rounded-lg bg-warning/10 px-3 py-1.5 text-center text-xs font-medium text-warning">
               {error}
@@ -406,17 +449,15 @@ export default function PackOrder({
           )}
           <div className="flex items-center gap-3">
             <div className="leading-tight">
-              <div className="text-[10px] uppercase text-muted">Precio</div>
-              <div className="text-lg font-extrabold">
-                {displayPrice(payTotal, locale)}
-              </div>
+              <div className="text-[10px] text-muted line-through">{displayPrice(pack.originalPrice, locale)}</div>
+              <div className="text-lg font-extrabold">{displayPrice(payTotal, locale)}</div>
             </div>
             <button
               type="submit"
               disabled={submitting || !payment}
-              className="brand-gradient ml-auto flex-1 rounded-full py-3 text-center font-semibold text-white shadow-lg shadow-brand/30 disabled:opacity-60"
+              className="brand-gradient ml-auto flex-1 rounded-full py-3 text-center font-bold shadow-lg disabled:opacity-60"
             >
-              {submitting ? "Procesando..." : !payment ? "Elegí un método de pago" : "Pagar y comprar"}
+              {submitting ? "Procesando..." : !payment ? "Elegí método de pago" : "Comprar YA →"}
             </button>
           </div>
         </div>

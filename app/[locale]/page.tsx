@@ -133,7 +133,7 @@ export default async function Home({
             style={{ animationDelay: "350ms" }}
           >
             {[
-              { icon: "👥", text: "5.000 clientes en todo el mundo" },
+              { icon: "👥", text: "+700 clientes satisfechos" },
               { icon: "✅", text: "+12.500 órdenes completadas" },
               { icon: "🏆", text: "Agencia #1 en crecimiento digital" },
               { icon: "⚡", text: "Entrega total en menos de 3 hs" },

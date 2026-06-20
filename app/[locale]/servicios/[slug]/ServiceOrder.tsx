@@ -402,7 +402,8 @@ export default function ServiceOrder({
                   const pp = priceFor(tt, quality);
                   const bb = bonusFor(tt, quality);
                   const selected = tierIdx === i;
-                  const popular = tt.quantity === 10000;
+                  const popular = tt.quantity === 5000;
+                  const isBonus10k = tt.quantity === 10000;
                   const off = Math.round(((anchorPrice(pp) - pp) / anchorPrice(pp)) * 100);
                   return (
                     <button
@@ -421,9 +422,13 @@ export default function ServiceOrder({
                         <span className="shimmer absolute -top-2.5 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-full bg-white px-2.5 py-0.5 text-[10px] font-bold text-[#0a0a0b] shadow">
                           ⭐ MÁS ELEGIDO
                         </span>
+                      ) : isBonus10k ? (
+                        <span className="absolute -top-2.5 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-full bg-amber-400 px-2.5 py-0.5 text-[10px] font-bold text-black shadow">
+                          🎁 +10% de bonus
+                        </span>
                       ) : bb > 0 ? (
                         <span className="absolute -top-2.5 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-full bg-success px-2.5 py-0.5 text-[10px] font-bold text-black shadow">
-                          +{fmt(t.order.free, { n: formatNum(bb, locale) })} gratis
+                          +{fmt(t.order.free, { n: formatNum(bb, locale) })}
                         </span>
                       ) : null}
 
@@ -788,35 +793,9 @@ export default function ServiceOrder({
                 )}
               </div>
 
-              {/* Garantía + seguridad (reaseguro en el momento de pagar) */}
-              <div className="mt-4 rounded-xl border border-success/30 bg-success/5 p-4">
-                <p className="flex items-center gap-2 text-sm font-semibold text-success">
-                  🛡️ Garantía de reposición incluida
-                </p>
-                <p className="mt-1 text-xs text-muted">
-                  Si algo cae en el período de garantía, lo reponemos sin costo.
-                  🔒 Pago 100% seguro · Nunca pedimos tu contraseña.
-                </p>
-              </div>
-
-              {/* Prueba social: mini reseñas reales */}
-              <div className="mt-4 space-y-2">
-                {[
-                  { n: "Maru G.", t: "Llegaron rapidísimo, súper recomendable 🙌" },
-                  { n: "Fede O.", t: "Pensé que era trucho y la verdad cumplieron 💯" },
-                ].map((r) => (
-                  <div
-                    key={r.n}
-                    className="rounded-xl border border-border bg-surface-2 p-3 text-xs"
-                  >
-                    <div className="flex items-center gap-2">
-                      <span className="text-yellow-400">★★★★★</span>
-                      <span className="font-semibold">{r.n}</span>
-                      <span className="text-success">· Compra verificada</span>
-                    </div>
-                    <p className="mt-1 text-muted">{r.t}</p>
-                  </div>
-                ))}
+              {/* Garantía de reposición */}
+              <div className="mt-3 flex items-center gap-2 rounded-xl border border-success/30 bg-success/5 px-4 py-3 text-sm font-semibold text-success">
+                🛡️ Garantía de reposición 90 días incluida
               </div>
             </div>
           )}

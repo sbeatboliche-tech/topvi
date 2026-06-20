@@ -11,12 +11,12 @@ const PATTERNS: Array<{ re: RegExp; reply: (agent: string) => string }> = [
   {
     re: /cu[aá]nd[oa]|llega|tarda|demora|tiempo de entrega|esperar|cu[aá]nto tarda/i,
     reply: () =>
-      "Los pedidos empiezan a procesarse de inmediato y llegan entre 10 minutos y 3 horas. El proceso es gradual para que Instagram no detecte cambios bruscos. 😊",
+      "Los pedidos empiezan a procesarse de inmediato y llegan entre 10 minutos y 2 horas. El proceso es gradual para que Instagram no detecte cambios bruscos. 😊",
   },
   {
     re: /ya pagu[eé]|ya abon[eé]|ya transfer[i í]|ya pag[ao]|hice el pago|acredit/i,
     reply: (a) =>
-      `¡Perfecto! Tu pago fue recibido exitosamente. Tu pedido está en proceso y llegará en 20 minutos a 3 horas. Cualquier duda, acá estoy. — ${a}`,
+      `¡Perfecto! Tu pago fue recibido exitosamente. Tu pedido está en proceso y llegará en 10 minutos a 2 horas. Cualquier duda, acá estoy. — ${a}`,
   },
   {
     re: /pag[ué]|abona|transfer|pago|factura|cobr/i,
@@ -56,7 +56,7 @@ const PATTERNS: Array<{ re: RegExp; reply: (agent: string) => string }> = [
   {
     re: /c[oó]mo compro|c[oó]mo funciona|c[oó]mo se compra|quiero comprar|empezar/i,
     reply: () =>
-      "¡Súper fácil! Elegís el servicio, la cantidad, ingresás tu usuario de Instagram (sin contraseña) y pagás con MercadoPago o USDT. En 10 min a 3 hs ya estás viendo el resultado. 🚀",
+      "¡Súper fácil! Elegís el servicio, la cantidad, ingresás tu usuario de Instagram (sin contraseña) y pagás con MercadoPago o USDT. En 10 min a 2 hs ya estás viendo el resultado. 🚀",
   },
   {
     re: /tiktok/i,
@@ -118,7 +118,7 @@ Reglas:
 - Respondé SIEMPRE en español argentino con voseo (vos, tenés, podés, hacés, etc.)
 - Respuestas CORTAS: máximo 2-3 oraciones. Nunca hagas listas largas.
 - Sé cálida, empática y directa al punto
-- Tiempo de entrega: siempre 10 minutos a 3 horas (proceso gradual para proteger la cuenta)
+- Tiempo de entrega: siempre 10 minutos a 2 horas (proceso gradual para proteger la cuenta)
 - Garantía de reposición incluida en todos los servicios
 - Si el pedido está "pagado" o "en entrega": deciles que el pago fue recibido y está en camino
 - Si el pedido está "pendiente de pago": pedíles que completen el pago
@@ -164,10 +164,10 @@ async function computeReply(message: string, agentName: string): Promise<string>
     if (order) {
       const s = order.status;
       if (s === "paid" || s === "delivering")
-        return `¡Tu pedido ${order.id} fue recibido exitosamente! 🎉 Estamos procesando ${order.totalFollowers.toLocaleString("es-AR")} unidades para @${order.username}. Llega en 20 minutos a 3 horas.`;
+        return `¡Tu pedido ${order.id} fue recibido exitosamente! 🎉 Estamos procesando ${order.totalFollowers.toLocaleString("es-AR")} unidades para @${order.username}. Llega en 10 minutos a 2 horas.`;
       if (s === "delivered")
         return `Tu pedido ${order.id} fue entregado exitosamente. ¿Todo llegó bien a @${order.username}? Si algo faltó, recordá que tenés garantía de reposición. 😊`;
-      return `Tu pedido ${order.id} está pendiente de pago. Completá el pago y en 10 minutos a 3 horas ya tenés todo. Si ya pagaste, puede tardar unos minutos en actualizarse.`;
+      return `Tu pedido ${order.id} está pendiente de pago. Completá el pago y en 10 minutos a 2 horas ya tenés todo. Si ya pagaste, puede tardar unos minutos en actualizarse.`;
     }
     return `No encontré el pedido ${orderId}. Verificá que el número esté bien escrito (formato ORD-XXXXX). Si creés que hay un error, escribinos por Instagram DM o email. 😊`;
   }

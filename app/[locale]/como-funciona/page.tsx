@@ -27,8 +27,8 @@ const content = {
       },
       {
         emoji: "⚡",
-        title: "Recibís todo en menos de 3 hs",
-        desc: "La entrega se hace de forma gradual y natural para que parezca orgánica. No de golpe.",
+        title: "Recibís todo entre 10 min y 2 hs",
+        desc: "La entrega arranca en minutos. La hacemos de forma gradual (no de golpe) para que Instagram y TikTok no detecten el crecimiento y tu cuenta quede 100% protegida.",
         color: "#22c55e",
       },
       {
@@ -40,12 +40,12 @@ const content = {
     ],
     faqs: [
       { q: "¿Es seguro para mi cuenta?", a: "Sí. Nunca pedimos tu contraseña ni accedemos a tu cuenta. Solo necesitamos tu usuario público." },
-      { q: "¿Cuánto tarda en llegar?", a: "La entrega total se completa en menos de 3 horas, de forma gradual para que se vea natural." },
+      { q: "¿Cuánto tarda en llegar?", a: "Entre 10 minutos y 2 horas. Lo hacemos gradual para que Instagram y TikTok no detecten el crecimiento como artificial. Así tu cuenta queda protegida y el resultado dura más." },
       { q: "¿Mi cuenta tiene que ser pública?", a: "Sí, solo mientras dura la entrega. Cuando terminamos, podés volver a ponerla en privado sin problema." },
       { q: "¿Qué pasa si algo cae?", a: "Activás la garantía y lo reponemos sin costo dentro de los 90 días posteriores a la compra." },
     ],
     cta: "Comprar YA →",
-    trust: ["⭐ 4.9/5 en reseñas", "⚡ Entrega < 3 hs", "🛡️ Garantía 90 días", "🔒 Sin contraseña"],
+    trust: ["⭐ 4.9/5 en reseñas", "⚡ Entrega inmediata", "🛡️ Garantía 90 días", "🔒 Sin contraseña"],
   },
   pt: {
     title: "Como funciona?",
@@ -54,17 +54,17 @@ const content = {
       { emoji: "🎯", title: "Escolha seu serviço", desc: "Selecione a plataforma, o tipo de serviço e a quantidade. O preço é calculado na hora.", color: "#e1306c" },
       { emoji: "👤", title: "Informe seu usuário", desc: "Só seu nome de usuário público. NUNCA pedimos sua senha nem acessamos sua conta.", color: "#8b5cf6" },
       { emoji: "🔒", title: "Pague com segurança", desc: "Com MercadoPago, cartão de crédito, transferência bancária ou USDT.", color: "#f59e0b" },
-      { emoji: "⚡", title: "Receba tudo em menos de 3h", desc: "A entrega é feita de forma gradual e natural para parecer orgânica.", color: "#22c55e" },
+      { emoji: "⚡", title: "Receba tudo em 10 minutos a 2 horas", desc: "A entrega é feita de forma gradual e natural para parecer orgânica.", color: "#22c55e" },
       { emoji: "🛡️", title: "Garantia de 90 dias", desc: "Se algo cair no período de garantia, repomos sem custo.", color: "#34d399" },
     ],
     faqs: [
       { q: "É seguro para minha conta?", a: "Sim. Nunca pedimos sua senha nem acessamos sua conta." },
-      { q: "Quanto tempo demora?", a: "A entrega total se completa em menos de 3 horas, de forma gradual." },
+      { q: "Quanto tempo demora?", a: "A entrega total se completa em 10 minutos a 2 horas, de forma gradual." },
       { q: "Minha conta precisa ser pública?", a: "Sim, apenas durante a entrega. Depois pode deixar privada novamente." },
       { q: "E se algo cair?", a: "Ative a garantia e repomos sem custo dentro de 90 dias." },
     ],
     cta: "Comprar agora →",
-    trust: ["⭐ 4.9/5", "⚡ Entrega < 3h", "🛡️ Garantia 90 dias", "🔒 Sem senha"],
+    trust: ["⭐ 4.9/5", "⚡ Entrega imediata", "🛡️ Garantia 90 dias", "🔒 Sem senha"],
   },
 };
 
@@ -142,7 +142,7 @@ export default async function ComoFunciona({
       {/* CTA */}
       <div className="mt-12 rounded-3xl bg-white px-6 py-10 text-center text-gray-900">
         <p className="text-2xl font-extrabold">¿Listo para crecer?</p>
-        <p className="mt-2 text-gray-500">Sin contraseña · Entrega en menos de 3 hs · Garantía incluida</p>
+        <p className="mt-2 text-gray-500">Sin contraseña · Entrega inmediata · Garantía incluida</p>
         <Link
           href={`/${locale}/servicios`}
           className="mt-6 inline-block rounded-full bg-gray-900 px-10 py-4 text-base font-bold text-white transition-colors hover:bg-gray-800"

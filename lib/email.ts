@@ -383,7 +383,7 @@ export async function sendOrderConfirmation(order: Order): Promise<void> {
       <div style="font-size:40px">✅</div>
       <h1 style="margin:12px 0 0;font-size:22px;color:#fff">¡Recibimos tu compra!</h1>
       <p style="margin:10px 0 0;color:#9aa0aa;font-size:14px">
-        Ya estamos preparando tu pedido. La entrega arranca en breve (suele tardar menos de 3 hs).
+        Ya estamos preparando tu pedido. La entrega arranca en minutos y se completa entre 10 minutos y 2 horas. Lo hacemos gradual para que las redes no lo detecten y tu cuenta quede protegida.
       </p>
     </div>
     <div style="padding:0 24px 24px">
@@ -484,7 +484,7 @@ export async function sendTransferPending(order: Order): Promise<void> {
       <h1 style="margin:12px 0 0;font-size:22px;color:#fff">¡Gracias por tu compra!</h1>
       <p style="margin:10px 0 0;color:#9aa0aa;font-size:14px">
         Reservamos tu pedido <b style="color:#f4f4f5">${order.id}</b> (${serviceLabel}).
-        Apenas verifiquemos tu transferencia, comenzamos la entrega (suele tardar menos de 3 hs).
+        Apenas verifiquemos tu transferencia, comenzamos la entrega (se completa entre 10 minutos y 2 horas, de forma gradual para proteger tu cuenta).
       </p>
     </div>
     <div style="padding:0 24px 24px">
@@ -523,7 +523,7 @@ export async function sendTransferProofThanks(order: Order): Promise<void> {
       <p style="margin:10px 0 0;color:#9aa0aa;font-size:14px">
         Recibimos tu comprobante del pedido <b style="color:#f4f4f5">${order.id}</b> (${serviceLabel}).
         Estamos <b style="color:#f4f4f5">verificando el pago</b> y, una vez confirmado,
-        comenzamos a entregar tu servicio (suele tardar menos de 3 hs).
+        comenzamos a entregar tu servicio (se completa entre 10 minutos y 2 horas, de forma gradual para proteger tu cuenta).
       </p>
       <div style="margin-top:18px;background:#102a1f;border:1px solid #1f5f43;border-radius:10px;padding:14px">
         <p style="margin:0;font-size:13px;color:#34d399">

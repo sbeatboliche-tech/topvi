@@ -143,7 +143,7 @@ export default function PackOrder({
         </div>
         <div className="mb-3 text-5xl">{pack.emoji}</div>
         <h1 className="text-3xl font-bold tracking-tight md:text-4xl">{pack.name}</h1>
-        <p className="mt-2 text-sm text-muted">Instagram · Entrega en menos de 3 hs · Sin contraseña</p>
+        <p className="mt-2 text-sm text-muted">Instagram · Entrega inmediata · Sin contraseña</p>
 
         {/* Precio destacado */}
         <div className="mt-5 flex items-center justify-center gap-3">
@@ -192,7 +192,7 @@ export default function PackOrder({
             <div className="mt-4 flex flex-wrap justify-center gap-2 text-xs text-white/50">
               <span>✓ Garantía de reposición</span>
               <span>·</span>
-              <span>✓ Entrega total &lt; 3 hs</span>
+              <span>✓ Entrega inmediata</span>
               <span>·</span>
               <span>✓ Perfil en público mientras dura</span>
             </div>

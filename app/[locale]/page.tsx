@@ -136,7 +136,7 @@ export default async function Home({
               { icon: "👥", text: "+700 clientes satisfechos" },
               { icon: "✅", text: "+12.500 órdenes completadas" },
               { icon: "🏆", text: "Agencia #1 en crecimiento digital" },
-              { icon: "⚡", text: "Entrega total en menos de 3 hs" },
+              { icon: "⚡", text: "Entrega inmediata" },
               { icon: "🇦🇷", text: "#1 del mercado en Argentina" },
               { icon: "🔥", text: "#1 en mejores precios del país" },
             ].map((s) => (
@@ -370,7 +370,7 @@ export default async function Home({
             })}
           </div>
           <p className="mt-6 text-center text-xs text-white/40">
-            ✓ Incluye garantía de reposición · ✓ Sin contraseña · ✓ Entrega total en menos de 3 hs
+            ✓ Incluye garantía de reposición · ✓ Sin contraseña · ✓ Entrega total en inmediata (10 min - 2 hs)
           </p>
         </div>
       </section>
@@ -498,7 +498,7 @@ export default async function Home({
             {c.finalCta.cta} →
           </Link>
           <p className="mt-3 text-xs text-gray-400">
-            Sin contraseña · Entrega total en menos de 3 hs · Garantía incluida
+            Sin contraseña · Entrega total en inmediata (10 min - 2 hs) · Garantía incluida
           </p>
         </div>
       </section>

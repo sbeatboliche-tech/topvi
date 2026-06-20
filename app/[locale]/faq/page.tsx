@@ -9,7 +9,7 @@ const content = {
     sub: "Todo lo que necesitás saber antes de comprar.",
     faqs: [
       { q: "¿Tengo que dar mi contraseña?", a: "No, nunca. Solo necesitamos tu nombre de usuario público. Tu cuenta jamás corre riesgo." },
-      { q: "¿Cuánto tarda la entrega?", a: "La entrega total se completa en menos de 3 horas, de forma gradual para que se vea natural." },
+      { q: "¿Cuánto tarda la entrega?", a: "Entre 10 minutos y 2 horas. Lo entregamos de forma gradual para que Instagram y TikTok no detecten el crecimiento como artificial, protegiendo tu cuenta al 100%." },
       { q: "¿Los seguidores se caen?", a: "Puede haber una caída mínima natural. Por eso incluimos garantía de 90 días y reponemos las caídas sin costo." },
       { q: "¿Mi cuenta tiene que estar pública?", a: "Sí, hasta que recibas el pedido completo. Luego podés volver a hacerla privada." },
       { q: "¿Cómo puedo pagar?", a: "Con MercadoPago (tarjeta, dinero en cuenta, hasta 3 cuotas) o con USDT." },
@@ -17,14 +17,14 @@ const content = {
     ],
     contactTitle: "¿Te quedó alguna duda?",
     contactSub: "Escribinos y te respondemos al toque.",
-    buy: "Comprar ahora",
+    buy: "Comprar YA",
   },
   pt: {
     title: "Perguntas frequentes",
     sub: "Tudo o que você precisa saber antes de comprar.",
     faqs: [
       { q: "Preciso informar minha senha?", a: "Não, nunca. Só precisamos do seu nome de usuário público. Sua conta nunca corre risco." },
-      { q: "Quanto tempo leva a entrega?", a: "A entrega total se completa em menos de 3 horas, de forma gradual para parecer natural." },
+      { q: "Quanto tempo leva a entrega?", a: "A entrega total se completa em 10 minutos a 2 horas, de forma gradual para parecer natural." },
       { q: "Os seguidores caem?", a: "Pode haver uma queda mínima natural. Por isso incluímos garantia de 90 dias e repomos sem custo." },
       { q: "Minha conta precisa estar pública?", a: "Sim, até receber o pedido completo. Depois pode voltar a deixá-la privada." },
       { q: "Como posso pagar?", a: "Com MercadoPago (cartão, saldo, parcelado) ou com USDT." },

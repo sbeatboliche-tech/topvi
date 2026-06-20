@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { FaInstagram, FaTiktok } from "react-icons/fa";
-import { services, platformInfo, anchorPrice, type Platform } from "@/lib/config";
+import { services, platformInfo, type Platform } from "@/lib/config";
 import { displayPrice, type Locale } from "@/lib/i18n";
 
 const PLATFORMS: Platform[] = ["instagram", "tiktok"];
@@ -47,8 +47,6 @@ export default function ServiciosGrid({ locale }: { locale: Locale }) {
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
         {svs.map((s) => {
           const price = s.tiers[0].price;
-          const before = anchorPrice(price);
-          const off = Math.round(((before - price) / before) * 100);
           return (
             <Link
               key={s.slug}
@@ -70,9 +68,6 @@ export default function ServiciosGrid({ locale }: { locale: Locale }) {
                 <div className="font-bold leading-tight">{s.short}</div>
                 <div className="mt-0.5 text-xs text-muted">
                   Desde {displayPrice(price, locale)}
-                </div>
-                <div className="mt-1 inline-block rounded-md bg-success/15 px-1.5 py-0.5 text-[10px] font-bold text-success">
-                  −{off}%
                 </div>
               </div>
 

@@ -226,10 +226,22 @@ export default function SupportChat({ locale }: { locale: string }) {
 
   const showQuickReplies = messages.length === 1 && !isTyping;
 
-  // ── Drag del botón flotante — sin re-renders durante el movimiento ──
+  // ── Drag del botón flotante — translate3d para drag a 60fps sin layout reflow ──
   const drag = useRef<{ sx: number; sy: number; moved: boolean } | null>(null);
 
   function onBtnPointerDown(e: React.PointerEvent) {
+    const el = btnRef.current;
+    if (el) {
+      // Capturar posición real antes del drag y bloquear a left:0/top:0 + translate3d
+      const rect = el.getBoundingClientRect();
+      el.style.left       = "0";
+      el.style.top        = "0";
+      el.style.right      = "auto";
+      el.style.bottom     = "auto";
+      el.style.transition = "none";
+      el.style.transform  = `translate3d(${rect.left}px,${rect.top}px,0)`;
+      dragPos.current = { x: rect.left, y: rect.top };
+    }
     drag.current = { sx: e.clientX, sy: e.clientY, moved: false };
     (e.currentTarget as Element).setPointerCapture?.(e.pointerId);
   }
@@ -246,12 +258,9 @@ export default function SupportChat({ locale }: { locale: string }) {
       const x = Math.min(Math.max(e.clientX - w / 2, m), window.innerWidth - w - m);
       const y = Math.min(Math.max(e.clientY - h / 2, m), window.innerHeight - h - m);
       dragPos.current = { x, y };
-      // Mutar el DOM directamente: cero re-renders, drag 60fps
+      // translate3d: GPU-composited, sin layout reflow → 60fps fluido
       if (btnRef.current) {
-        btnRef.current.style.left   = `${x}px`;
-        btnRef.current.style.top    = `${y}px`;
-        btnRef.current.style.right  = "auto";
-        btnRef.current.style.bottom = "auto";
+        btnRef.current.style.transform = `translate3d(${x}px,${y}px,0)`;
       }
     }
   }
@@ -260,10 +269,17 @@ export default function SupportChat({ locale }: { locale: string }) {
     const d = drag.current;
     drag.current = null;
     if (d && !d.moved) {
+      // Click simple: restaurar estilos inline antes de cambiar estado
+      const el = btnRef.current;
+      if (el && !btnPos) {
+        el.style.left = el.style.top = el.style.right = el.style.bottom = "";
+        el.style.transform = el.style.transition = "";
+      }
+      dragPos.current = null;
       setChatState("options");
       setUnread(false);
     } else if (dragPos.current) {
-      // Un solo setState al soltar, para persistir la posición
+      // Un solo setState al soltar: React renderiza con el mismo translate3d → sin salto visual
       setBtnPos(dragPos.current);
       dragPos.current = null;
     }
@@ -279,7 +295,7 @@ export default function SupportChat({ locale }: { locale: string }) {
         onPointerUp={onBtnPointerUp}
         style={
           btnPos
-            ? { left: btnPos.x, top: btnPos.y, right: "auto", bottom: "auto", touchAction: "none" }
+            ? { left: 0, top: 0, right: "auto", bottom: "auto", transform: `translate3d(${btnPos.x}px,${btnPos.y}px,0)`, touchAction: "none" }
             : { touchAction: "none" }
         }
         className={`fixed bottom-[5.5rem] right-5 z-50 flex cursor-grab items-center gap-2.5 rounded-full brand-gradient py-2.5 pl-2.5 pr-4 shadow-xl shadow-brand/40 transition-transform duration-500 ease-out hover:scale-105 active:cursor-grabbing ${

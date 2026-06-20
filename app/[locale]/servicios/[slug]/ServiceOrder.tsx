@@ -403,7 +403,6 @@ export default function ServiceOrder({
                   const bb = bonusFor(tt, quality);
                   const selected = tierIdx === i;
                   const popular = tt.quantity === 5000;
-                  const off = Math.round(((anchorPrice(pp) - pp) / anchorPrice(pp)) * 100);
                   return (
                     <button
                       type="button"
@@ -448,7 +447,6 @@ export default function ServiceOrder({
                         <div className={`text-base font-extrabold ${selected ? "text-white" : "text-accent"}`}>
                           {displayPrice(pp, locale)}
                         </div>
-                        <div className="text-[10px] font-bold text-success">−{off}%</div>
                       </div>
                     </button>
                   );

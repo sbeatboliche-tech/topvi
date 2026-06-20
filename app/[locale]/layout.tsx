@@ -24,7 +24,7 @@ export default async function LocaleLayout({
     <>
       <AnnouncementBar />
       <Header locale={locale} dict={dict} />
-      <main className="flex-1">{children}</main>
+      <main className="page-enter flex-1">{children}</main>
       <Footer locale={locale} dict={dict} />
       <SupportChat locale={locale} />
     </>

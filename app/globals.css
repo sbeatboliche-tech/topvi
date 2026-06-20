@@ -119,9 +119,18 @@ html {
 }
 
 /* Respeta "reducir movimiento" del sistema: frena animaciones y scroll suave */
+@keyframes pageIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.page-enter {
+  animation: pageIn 0.4s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .animate-marquee,
-  .animate-pop {
+  .animate-pop,
+  .page-enter {
     animation: none;
   }
   html {

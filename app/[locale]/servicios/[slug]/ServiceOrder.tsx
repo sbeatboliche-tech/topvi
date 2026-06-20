@@ -422,54 +422,59 @@ export default function ServiceOrder({
               <p className="mb-4 mt-1 text-sm text-muted">
                 Más cantidad, mejor precio 🎁
               </p>
-              <div className="reveal grid grid-cols-2 gap-2.5 sm:grid-cols-3">
+              <div className="reveal grid grid-cols-2 gap-3 sm:grid-cols-3">
                 {svc.tiers.map((tt, i) => {
                   const pp = priceFor(tt, quality);
                   const bb = bonusFor(tt, quality);
                   const selected = tierIdx === i;
                   const popular = tt.quantity === 10000;
+                  const off = Math.round(((anchorPrice(pp) - pp) / anchorPrice(pp)) * 100);
                   return (
                     <button
                       type="button"
                       key={tt.quantity}
                       onClick={() => setTierIdx(i)}
-                      className={`relative rounded-2xl border p-3.5 text-center transition-all duration-200 active:scale-[0.97] ${
+                      className={`relative flex flex-col items-center rounded-2xl border p-4 text-center transition-all duration-200 active:scale-[0.97] ${
                         selected
-                          ? "border-brand bg-brand/10 ring-2 ring-brand shadow-lg shadow-brand/20"
-                          : "border-border bg-surface-2 hover:border-brand/50"
+                          ? "border-white/40 bg-white/[0.08] shadow-xl"
+                          : "border-border bg-surface-2 hover:border-white/20 hover:bg-surface"
                       }`}
+                      style={selected ? { boxShadow: "0 0 24px rgba(255,255,255,0.12)" } : {}}
                     >
+                      {/* Badge top */}
                       {popular ? (
-                        <span className="shimmer absolute -top-2 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-full bg-white px-2 py-0.5 text-[10px] font-bold text-[#0a0a0b] shadow">
+                        <span className="shimmer absolute -top-2.5 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-full bg-white px-2.5 py-0.5 text-[10px] font-bold text-[#0a0a0b] shadow">
                           ⭐ MÁS ELEGIDO
                         </span>
-                      ) : (
-                        bb > 0 && (
-                          <span className="absolute -top-2 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-full bg-success px-2 py-0.5 text-[10px] font-bold text-black shadow">
-                            {fmt(t.order.free, { n: formatNum(bb, locale) })}
-                          </span>
-                        )
-                      )}
+                      ) : bb > 0 ? (
+                        <span className="absolute -top-2.5 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-full bg-success px-2.5 py-0.5 text-[10px] font-bold text-black shadow">
+                          +{fmt(t.order.free, { n: formatNum(bb, locale) })} gratis
+                        </span>
+                      ) : null}
+
+                      {/* Check seleccionado */}
                       {selected && (
-                        <span className="absolute right-2 top-2 flex h-5 w-5 items-center justify-center rounded-full bg-brand text-[11px] font-bold text-[#0a0a0b]">
+                        <span className="absolute right-2 top-2 flex h-5 w-5 items-center justify-center rounded-full bg-white text-[10px] font-bold text-[#0a0a0b]">
                           ✓
                         </span>
                       )}
-                      <div className="mt-1 text-xl font-extrabold tracking-tight">
+
+                      {/* Cantidad */}
+                      <div className={`mt-1 text-2xl font-extrabold tracking-tight ${selected ? "text-white" : "text-white/90"}`}>
                         {formatNum(tt.quantity, locale)}
                       </div>
                       <div className="text-[11px] text-muted">{svc.unit}</div>
-                      <div className="mt-2 text-[11px] text-muted line-through">
-                        {displayPrice(anchorPrice(pp), locale)}
-                      </div>
-                      <div className="text-base font-extrabold text-accent">
-                        {displayPrice(pp, locale)}
-                      </div>
-                      {popular && bb > 0 && (
-                        <div className="mt-0.5 text-[10px] font-bold text-success">
-                          {fmt(t.order.free, { n: formatNum(bb, locale) })}
+
+                      {/* Precio */}
+                      <div className="mt-3 w-full rounded-xl border border-white/8 bg-white/5 py-2">
+                        <div className="text-[10px] text-white/35 line-through">
+                          {displayPrice(anchorPrice(pp), locale)}
                         </div>
-                      )}
+                        <div className={`text-base font-extrabold ${selected ? "text-white" : "text-accent"}`}>
+                          {displayPrice(pp, locale)}
+                        </div>
+                        <div className="text-[10px] font-bold text-success">−{off}%</div>
+                      </div>
                     </button>
                   );
                 })}

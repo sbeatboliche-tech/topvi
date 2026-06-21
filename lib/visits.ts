@@ -29,6 +29,7 @@ export interface Visitor {
   region?: string;
   firstAt: string;
   lastAt: string;
+  timeOnPage?: number; // segundos máximos registrados en la sesión
 }
 
 const hasSupabase =
@@ -46,7 +47,8 @@ async function sb() {
 export async function trackVisit(
   ip: string,
   stage: string,
-  region?: string
+  region?: string,
+  seconds?: number
 ): Promise<void> {
   const cleanIp = String(ip || "unknown").slice(0, 64);
   const rank = STAGE_RANK[stage] ?? 1;
@@ -85,6 +87,15 @@ export async function trackVisit(
       const upd = await client.from("visitors").update({ region: reg }).eq("ip", cleanIp);
       if (upd.error) console.warn("[visits] region no guardada:", upd.error.message);
     }
+    // Tiempo en página: guarda el máximo registrado. Best-effort.
+    if (seconds && seconds > 0) {
+      const upd = await client
+        .from("visitors")
+        .update({ time_on_page: seconds })
+        .eq("ip", cleanIp)
+        .lt("time_on_page", seconds); // solo actualiza si el nuevo tiempo es mayor
+      if (upd.error) console.warn("[visits] time_on_page no guardado:", upd.error.message);
+    }
     return;
   }
 
@@ -98,6 +109,7 @@ export async function trackVisit(
       region: reg,
       firstAt: now,
       lastAt: now,
+      timeOnPage: seconds,
     });
   } else {
     const better = rank > prev.rank;
@@ -108,6 +120,9 @@ export async function trackVisit(
       stage: better ? stage : prev.stage,
       rank: better ? rank : prev.rank,
       region: prev.region ?? reg,
+      timeOnPage: seconds && (!prev.timeOnPage || seconds > prev.timeOnPage)
+        ? seconds
+        : prev.timeOnPage,
     });
   }
 }
@@ -129,6 +144,7 @@ export async function listVisitors(): Promise<Visitor[]> {
       region: r.region ?? undefined,
       firstAt: r.first_at,
       lastAt: r.last_at,
+      timeOnPage: r.time_on_page ?? undefined,
     }));
   }
   return [...memory.values()].sort((a, b) => b.lastAt.localeCompare(a.lastAt));

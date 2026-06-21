@@ -12,6 +12,7 @@ type Visitor = {
   region?: string;
   firstAt: string;
   lastAt: string;
+  timeOnPage?: number;
 };
 
 const STAGES = Object.keys(STAGE_RANK); // home..gracias en orden
@@ -31,6 +32,12 @@ function hhmm(iso: string) {
     hour: "2-digit",
     minute: "2-digit",
   });
+}
+
+function formatTime(s?: number) {
+  if (!s || s < 2) return "—";
+  if (s < 60) return `${s}s`;
+  return `${Math.floor(s / 60)}m ${s % 60}s`;
 }
 
 export default function AdminVisits() {
@@ -130,6 +137,7 @@ export default function AdminVisits() {
               <th className="p-3 font-medium">IP</th>
               <th className="p-3 font-medium">Provincia / Ciudad</th>
               <th className="p-3 font-medium">Se quedó en</th>
+              <th className="p-3 font-medium">Tiempo</th>
               <th className="p-3 font-medium">Visitas</th>
               <th className="p-3 font-medium">Última vez</th>
             </tr>
@@ -137,7 +145,7 @@ export default function AdminVisits() {
           <tbody>
             {rows.length === 0 && (
               <tr>
-                <td colSpan={5} className="p-8 text-center text-muted">
+                <td colSpan={6} className="p-8 text-center text-muted">
                   Todavía no hay visitas registradas.
                 </td>
               </tr>
@@ -153,6 +161,7 @@ export default function AdminVisits() {
                     {STAGE_LABEL[r.stage] ?? r.stage}
                   </span>
                 </td>
+                <td className="p-3 text-xs font-mono">{formatTime(r.timeOnPage)}</td>
                 <td className="p-3">{r.hits}</td>
                 <td className="p-3 text-xs text-muted">{hhmm(r.lastAt)}</td>
               </tr>

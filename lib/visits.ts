@@ -16,8 +16,8 @@ export const STAGE_RANK: Record<string, number> = {
 export const STAGE_LABEL: Record<string, string> = {
   home: "Inicio",
   servicios: "Vio servicios",
-  checkout: "Entró al checkout",
-  payment: "Llegó al pago",
+  checkout: "Eligiendo cantidad",
+  payment: "Está pagando",
   gracias: "Completó el pedido",
 };
 

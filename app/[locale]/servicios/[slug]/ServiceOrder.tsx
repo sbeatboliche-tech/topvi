@@ -682,8 +682,7 @@ export default function ServiceOrder({
               >
                 <div className="font-semibold">🏦 Transferencia bancaria</div>
                 <p className="mt-1 text-xs text-muted">
-                  La opción más rápida y conveniente. Pagás por CBU/alias y te
-                  pasamos los datos al confirmar.
+                  La opción más rápida y conveniente. Pagás por CBU/alias y te mandamos el servicio pedido al confirmar el pago.
                 </p>
                 <span className="mt-2 inline-block rounded-full bg-success px-2.5 py-0.5 text-[10px] font-bold text-black">
                   5% OFF · RECOMENDADO

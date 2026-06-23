@@ -130,16 +130,16 @@ const saveTiers: Tier[] = [
 
 // Precios = 10% por debajo de la competencia (referencia EasyMarketing).
 const igFollowerTiers: Tier[] = [
-  { quantity: 100, price: 1575, pricePremium: 5310 },
-  { quantity: 250, price: 3510, pricePremium: 7560 },
-  { quantity: 500, price: 5310, pricePremium: 10620 },
-  { quantity: 1000, price: 9990, pricePremium: 19980 },
-  { quantity: 2500, price: 23850, pricePremium: 47700 },
-  { quantity: 5000, price: 44100, pricePremium: 88200 },
-  { quantity: 10000, price: 80100, pricePremium: 160200, bonus: 1000 },
-  { quantity: 20000, price: 152100, pricePremium: 304200, bonus: 2000 },
-  { quantity: 50000, price: 351000, pricePremium: 702000, bonus: 5000 },
-  { quantity: 100000, price: 675000, pricePremium: 1350000, bonus: 10000 },
+  { quantity: 100,    price: 1575,   pricePremium: 5310 },
+  { quantity: 250,    price: 3510,   pricePremium: 7560 },
+  { quantity: 500,    price: 5310,   pricePremium: 10620 },
+  { quantity: 1000,   price: 9990,   pricePremium: 19980,  bonus: 150 },
+  { quantity: 2500,   price: 23850,  pricePremium: 47700,  bonus: 375 },
+  { quantity: 5000,   price: 44100,  pricePremium: 88200,  bonus: 750 },
+  { quantity: 10000,  price: 80100,  pricePremium: 160200, bonus: 1500 },
+  { quantity: 20000,  price: 152100, pricePremium: 304200, bonus: 3000 },
+  { quantity: 50000,  price: 351000, pricePremium: 702000, bonus: 7500 },
+  { quantity: 100000, price: 675000, pricePremium: 1350000, bonus: 15000 },
 ];
 
 const ttFollowerTiers: Tier[] = [

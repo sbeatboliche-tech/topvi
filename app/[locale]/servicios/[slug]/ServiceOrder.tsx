@@ -425,7 +425,9 @@ export default function ServiceOrder({
                       className={`relative flex flex-col items-center rounded-2xl border p-3 text-center transition-all duration-200 active:scale-[0.97] ${
                         selected
                           ? `border-white/40 bg-white/[0.08] ${pickedIdx === i ? "card-pick" : "shadow-xl"}`
-                          : "border-border bg-surface-2 hover:border-white/20 hover:bg-surface"
+                          : bb > 0
+                            ? "border-success/30 bg-success/5 hover:border-success/50 hover:bg-success/10"
+                            : "border-border bg-surface-2 hover:border-white/20 hover:bg-surface"
                       }`}
                       style={selected && pickedIdx !== i ? { boxShadow: "0 0 24px rgba(255,255,255,0.12)" } : {}}
                     >
@@ -435,8 +437,8 @@ export default function ServiceOrder({
                           ⭐ MÁS ELEGIDO
                         </span>
                       ) : bb > 0 ? (
-                        <span className="absolute -top-2.5 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-full bg-success px-2.5 py-0.5 text-[10px] font-bold text-black shadow">
-                          +{fmt(t.order.free, { n: formatNum(bb, locale) })}
+                        <span className="absolute -top-2.5 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-full bg-success px-2 py-0.5 text-[10px] font-bold text-black shadow">
+                          🎁 +{formatNum(bb, locale)} gratis
                         </span>
                       ) : null}
 
@@ -447,11 +449,18 @@ export default function ServiceOrder({
                         </span>
                       )}
 
-                      {/* Cantidad */}
-                      <div className={`mt-1 text-xl font-extrabold tracking-tight ${selected ? "text-white" : "text-white/90"}`}>
+                      {/* Cantidad principal */}
+                      <div className={`mt-1 text-xl font-extrabold tracking-tight ${selected ? "text-white" : bb > 0 ? "text-white" : "text-white/90"}`}>
                         {formatNum(tt.quantity, locale)}
                       </div>
                       <div className="text-[10px] text-muted">{svc.unit}</div>
+
+                      {/* Total recibís si hay bono */}
+                      {bb > 0 && (
+                        <div className="mt-1 text-[10px] font-semibold text-success">
+                          recibís {formatNum(tt.quantity + bb, locale)}
+                        </div>
+                      )}
 
                       {/* Precio */}
                       <div className="mt-2 w-full rounded-xl border border-white/8 bg-white/5 py-1.5">

@@ -93,7 +93,7 @@ export async function trackVisit(
         .from("visitors")
         .update({ time_on_page: seconds })
         .eq("ip", cleanIp)
-        .lt("time_on_page", seconds); // solo actualiza si el nuevo tiempo es mayor
+        .or(`time_on_page.is.null,time_on_page.lt.${seconds}`);
       if (upd.error) console.warn("[visits] time_on_page no guardado:", upd.error.message);
     }
     return;

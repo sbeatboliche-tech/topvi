@@ -173,6 +173,23 @@ export default async function Gracias({
         </>
       )}
 
+      {/* Upsell post-compra */}
+      {order && (
+        <div className="mt-8 rounded-2xl border border-white/10 bg-white/[0.04] p-6 text-left">
+          <p className="text-xs font-semibold uppercase tracking-widest text-white/40">Seguí creciendo</p>
+          <h2 className="mt-2 text-lg font-bold">Potenciá tus resultados</h2>
+          <p className="mt-1 text-sm text-muted">
+            Los seguidores rinden más cuando tus posteos tienen likes. Sumale likes a tus publicaciones y el algoritmo te va a mostrar a más gente.
+          </p>
+          <Link
+            href={p("/servicios/instagram-likes")}
+            className="brand-gradient mt-4 inline-block rounded-full px-6 py-3 font-semibold"
+          >
+            Agregar likes a mis posteos →
+          </Link>
+        </div>
+      )}
+
       {/* Acciones */}
       <div className="mt-10 flex flex-wrap justify-center gap-3">
         <Link

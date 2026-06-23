@@ -9,7 +9,7 @@ export default function AnnouncementBar() {
       }}
     >
       <span className="text-[13px] font-semibold text-white/75">
-        🏦 5% de descuento pagando por transferencia
+        ⚡ Entrega en 10 min &nbsp;·&nbsp; 🛡️ Garantía 90 días &nbsp;·&nbsp; 🔒 Sin contraseña &nbsp;·&nbsp; 5% OFF pagando con transferencia
       </span>
     </div>
   );

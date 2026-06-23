@@ -66,10 +66,8 @@ export default function ServiceOrder({
   // Multi-target: cuentas (seguidores) o links de posteo (likes/vistas/etc).
   const [targets, setTargets] = useState<string[]>([""]);
   const [contact, setContact] = useState("");
-  // Sin método preseleccionado cuando hay varias opciones: el cliente elige.
-  // (Si no hay MercadoPago, solo queda Crypto → lo dejamos elegido.)
   const [payment, setPayment] = useState<"mercadopago" | "tarjeta" | "usdt" | "transferencia" | "">(
-    mpAvailable ? "" : "transferencia"
+    mpAvailable ? "mercadopago" : "transferencia"
   );
 
   // ---- Add-on / upsell cruzado ----
@@ -88,7 +86,6 @@ export default function ServiceOrder({
     ...(svc.hasQuality ? (["quality"] as StepKey[]) : []),
     "quantity",
     "targets",
-    ...(addonSvc ? (["addon"] as StepKey[]) : []),
     "contact",
     "payment",
   ];
@@ -338,6 +335,21 @@ export default function ServiceOrder({
         )}
       </div>
 
+      {/* Trust strip — responde las 3 objeciones principales */}
+      <div className="mb-4 grid grid-cols-3 gap-2 text-center text-xs">
+        {[
+          { icon: "✅", title: "Reales, no bots", desc: "Cuentas activas reales" },
+          { icon: "🛡️", title: "Sin riesgo de baneo", desc: "5+ años sin un solo caso" },
+          { icon: "⚡", title: "Llegan rápido", desc: "10 min – 2 hs tras el pago" },
+        ].map((item) => (
+          <div key={item.title} className="rounded-xl border border-border bg-surface/50 px-2 py-3">
+            <div className="text-lg">{item.icon}</div>
+            <div className="mt-1 font-semibold leading-tight text-white/90">{item.title}</div>
+            <div className="mt-0.5 text-white/40">{item.desc}</div>
+          </div>
+        ))}
+      </div>
+
       {/* Stepper: progreso + total en vivo */}
       <div className="mb-4 rounded-2xl border border-border bg-surface/70 p-3 backdrop-blur">
         <div className="mb-2 flex items-center justify-between text-sm">
@@ -462,9 +474,9 @@ export default function ServiceOrder({
                   : `Repartimos los ${formatNum(totalUnits, locale)} ${svc.unit} entre los posteos que cargues (hasta ${MAX_TARGETS}).`}
               </p>
 
-              {/* Aviso destacado: la cuenta/posteo tiene que estar en público */}
-              <div className="mb-4 rounded-xl border border-warning/40 bg-warning/10 px-4 py-3 text-sm font-medium text-warning">
-                {t.order.publicWarn}
+              {/* Aviso perfil público */}
+              <div className="mb-4 rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-white/70">
+                ℹ️ Tu {isFollowers ? "perfil" : "posteo"} debe estar en <strong className="text-white">público</strong> para recibir los {svc.unit}. Podés volver a privado después.
               </div>
               <div className="space-y-3">
                 {targets.map((val, i) => (
@@ -670,40 +682,41 @@ export default function ServiceOrder({
             <div>
               <h2 className="mb-4 font-semibold">{t.order.payment}</h2>
 
-              {/* Transferencia: DESTACADO y arriba de todo */}
-              <button
-                type="button"
-                onClick={() => setPayment("transferencia")}
-                className={`w-full rounded-xl border-2 p-4 text-left transition-all ${
-                  payment === "transferencia"
-                    ? "border-success bg-success/10 ring-2 ring-success"
-                    : "border-success/60 bg-success/5 hover:border-success"
-                }`}
-              >
-                <div className="font-semibold">🏦 Transferencia bancaria</div>
-                <p className="mt-1 text-xs text-muted">
-                  La opción más rápida y conveniente. Pagás por CBU/alias y te mandamos el servicio pedido al confirmar el pago.
-                </p>
-                <span className="mt-2 inline-block rounded-full bg-success px-2.5 py-0.5 text-[10px] font-bold text-black">
-                  5% OFF · RECOMENDADO
-                </span>
-              </button>
+              {/* MercadoPago: DESTACADO */}
+              {mpAvailable && (
+                <button
+                  type="button"
+                  onClick={() => setPayment("mercadopago")}
+                  className={`w-full rounded-xl border-2 p-4 text-left transition-all ${
+                    payment === "mercadopago"
+                      ? "border-[#009ee3] bg-[#009ee3]/10 ring-2 ring-[#009ee3]"
+                      : "border-[#009ee3]/50 bg-[#009ee3]/5 hover:border-[#009ee3]"
+                  }`}
+                >
+                  <div className="font-semibold">💳 MercadoPago</div>
+                  <p className="mt-1 text-xs text-muted">{t.order.mpDesc}</p>
+                  <span className="mt-2 inline-block rounded-full bg-[#009ee3] px-2.5 py-0.5 text-[10px] font-bold text-white">
+                    RECOMENDADO · Pago instantáneo
+                  </span>
+                </button>
+              )}
 
-              <div className="mt-3 grid gap-3 sm:grid-cols-2">
-                {mpAvailable && (
-                  <button
-                    type="button"
-                    onClick={() => setPayment("mercadopago")}
-                    className={`rounded-xl border p-4 text-left transition-all ${
-                      payment === "mercadopago"
-                        ? "border-brand bg-brand/10 ring-1 ring-brand"
-                        : "border-border bg-surface-2 hover:border-brand/40"
-                    }`}
-                  >
-                    <div className="font-semibold">💳 MercadoPago</div>
-                    <p className="mt-1 text-xs text-muted">{t.order.mpDesc}</p>
-                  </button>
-                )}
+              <div className="mt-3 grid gap-3 sm:grid-cols-3">
+                <button
+                  type="button"
+                  onClick={() => setPayment("transferencia")}
+                  className={`rounded-xl border p-4 text-left transition-all ${
+                    payment === "transferencia"
+                      ? "border-success bg-success/10 ring-1 ring-success"
+                      : "border-border bg-surface-2 hover:border-success/40"
+                  }`}
+                >
+                  <div className="font-semibold">🏦 Transferencia</div>
+                  <p className="mt-1 text-xs text-muted">CBU/alias. Confirmación manual.</p>
+                  <span className="mt-2 inline-block rounded-full bg-success/20 px-2.5 py-0.5 text-[10px] font-bold text-success">
+                    5% OFF
+                  </span>
+                </button>
                 {mpAvailable && (
                   <button
                     type="button"
@@ -729,6 +742,9 @@ export default function ServiceOrder({
                 >
                   <div className="font-semibold">🪙 Crypto</div>
                   <p className="mt-1 text-xs text-muted">{t.order.usdtDesc}</p>
+                  <span className="mt-2 inline-block rounded-full bg-success/20 px-2.5 py-0.5 text-[10px] font-bold text-success">
+                    5% OFF
+                  </span>
                 </button>
               </div>
 
@@ -830,6 +846,49 @@ export default function ServiceOrder({
           <p className="mt-3 text-center text-xs text-muted">{t.order.secure}</p>
         )}
       </form>
+
+      {/* Mini FAQ — objeciones comunes */}
+      <div className="mt-8 space-y-2">
+        {[
+          {
+            q: "¿Los seguidores son reales o bots?",
+            a: "Son cuentas reales de usuarios de todo el mundo. No bots, no cuentas vacías. Por eso crecen gradualmente, como seguidores orgánicos.",
+          },
+          {
+            q: "¿Me puede banear Instagram?",
+            a: "En más de 5 años y miles de órdenes, nunca tuvimos un solo caso de baneo. Entregamos de forma gradual y dentro de los límites de Instagram.",
+          },
+          {
+            q: "¿Cuándo llegan los seguidores?",
+            a: "Empiezan a llegar entre 10 minutos y 2 horas después de confirmar el pago. El proceso es gradual para que se vea natural.",
+          },
+          {
+            q: "¿Qué pasa si se caen?",
+            a: "Incluimos garantía de reposición por 90 días. Si baja la cantidad, te reponemos gratis sin preguntas.",
+          },
+        ].map((item) => (
+          <FaqItem key={item.q} q={item.q} a={item.a} />
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function FaqItem({ q, a }: { q: string; a: string }) {
+  const [open, setOpen] = useState(false);
+  return (
+    <div className="rounded-xl border border-border bg-surface/50">
+      <button
+        type="button"
+        onClick={() => setOpen((v) => !v)}
+        className="flex w-full items-center justify-between px-4 py-3 text-left text-sm font-medium"
+      >
+        <span>{q}</span>
+        <span className="ml-2 shrink-0 text-muted">{open ? "−" : "+"}</span>
+      </button>
+      {open && (
+        <p className="border-t border-border px-4 pb-3 pt-2 text-sm text-muted">{a}</p>
+      )}
     </div>
   );
 }

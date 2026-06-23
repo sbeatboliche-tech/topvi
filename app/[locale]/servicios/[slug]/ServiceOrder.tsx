@@ -235,13 +235,13 @@ export default function ServiceOrder({
     goTo(Math.max(step - 1, 0));
   }
 
-  async function handleSubmit(e: React.FormEvent) {
+  function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    // Enter en un input no debe saltear pasos: si no es el último, avanzá.
-    if (!isLast) {
-      next();
-      return;
-    }
+    // Enter en un input no debe saltear pasos ni disparar el pago.
+    if (!isLast) next();
+  }
+
+  async function submitOrder() {
     setError("");
 
     if (!payment) {
@@ -867,10 +867,9 @@ export default function ServiceOrder({
               </button>
             ) : (
               <button
-                type="submit"
-                form="service-order-form"
+                type="button"
                 disabled={submitting || !payment}
-                onClick={(e) => { e.preventDefault(); const form = document.getElementById("service-order-form") as HTMLFormElement; form?.requestSubmit(); }}
+                onClick={submitOrder}
                 className="brand-gradient rounded-full px-7 py-3 font-semibold shadow-lg shadow-brand/30 disabled:opacity-50"
               >
                 {submitting ? t.order.processing : !payment ? "Elegí método" : t.order.pay}

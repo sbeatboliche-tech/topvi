@@ -52,10 +52,14 @@ export default async function Gracias({
 
       {order && (
         <>
-          <PixelPurchase
-            value={localAmount(order.amount, locale)}
-            currency={localeConfig[locale].currency.code}
-          />
+          {/* Solo disparar Purchase para pagos confirmados al instante (MP/tarjeta).
+              Transferencia y crypto se disparan desde el admin al marcar como Pagado. */}
+          {isPaid && (
+            <PixelPurchase
+              value={localAmount(order.amount, locale)}
+              currency={localeConfig[locale].currency.code}
+            />
+          )}
 
           {/* Resumen del pedido */}
           <div className="mt-8 rounded-2xl border border-white/10 bg-white/[0.04] p-6 text-left">

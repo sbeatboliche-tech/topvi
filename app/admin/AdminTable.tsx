@@ -3,7 +3,8 @@
 import { useState } from "react";
 import type { Order, OrderStatus } from "@/lib/db";
 import { formatARS, formatNumber, getService, getPack } from "@/lib/config";
-import { localeConfig, displayPrice, isLocale } from "@/lib/i18n";
+import { localeConfig, displayPrice, isLocale, localAmount } from "@/lib/i18n";
+import { fbqTrack } from "@/lib/fbq";
 
 const statusLabels: Record<OrderStatus, string> = {
   pending_payment: "Esperando pago",
@@ -31,12 +32,24 @@ export default function AdminTable({
   const [query, setQuery] = useState("");
 
   async function setStatus(id: string, status: OrderStatus) {
+    const order = orders.find((x) => x.id === id);
+    const wasntPaid = order && order.status !== "paid" && order.status !== "delivering" && order.status !== "delivered";
     setOrders((o) => o.map((x) => (x.id === id ? { ...x, status } : x)));
     await fetch("/api/admin/orders", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ id, status }),
     });
+    // Disparar Purchase solo la primera vez que pasás a Pagado/Entregando/Entregado.
+    // Cubre transferencia y crypto que no se disparan automáticamente en /gracias.
+    if (order && wasntPaid && ["paid", "delivering", "delivered"].includes(status)) {
+      const locale = isLocale(order.locale) ? order.locale : "ar";
+      fbqTrack("Purchase", {
+        value: localAmount(order.amount, locale),
+        currency: localeConfig[locale].currency.code,
+        content_ids: [order.id],
+      });
+    }
   }
 
   async function deleteOrder(id: string) {

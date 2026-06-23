@@ -338,9 +338,9 @@ export default function ServiceOrder({
       {/* Trust strip — responde las 3 objeciones principales */}
       <div className="mb-4 grid grid-cols-3 gap-2 text-center text-xs">
         {[
-          { icon: "✅", title: "Reales, no bots", desc: "Cuentas activas reales" },
-          { icon: "🛡️", title: "Sin riesgo de baneo", desc: "5+ años sin un solo caso" },
-          { icon: "⚡", title: "Llegan rápido", desc: "10 min – 2 hs tras el pago" },
+          { icon: "⚡", title: "Entrega rápida", desc: "10 min – 2 hs tras el pago" },
+          { icon: "🛡️", title: "Garantía 90 días", desc: "Reposición gratis si bajan" },
+          { icon: "🔒", title: "Sin contraseña", desc: "Solo necesitamos tu usuario" },
         ].map((item) => (
           <div key={item.title} className="rounded-xl border border-border bg-surface/50 px-2 py-3">
             <div className="text-lg">{item.icon}</div>
@@ -851,8 +851,8 @@ export default function ServiceOrder({
       <div className="mt-8 space-y-2">
         {[
           {
-            q: "¿Los seguidores son reales o bots?",
-            a: "Son cuentas reales de usuarios de todo el mundo. No bots, no cuentas vacías. Por eso crecen gradualmente, como seguidores orgánicos.",
+            q: "¿Los seguidores interactúan con mi cuenta?",
+            a: "Los seguidores aumentan tu número de seguidores y mejoran tu credibilidad social. Para interacciones reales, combiná con likes en tus posteos.",
           },
           {
             q: "¿Me puede banear Instagram?",

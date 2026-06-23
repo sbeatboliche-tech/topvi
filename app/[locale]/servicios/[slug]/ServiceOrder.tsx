@@ -416,7 +416,6 @@ export default function ServiceOrder({
                   const pp = priceFor(tt, quality);
                   const bb = bonusFor(tt, quality);
                   const selected = tierIdx === i;
-                  const popular = tt.quantity === 5000;
                   return (
                     <button
                       type="button"
@@ -432,15 +431,11 @@ export default function ServiceOrder({
                       style={selected && pickedIdx !== i ? { boxShadow: "0 0 24px rgba(255,255,255,0.12)" } : {}}
                     >
                       {/* Badge top */}
-                      {popular ? (
-                        <span className="shimmer absolute -top-2.5 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-full bg-white px-2.5 py-0.5 text-[10px] font-bold text-[#0a0a0b] shadow">
-                          ⭐ MÁS ELEGIDO
-                        </span>
-                      ) : bb > 0 ? (
+                      {bb > 0 && (
                         <span className="absolute -top-2.5 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-full bg-success px-2 py-0.5 text-[10px] font-bold text-black shadow">
                           🎁 +{formatNum(bb, locale)} gratis
                         </span>
-                      ) : null}
+                      )}
 
                       {/* Check seleccionado */}
                       {selected && (
@@ -454,13 +449,6 @@ export default function ServiceOrder({
                         {formatNum(tt.quantity, locale)}
                       </div>
                       <div className="text-[10px] text-muted">{svc.unit}</div>
-
-                      {/* Total recibís si hay bono */}
-                      {bb > 0 && (
-                        <div className="mt-1 text-[10px] font-semibold text-success">
-                          recibís {formatNum(tt.quantity + bb, locale)}
-                        </div>
-                      )}
 
                       {/* Precio */}
                       <div className="mt-2 w-full rounded-xl border border-white/8 bg-white/5 py-1.5">

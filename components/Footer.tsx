@@ -18,6 +18,7 @@ export default function Footer({
         <div className="col-span-2 md:col-span-1">
           <Logo size="md" dark />
           <p className="mt-3 text-sm text-white/55">{site.tagline}</p>
+          <p className="mt-2 text-xs text-white/35">🏆 3 años en el mercado</p>
         </div>
 
         <div>

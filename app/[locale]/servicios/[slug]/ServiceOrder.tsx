@@ -346,7 +346,7 @@ export default function ServiceOrder({
         {[
           { icon: "⚡", label: "Entrega en 20 mins" },
           { icon: "🛡️", label: "Garantía 90 días" },
-          { icon: "🔒", label: "Sin contraseña" },
+          { icon: "🏆", label: "3 años en el mercado" },
         ].map((item, i) => (
           <div key={item.label} className={`flex items-center gap-1.5 ${i > 0 ? "border-l border-border pl-2" : ""}`}>
             <span>{item.icon}</span>

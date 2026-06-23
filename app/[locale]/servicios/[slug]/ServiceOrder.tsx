@@ -80,6 +80,8 @@ export default function ServiceOrder({
 
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
+  const [pickedIdx, setPickedIdx] = useState<number | null>(null);
+  const autoAdvanceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // ---- Wizard ----
   const steps: StepKey[] = [
@@ -207,7 +209,17 @@ export default function ServiceOrder({
 
   function goTo(n: number) {
     setError("");
+    setPickedIdx(null);
     setStep(n);
+  }
+
+  function autoAdvance(delay = 280) {
+    if (autoAdvanceRef.current) clearTimeout(autoAdvanceRef.current);
+    autoAdvanceRef.current = setTimeout(() => {
+      setError("");
+      setPickedIdx(null);
+      setStep((s) => Math.min(s + 1, steps.length - 1));
+    }, delay);
   }
 
   function next() {
@@ -311,7 +323,7 @@ export default function ServiceOrder({
   };
 
   return (
-    <div ref={topRef} className="mx-auto max-w-2xl scroll-mt-20 px-4 pb-10 pt-6">
+    <div ref={topRef} className="mx-auto max-w-2xl scroll-mt-20 px-4 pb-32 pt-6">
       {/* Encabezado compacto */}
       <div className="mb-4 flex items-center gap-3">
         <span
@@ -368,7 +380,7 @@ export default function ServiceOrder({
         </div>
       </div>
 
-      <form onSubmit={handleSubmit}>
+      <form id="service-order-form" onSubmit={handleSubmit}>
         <div key={step} className="step-enter rounded-2xl border border-border bg-surface p-4 sm:p-6">
           {/* ───── Paso: Calidad ───── */}
           {current === "quality" && (
@@ -379,7 +391,7 @@ export default function ServiceOrder({
                   <button
                     type="button"
                     key={q}
-                    onClick={() => setQuality(q)}
+                    onClick={() => { setQuality(q); autoAdvance(); }}
                     className={`rounded-xl border p-4 text-left transition-all ${
                       quality === q
                         ? "border-brand bg-brand/10 ring-1 ring-brand"
@@ -416,13 +428,13 @@ export default function ServiceOrder({
                     <button
                       type="button"
                       key={tt.quantity}
-                      onClick={() => setTierIdx(i)}
+                      onClick={() => { setTierIdx(i); setPickedIdx(i); autoAdvance(); }}
                       className={`relative flex flex-col items-center rounded-2xl border p-3 text-center transition-all duration-200 active:scale-[0.97] ${
                         selected
-                          ? "border-white/40 bg-white/[0.08] shadow-xl"
+                          ? `border-white/40 bg-white/[0.08] ${pickedIdx === i ? "card-pick" : "shadow-xl"}`
                           : "border-border bg-surface-2 hover:border-white/20 hover:bg-surface"
                       }`}
-                      style={selected ? { boxShadow: "0 0 24px rgba(255,255,255,0.12)" } : {}}
+                      style={selected && pickedIdx !== i ? { boxShadow: "0 0 24px rgba(255,255,255,0.12)" } : {}}
                     >
                       {/* Badge top */}
                       {popular ? (
@@ -812,40 +824,62 @@ export default function ServiceOrder({
             {error}
           </p>
         )}
+      </form>
 
-        {/* Navegación */}
-        <div className="mt-5 flex items-center gap-3">
-          {step > 0 && (
+      {/* Barra de navegación fija — siempre visible */}
+      <div className="nav-slide-up fixed inset-x-0 bottom-0 z-50 border-t border-white/10 bg-[#0a0a0b]/95 px-4 pb-safe pt-3 pb-4 backdrop-blur-xl">
+        <div className="mx-auto flex max-w-2xl items-center gap-3">
+          {/* Atrás */}
+          {step > 0 ? (
             <button
               type="button"
               onClick={back}
-              className="rounded-full border border-border px-6 py-3 text-sm font-semibold text-muted transition-colors hover:bg-surface-2"
+              className="rounded-full border border-white/15 px-5 py-3 text-sm font-semibold text-white/60 hover:border-white/30 hover:text-white"
             >
               ← Atrás
             </button>
-          )}
-          {!isLast ? (
-            <button
-              type="button"
-              onClick={next}
-              className="brand-gradient ml-auto flex-1 rounded-full py-3.5 font-semibold shadow-lg shadow-brand/30 transition-transform hover:scale-[1.02] sm:flex-none sm:px-12"
-            >
-              Continuar →
-            </button>
           ) : (
-            <button
-              type="submit"
-              disabled={submitting || !payment}
-              className="brand-gradient ml-auto flex-1 rounded-full py-3.5 font-semibold shadow-lg shadow-brand/30 transition-transform hover:scale-[1.02] disabled:opacity-60 sm:flex-none sm:px-12"
-            >
-              {submitting ? t.order.processing : !payment ? "Elegí un método de pago" : t.order.pay}
-            </button>
+            <div className="w-2" />
           )}
+
+          {/* Derecha: precio + acción */}
+          <div className="ml-auto flex items-center gap-3">
+            {/* Precio — siempre visible */}
+            <div className="text-right">
+              <div className="text-[10px] font-medium text-white/40">Total</div>
+              <div className="text-base font-extrabold leading-none">{displayPrice(payTotal, locale)}</div>
+            </div>
+
+            {/* Botón: en pasos de auto-avance muestra hint; en otros, la acción */}
+            {current === "quantity" || current === "quality" ? (
+              <div className="rounded-full border border-white/15 px-5 py-3 text-sm text-white/40">
+                Tocá un precio →
+              </div>
+            ) : !isLast ? (
+              <button
+                type="button"
+                onClick={next}
+                className="brand-gradient rounded-full px-7 py-3 font-semibold shadow-lg shadow-brand/30"
+              >
+                Continuar →
+              </button>
+            ) : (
+              <button
+                type="submit"
+                form="service-order-form"
+                disabled={submitting || !payment}
+                onClick={(e) => { e.preventDefault(); const form = document.getElementById("service-order-form") as HTMLFormElement; form?.requestSubmit(); }}
+                className="brand-gradient rounded-full px-7 py-3 font-semibold shadow-lg shadow-brand/30 disabled:opacity-50"
+              >
+                {submitting ? t.order.processing : !payment ? "Elegí método" : t.order.pay}
+              </button>
+            )}
+          </div>
         </div>
         {isLast && (
-          <p className="mt-3 text-center text-xs text-muted">{t.order.secure}</p>
+          <p className="mt-2 text-center text-xs text-white/30">{t.order.secure}</p>
         )}
-      </form>
+      </div>
 
       {/* Mini FAQ — objeciones comunes */}
       <div className="mt-8 space-y-2">

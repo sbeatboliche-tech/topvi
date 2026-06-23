@@ -52,7 +52,7 @@ export default function ServiceOrder({
   const isFollowers = svc.kind === "followers";
   const platformLabel = platformInfo[svc.platform].label;
 
-  const defaultTierIdx = 0;
+  const defaultTierIdx = -1;
   const presetIdx = initialQty
     ? svc.tiers.findIndex((tt) => tt.quantity === initialQty)
     : -1;
@@ -106,9 +106,9 @@ export default function ServiceOrder({
     track(current === "payment" ? "payment" : "checkout");
   }, [current === "payment"]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  const tier = svc.tiers[tierIdx];
-  const price = priceFor(tier, quality);
-  const bonus = bonusFor(tier, quality);
+  const tier = svc.tiers[tierIdx >= 0 ? tierIdx : 0];
+  const price = tierIdx >= 0 ? priceFor(tier, quality) : 0;
+  const bonus = tierIdx >= 0 ? bonusFor(tier, quality) : 0;
   const totalUnits = tier.quantity + bonus;
 
   const addonTier = addonSvc?.tiers[addonTierIdx];
@@ -324,27 +324,49 @@ export default function ServiceOrder({
 
   return (
     <div ref={topRef} className="mx-auto max-w-2xl scroll-mt-20 px-4 pb-32 pt-6">
-      {/* Encabezado compacto */}
-      <div className="mb-4 flex items-center gap-3">
-        <span
-          className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl text-2xl ring-1"
-          style={{ backgroundColor: `${accent}22`, "--tw-ring-color": `${accent}55` } as React.CSSProperties}
-        >
-          {svc.emoji}
-        </span>
-        <div className="min-w-0">
-          <h1 className="truncate text-lg font-bold leading-tight">
-            {fmt(t.order.title, { svc: "" })} <span className="brand-text">{svc.title}</span>
-          </h1>
-          <div className="flex items-center gap-2 text-xs text-muted">
-            <span className="flex items-center gap-1 text-warning">🔥 Precio de lanzamiento · <Countdown /></span>
+      {/* Header exclusivo */}
+      <div
+        className="mb-4 overflow-hidden rounded-2xl p-[1px]"
+        style={{ background: `linear-gradient(135deg, ${accent}55, #833ab455, transparent 60%)` }}
+      >
+        <div className="rounded-2xl bg-[#0f0f10] px-4 py-4">
+          <div className="flex items-center justify-between gap-3">
+            <div className="flex items-center gap-3">
+              <span
+                className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl text-2xl"
+                style={{ background: `linear-gradient(135deg, ${accent}33, #833ab433)` }}
+              >
+                {svc.emoji}
+              </span>
+              <div>
+                <div className="flex items-center gap-2">
+                  <span className="rounded-full bg-white/8 px-2 py-0.5 text-[10px] font-bold uppercase tracking-widest text-white/40">
+                    Panel exclusivo
+                  </span>
+                  <span className="flex items-center gap-1 text-[10px] font-semibold text-success">
+                    <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-success" />
+                    activo
+                  </span>
+                </div>
+                <h1 className="mt-0.5 text-base font-bold leading-tight text-white">
+                  {svc.title}
+                </h1>
+              </div>
+            </div>
+            <div className="text-right">
+              {couponPct > 0 ? (
+                <span className="rounded-full border border-success/40 bg-success/10 px-3 py-1 text-xs font-semibold text-success">
+                  −{Math.round(couponPct * 100)}%
+                </span>
+              ) : (
+                <div className="text-right">
+                  <div className="text-[10px] text-white/30">Precio especial</div>
+                  <div className="text-xs font-bold text-warning"><Countdown /></div>
+                </div>
+              )}
+            </div>
           </div>
         </div>
-        {couponPct > 0 && (
-          <span className="ml-auto shrink-0 rounded-full border border-success/40 bg-success/10 px-3 py-1 text-xs font-semibold text-success">
-            −{Math.round(couponPct * 100)}%
-          </span>
-        )}
       </div>
 
       {/* Trust strip — responde las 3 objeciones principales */}
@@ -479,15 +501,8 @@ export default function ServiceOrder({
           {/* ───── Paso: Destinos ───── */}
           {current === "targets" && (
             <div>
-              <div className="mb-3 flex items-center gap-2">
-                <button
-                  type="button"
-                  onClick={back}
-                  className="flex items-center gap-1 rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-xs font-medium text-white/50 hover:border-white/20 hover:text-white/80"
-                >
-                  ← Cambiar cantidad
-                </button>
-              </div>
+              {/* Counter animado */}
+              <TargetsHeader totalUnits={totalUnits} unit={svc.unit} isFollowers={isFollowers} onBack={back} locale={locale} />
               <h2 className="mb-1 font-semibold">{stepTitles.targets}</h2>
               <p className="mb-4 text-sm text-muted">
                 {isFollowers
@@ -554,6 +569,13 @@ export default function ServiceOrder({
                   {isFollowers ? "+ Agregar otra cuenta" : "+ Agregar otro posteo"}
                 </button>
               )}
+              <button
+                type="button"
+                onClick={next}
+                className="brand-gradient mt-5 w-full rounded-2xl py-4 text-base font-bold shadow-lg"
+              >
+                Continuar →
+              </button>
             </div>
           )}
 
@@ -912,6 +934,64 @@ export default function ServiceOrder({
         ].map((item) => (
           <FaqItem key={item.q} q={item.q} a={item.a} />
         ))}
+      </div>
+    </div>
+  );
+}
+
+function useCountUp(target: number, duration = 600) {
+  const [count, setCount] = useState(target);
+  const prevRef = useRef(target);
+  useEffect(() => {
+    if (prevRef.current === target) return;
+    const start = prevRef.current;
+    prevRef.current = target;
+    const startTime = performance.now();
+    const animate = (now: number) => {
+      const t = Math.min((now - startTime) / duration, 1);
+      const eased = 1 - Math.pow(1 - t, 3);
+      setCount(Math.round(start + (target - start) * eased));
+      if (t < 1) requestAnimationFrame(animate);
+    };
+    requestAnimationFrame(animate);
+  }, [target, duration]);
+  return count;
+}
+
+function TargetsHeader({
+  totalUnits,
+  unit,
+  isFollowers,
+  onBack,
+  locale,
+}: {
+  totalUnits: number;
+  unit: string;
+  isFollowers: boolean;
+  onBack: () => void;
+  locale: string;
+}) {
+  const count = useCountUp(totalUnits);
+  return (
+    <div className="mb-5">
+      <button
+        type="button"
+        onClick={onBack}
+        className="mb-3 flex items-center gap-1 rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-xs font-medium text-white/50 hover:border-white/20 hover:text-white/80"
+      >
+        ← Cambiar cantidad
+      </button>
+      <div className="flex items-center gap-3 rounded-2xl border border-white/8 bg-white/[0.03] px-4 py-3">
+        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#e1306c]/10 text-xl">
+          {isFollowers ? "👥" : "❤️"}
+        </div>
+        <div>
+          <div className="text-xs text-white/40">Vas a recibir</div>
+          <div className="text-xl font-extrabold tabular-nums text-white">
+            {formatNum(count, locale as import("@/lib/i18n").Locale)}{" "}
+            <span className="text-base font-semibold text-white/60">{unit}</span>
+          </div>
+        </div>
       </div>
     </div>
   );

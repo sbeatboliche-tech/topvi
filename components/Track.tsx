@@ -31,7 +31,7 @@ export default function Track({ stage }: { stage: string }) {
     };
 
     // Ping cada 15 s — cubre el IAB de Instagram que no dispara pagehide
-    const interval = setInterval(() => sendTime(true), 15_000);
+    const interval = setInterval(() => sendTime(true), 5_000);
 
     const onVisibility = () => {
       if (document.visibilityState === "hidden") sendTime();

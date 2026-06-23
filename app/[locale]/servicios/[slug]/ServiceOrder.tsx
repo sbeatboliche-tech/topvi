@@ -52,7 +52,7 @@ export default function ServiceOrder({
   const isFollowers = svc.kind === "followers";
   const platformLabel = platformInfo[svc.platform].label;
 
-  const defaultTierIdx = svc.hasQuality ? 3 : 2;
+  const defaultTierIdx = 0;
   const presetIdx = initialQty
     ? svc.tiers.findIndex((tt) => tt.quantity === initialQty)
     : -1;
@@ -479,6 +479,15 @@ export default function ServiceOrder({
           {/* ───── Paso: Destinos ───── */}
           {current === "targets" && (
             <div>
+              <div className="mb-3 flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={back}
+                  className="flex items-center gap-1 rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-xs font-medium text-white/50 hover:border-white/20 hover:text-white/80"
+                >
+                  ← Cambiar cantidad
+                </button>
+              </div>
               <h2 className="mb-1 font-semibold">{stepTitles.targets}</h2>
               <p className="mb-4 text-sm text-muted">
                 {isFollowers

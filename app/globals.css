@@ -256,6 +256,11 @@ input, textarea, select {
   .cta-pulse { animation: none; }
 }
 
+@keyframes progressPulse {
+  0%, 100% { width: 25%; opacity: 0.7; }
+  50%       { width: 55%; opacity: 1; }
+}
+
 /* IG gradient en texto (pink → purple → indigo) */
 .ig-gradient-text {
   background: linear-gradient(135deg, #e1306c 0%, #833ab4 55%, #5851db 100%);

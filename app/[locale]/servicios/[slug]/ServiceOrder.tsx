@@ -344,7 +344,7 @@ export default function ServiceOrder({
       {/* Trust strip compacto — horizontal, sin scroll */}
       <div className="mb-3 flex items-center justify-between gap-1 rounded-xl border border-border bg-surface/50 px-3 py-2 text-xs">
         {[
-          { icon: "⚡", label: "Entrega en 2 hs" },
+          { icon: "⚡", label: "Entrega en 20 mins" },
           { icon: "🛡️", label: "Garantía 90 días" },
           { icon: "🔒", label: "Sin contraseña" },
         ].map((item, i) => (

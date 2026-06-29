@@ -6,7 +6,7 @@ import type { Order } from "@/lib/db";
 import { site } from "@/lib/config";
 
 const RESEND_API = "https://api.resend.com/emails";
-const NOTIFY_TO = "abalo7272@gmail.com";
+const NOTIFY_TO = process.env.ADMIN_EMAIL ?? "abalo7272@gmail.com";
 
 // Envía el mail de descuento a un lead que no compró (remarketing).
 // Devuelve true si se envió. Gated por RESEND_API_KEY.

@@ -56,8 +56,9 @@ export default function TransferBox({
     const file = e.target.files?.[0];
     if (!file) return;
     setError("");
-    if (!file.type.startsWith("image/")) {
-      setError("Subí una imagen (captura de la transferencia).");
+    const allowed = ["image/jpeg", "image/png", "image/webp", "image/heic", "image/heif", "image/gif"];
+    if (!allowed.includes(file.type)) {
+      setError("Subí una imagen (JPG, PNG o WEBP).");
       return;
     }
     if (file.size > 10 * 1024 * 1024) {

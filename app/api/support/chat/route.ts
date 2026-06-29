@@ -94,7 +94,7 @@ function patternMatch(message: string, agentName: string): string | null {
 
 // ---------- Order lookup helper ----------
 async function orderContext(message: string): Promise<{ text: string; orderId: string | null }> {
-  const match = message.match(/ORD-[A-Z0-9]+/i);
+  const match = message.match(/\bORD-[A-Z0-9]{4,}\b/i);
   if (!match) return { text: "", orderId: null };
 
   const id = match[0].toUpperCase();

@@ -104,12 +104,12 @@ export default function ServiceOrder({
         body: JSON.stringify({ stage }),
       }).catch(() => {});
     track(current === "payment" ? "payment" : "checkout");
-  }, [current === "payment"]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [current]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  const tier = svc.tiers[tierIdx >= 0 ? tierIdx : 0];
-  const price = tierIdx >= 0 ? priceFor(tier, quality) : 0;
-  const bonus = tierIdx >= 0 ? bonusFor(tier, quality) : 0;
-  const totalUnits = tier.quantity + bonus;
+  const tier = svc.tiers[tierIdx >= 0 ? tierIdx : 0] ?? svc.tiers[0];
+  const price = tier && tierIdx >= 0 ? priceFor(tier, quality) : 0;
+  const bonus = tier && tierIdx >= 0 ? bonusFor(tier, quality) : 0;
+  const totalUnits = tier ? tier.quantity + bonus : 0;
 
   const addonTier = addonSvc?.tiers[addonTierIdx];
   const addonPrice = addonOn && addonTier ? priceFor(addonTier, "global") : 0;

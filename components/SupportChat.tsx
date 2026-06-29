@@ -347,7 +347,7 @@ export default function SupportChat({ locale }: { locale: string }) {
               En línea ahora · responde en ~1 min
             </p>
           </div>
-          <button onClick={() => setChatState("closed")} className="ml-2 mt-0.5 text-muted hover:text-foreground">
+          <button onClick={() => setChatState("closed")} className="ml-2 mt-0.5 text-muted hover:text-foreground" aria-label="Cerrar">
             ✕
           </button>
         </div>

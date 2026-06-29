@@ -20,6 +20,7 @@ const hasSupabase =
 
 const memory: ChatMsg[] = [];
 let memId = 0;
+const MAX_MEMORY = 2000;
 
 async function sb() {
   const { createClient } = await import("@supabase/supabase-js");
@@ -56,6 +57,7 @@ export async function addMessage(
     createdAt: new Date().toISOString(),
   };
   memory.push(msg);
+  if (memory.length > MAX_MEMORY) memory.splice(0, memory.length - MAX_MEMORY);
   return msg;
 }
 

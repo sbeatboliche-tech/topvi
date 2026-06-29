@@ -826,14 +826,14 @@ export default function ServiceOrder({
       </form>
 
       {/* Barra de navegación — encima del FAQ */}
-      <div className="mt-6 rounded-2xl border border-white/10 bg-[#0a0a0b]/80 px-4 py-4 backdrop-blur-xl">
+      <div className="mt-6 rounded-2xl border border-white/10 bg-[#0a0a0b]/80 px-4 py-3 backdrop-blur-xl">
         <div className="flex items-center gap-3">
           {/* Atrás */}
           {step > 0 ? (
             <button
               type="button"
               onClick={back}
-              className="rounded-full border border-white/15 px-5 py-3 text-sm font-semibold text-white/60 hover:border-white/30 hover:text-white"
+              className="rounded-full border border-white/15 px-4 py-2 text-sm font-semibold text-white/60 hover:border-white/30 hover:text-white"
             >
               ← Atrás
             </button>
@@ -851,14 +851,14 @@ export default function ServiceOrder({
 
             {/* Botón: en pasos de auto-avance muestra hint; en otros, la acción */}
             {current === "quantity" || current === "quality" ? (
-              <div className="rounded-full border border-white/15 px-5 py-3 text-sm text-white/40">
+              <div className="rounded-full border border-white/15 px-4 py-2 text-sm text-white/40">
                 Tocá un precio →
               </div>
             ) : !isLast ? (
               <button
                 type="button"
                 onClick={next}
-                className="brand-gradient rounded-full px-7 py-3 font-semibold shadow-lg shadow-brand/30"
+                className="brand-gradient rounded-full px-5 py-2 font-semibold shadow-lg shadow-brand/30"
               >
                 Continuar →
               </button>
@@ -867,7 +867,7 @@ export default function ServiceOrder({
                 type="button"
                 disabled={submitting || !payment}
                 onClick={submitOrder}
-                className="brand-gradient rounded-full px-7 py-3 font-semibold shadow-lg shadow-brand/30 disabled:opacity-50"
+                className="brand-gradient rounded-full px-5 py-2 font-semibold shadow-lg shadow-brand/30 disabled:opacity-50"
               >
                 {submitting ? t.order.processing : !payment ? "Elegí método" : t.order.pay}
               </button>

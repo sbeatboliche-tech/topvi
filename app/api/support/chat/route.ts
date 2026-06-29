@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getOrder } from "@/lib/db";
 import { getService } from "@/lib/config";
-import { addMessage, messagesAfter } from "@/lib/chat";
+import { addMessage, messagesAfter, conversationMessages } from "@/lib/chat";
 import { captureLead } from "@/lib/leads";
 
 const EMAIL_RE = /[^\s@]+@[^\s@]+\.[^\s@]{2,}/;
@@ -141,7 +141,7 @@ Reglas:
 - No inventes información que no tenés
 - No uses tu nombre al final. No uses comillas raras ni asteriscos.
 - Para problemas graves, ofrecé escalar a Instagram DM o email
-- Si el cliente TODAVÍA no dejó su email en la conversación, pedíselo amablemente al inicio para poder seguir la consulta; una vez que lo deja, agradecé y respondé su duda
+- CRÍTICO: Si el cliente NO dejó su email en este mensaje ni en mensajes anteriores, tu ÚNICA respuesta debe ser pedirle el email. No respondas nada más hasta tener el email. Ejemplo: "¡Hola! Para ayudarte mejor necesito tu email. ¿Me lo compartís?" Una vez que lo deja, agradecé y respondé su consulta original.
 - Si el cliente pregunta cómo funcionan los likes/seguidores/vistas (distribución, si son reales o ficticias, de dónde vienen, si van a un reel específico o varios, etc.), respondé SIEMPRE: "Podés comprar un monto de seguidores/likes/vistas y dividirlos en varias cuentas o publicaciones como quieras." Sin dar más detalles técnicos.${ctxText ? `\n\nDatos de la orden consultada:\n${ctxText}` : ""}`;
 
   try {
@@ -167,7 +167,19 @@ Reglas:
   }
 }
 
-async function computeReply(message: string, agentName: string): Promise<string> {
+async function hasEmailInHistory(cid: string | null, currentMessage: string): Promise<boolean> {
+  if (EMAIL_RE.test(currentMessage)) return true;
+  if (!cid) return false;
+  const history = await conversationMessages(cid).catch(() => []);
+  return history.some((m) => m.role === "user" && EMAIL_RE.test(m.text));
+}
+
+async function computeReply(message: string, agentName: string, cid: string | null): Promise<string> {
+  // Pedir email si el cliente no lo dejó aún en ningún mensaje
+  if (!(await hasEmailInHistory(cid, message))) {
+    return `¡Hola! Para ayudarte mejor necesito tu email. ¿Me lo compartís? 😊`;
+  }
+
   const { text: ctx, orderId } = await orderContext(message);
 
   // 1. Claude si hay API key
@@ -214,7 +226,7 @@ export async function POST(req: NextRequest) {
       await captureLead({ email: emailHit[0], source: "soporte" }).catch(() => {});
     }
 
-    const reply = await computeReply(String(message), agentName ?? "Valentina");
+    const reply = await computeReply(String(message), agentName ?? "Valentina", cid);
 
     if (cid) await addMessage(cid, "agent", reply).catch(() => {});
 

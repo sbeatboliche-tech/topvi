@@ -38,6 +38,7 @@ export default function AdminChats() {
   const [msgs, setMsgs] = useState<Msg[]>([]);
   const [text, setText] = useState("");
   const [sending, setSending] = useState(false);
+  const [emailStatus, setEmailStatus] = useState<"idle" | "sending" | "sent" | "error">("idle");
   const bottomRef = useRef<HTMLDivElement>(null);
 
   const loadConvs = useCallback(async () => {
@@ -83,6 +84,22 @@ export default function AdminChats() {
     setSending(false);
   }
 
+  async function sendEmail() {
+    if (!active || emailStatus === "sending") return;
+    setEmailStatus("sending");
+    try {
+      const r = await fetch("/api/admin/chats/email", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ cid: active }),
+      });
+      setEmailStatus(r.ok ? "sent" : "error");
+    } catch {
+      setEmailStatus("error");
+    }
+    setTimeout(() => setEmailStatus("idle"), 3000);
+  }
+
   return (
     <div className="mx-auto max-w-6xl px-4 py-10">
       <div className="flex items-center justify-between">
@@ -111,7 +128,7 @@ export default function AdminChats() {
           {convs.map((c) => (
             <button
               key={c.conversationId}
-              onClick={() => setActive(c.conversationId)}
+              onClick={() => { setActive(c.conversationId); setEmailStatus("idle"); }}
               className={`block w-full border-b border-border p-3 text-left transition-colors hover:bg-surface-2 ${
                 active === c.conversationId ? "bg-surface-2" : ""
               }`}
@@ -143,6 +160,28 @@ export default function AdminChats() {
             </p>
           ) : (
             <>
+              {/* Header de la conversación */}
+              {(() => {
+                const conv = convs.find((c) => c.conversationId === active);
+                return conv?.email ? (
+                  <div className="flex items-center justify-between border-b border-border px-4 py-2">
+                    <span className="text-xs text-muted">📧 {conv.email}</span>
+                    <button
+                      onClick={sendEmail}
+                      disabled={emailStatus === "sending"}
+                      className="rounded-full border border-border bg-surface px-3 py-1 text-xs hover:bg-surface-2 disabled:opacity-50"
+                    >
+                      {emailStatus === "sending"
+                        ? "Enviando…"
+                        : emailStatus === "sent"
+                        ? "✓ Enviado"
+                        : emailStatus === "error"
+                        ? "✗ Error"
+                        : "✉️ Enviar transcripción"}
+                    </button>
+                  </div>
+                ) : null;
+              })()}
               <div className="flex-1 space-y-3 overflow-y-auto p-4">
                 {msgs.map((m) => (
                   <div

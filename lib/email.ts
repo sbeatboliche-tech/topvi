@@ -442,6 +442,92 @@ export async function sendOrderConfirmation(order: Order): Promise<void> {
   }
 }
 
+// Envía la transcripción completa de un chat de soporte al cliente.
+export async function sendChatTranscript(
+  email: string,
+  messages: Array<{ role: string; text: string; createdAt: string }>
+): Promise<boolean> {
+  const key = process.env.RESEND_API_KEY;
+  if (!key) {
+    console.log(`[email] Sin RESEND_API_KEY — transcripción a ${email}`);
+    return false;
+  }
+
+  const roleLabel: Record<string, string> = {
+    user: "Vos",
+    agent: "Valentina (IA)",
+    admin: "Atención al cliente",
+  };
+
+  const msgRows = messages
+    .map((m) => {
+      const label = roleLabel[m.role] ?? m.role;
+      const time = new Date(m.createdAt).toLocaleString("es-AR", {
+        day: "2-digit",
+        month: "2-digit",
+        hour: "2-digit",
+        minute: "2-digit",
+      });
+      const bg = m.role === "user" ? "#1e1e24" : m.role === "admin" ? "#102a1f" : "#1a1a2e";
+      const color = m.role === "admin" ? "#34d399" : "#9aa0aa";
+      return `
+        <tr>
+          <td style="padding:10px 14px;background:${bg};border-radius:8px;margin-bottom:6px;display:block">
+            <div style="font-size:10px;font-weight:700;color:${color};text-transform:uppercase;margin-bottom:4px">${label} · ${time}</div>
+            <div style="font-size:14px;color:#f4f4f5;line-height:1.5">${m.text.replace(/</g, "&lt;").replace(/>/g, "&gt;")}</div>
+          </td>
+        </tr>
+        <tr><td style="height:6px"></td></tr>`;
+    })
+    .join("");
+
+  const html = `
+<!DOCTYPE html>
+<html lang="es">
+<body style="font-family:sans-serif;background:#0a0a0b;padding:24px;color:#f4f4f5">
+  <div style="max-width:520px;margin:0 auto;background:#141417;border-radius:16px;overflow:hidden;border:1px solid #2a2a31">
+    <div style="padding:24px 24px 16px;border-bottom:1px solid #2a2a31">
+      <div style="font-size:30px;text-align:center">💬</div>
+      <h1 style="margin:10px 0 4px;font-size:20px;color:#fff;text-align:center">Resumen de tu consulta</h1>
+      <p style="margin:0;color:#9aa0aa;font-size:13px;text-align:center">
+        Te mandamos la conversación completa con nuestro equipo de soporte.
+      </p>
+    </div>
+    <div style="padding:18px 20px">
+      <table style="width:100%;border-collapse:separate;border-spacing:0">
+        ${msgRows}
+      </table>
+      <p style="margin:20px 0 0;text-align:center;color:#6b7280;font-size:12px">
+        ¿Tenés más preguntas? Respondé este mail o escribinos por Instagram. ${site.name}
+      </p>
+    </div>
+  </div>
+</body>
+</html>`;
+
+  try {
+    const from = process.env.RESEND_FROM ?? "TopViralMarketing <onboarding@resend.dev>";
+    const res = await fetch(RESEND_API, {
+      method: "POST",
+      headers: { Authorization: `Bearer ${key}`, "Content-Type": "application/json" },
+      body: JSON.stringify({
+        from,
+        to: [email],
+        subject: `💬 Resumen de tu consulta en ${site.name}`,
+        html,
+      }),
+    });
+    if (!res.ok) {
+      console.error("[email] Transcripción error:", res.status, await res.text());
+      return false;
+    }
+    return true;
+  } catch (err) {
+    console.error("[email] Error enviando transcripción:", err);
+    return false;
+  }
+}
+
 const ARS = (n: number) =>
   new Intl.NumberFormat("es-AR", {
     style: "currency",

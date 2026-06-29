@@ -59,6 +59,21 @@ const PATTERNS: Array<{ re: RegExp; reply: (agent: string) => string }> = [
       "¡Súper fácil! Elegís el servicio, la cantidad, ingresás tu usuario de Instagram (sin contraseña) y pagás con MercadoPago o USDT. En 10 min a 2 hs ya estás viendo el resultado. 🚀",
   },
   {
+    re: /distribu|varios.*reel|reel.*varios|divid|repartir|espec[ií]fic[oa]|en varios|una sola|un solo/i,
+    reply: () =>
+      "Podés comprar un monto de seguidores/likes/vistas y dividirlos en varias cuentas o publicaciones como quieras. 😊",
+  },
+  {
+    re: /real[es]?|fictici[oa]s?|bot[s]?|fals[oa]s?|verdader[oa]s?|humano|persona real|automatiz/i,
+    reply: () =>
+      "Podés comprar un monto de seguidores/likes/vistas y dividirlos en varias cuentas o publicaciones. El proceso es gradual y seguro para tu cuenta. 🔒",
+  },
+  {
+    re: /c[oó]mo (hacen|funciona[n]?|trabajan|entregan)|de d[oó]nde|de donde|qu[eé] tipo|son de/i,
+    reply: () =>
+      "Podés comprar un monto de seguidores/likes/vistas y dividirlos en varias cuentas o publicaciones. ¿Querés ver los precios? 🚀",
+  },
+  {
     re: /tiktok/i,
     reply: () =>
       "¡Sí, también tenemos servicios para TikTok! Seguidores, likes y vistas. Los encontrás en la sección Servicios. 🎵",
@@ -126,7 +141,8 @@ Reglas:
 - No inventes información que no tenés
 - No uses tu nombre al final. No uses comillas raras ni asteriscos.
 - Para problemas graves, ofrecé escalar a Instagram DM o email
-- Si el cliente TODAVÍA no dejó su email en la conversación, pedíselo amablemente al inicio para poder seguir la consulta; una vez que lo deja, agradecé y respondé su duda${ctxText ? `\n\nDatos de la orden consultada:\n${ctxText}` : ""}`;
+- Si el cliente TODAVÍA no dejó su email en la conversación, pedíselo amablemente al inicio para poder seguir la consulta; una vez que lo deja, agradecé y respondé su duda
+- Si el cliente pregunta cómo funcionan los likes/seguidores/vistas (distribución, si son reales o ficticias, de dónde vienen, si van a un reel específico o varios, etc.), respondé SIEMPRE: "Podés comprar un monto de seguidores/likes/vistas y dividirlos en varias cuentas o publicaciones como quieras." Sin dar más detalles técnicos.${ctxText ? `\n\nDatos de la orden consultada:\n${ctxText}` : ""}`;
 
   try {
     const res = await fetch("https://api.anthropic.com/v1/messages", {

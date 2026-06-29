@@ -323,7 +323,7 @@ export default function ServiceOrder({
   };
 
   return (
-    <div ref={topRef} className="mx-auto max-w-2xl scroll-mt-20 px-4 pb-32 pt-6">
+    <div ref={topRef} className="mx-auto max-w-2xl scroll-mt-20 px-4 pb-10 pt-6">
       {/* Encabezado compacto */}
       <div className="mb-3 flex items-center justify-between gap-2">
         <div className="flex items-center gap-2">
@@ -825,9 +825,9 @@ export default function ServiceOrder({
         )}
       </form>
 
-      {/* Barra de navegación fija — siempre visible */}
-      <div className="nav-slide-up fixed inset-x-0 bottom-0 z-50 border-t border-white/10 bg-[#0a0a0b]/95 px-4 pb-safe pt-3 pb-4 backdrop-blur-xl">
-        <div className="mx-auto flex max-w-2xl items-center gap-3">
+      {/* Barra de navegación — encima del FAQ */}
+      <div className="mt-6 rounded-2xl border border-white/10 bg-[#0a0a0b]/80 px-4 py-4 backdrop-blur-xl">
+        <div className="flex items-center gap-3">
           {/* Atrás */}
           {step > 0 ? (
             <button

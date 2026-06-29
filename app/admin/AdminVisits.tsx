@@ -16,25 +16,20 @@ type Visitor = {
   timeOnPage?: number;
 };
 
-const STAGES = Object.keys(STAGE_RANK); // home..gracias en orden
+type DayFilter = "hoy" | "ayer" | "todos";
+
+const STAGES = Object.keys(STAGE_RANK);
 const stageColor = (rank: number) =>
-  rank >= 5
-    ? "bg-success/15 text-success"
-    : rank >= 4
-    ? "bg-accent/15 text-accent"
-    : rank >= 3
-    ? "bg-brand/15 text-brand-2"
-    : "bg-warning/15 text-warning";
+  rank >= 5 ? "bg-success/15 text-success"
+  : rank >= 4 ? "bg-accent/15 text-accent"
+  : rank >= 3 ? "bg-brand/15 text-brand-2"
+  : "bg-warning/15 text-warning";
 
 function hhmm(iso: string) {
   return new Date(iso).toLocaleString("es-AR", {
-    day: "2-digit",
-    month: "2-digit",
-    hour: "2-digit",
-    minute: "2-digit",
+    day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit",
   });
 }
-
 function formatTime(s?: number) {
   if (!s || s < 2) return "—";
   if (s < 60) return `${s}s`;
@@ -43,6 +38,7 @@ function formatTime(s?: number) {
 
 export default function AdminVisits() {
   const [rows, setRows] = useState<Visitor[]>([]);
+  const [dayFilter, setDayFilter] = useState<DayFilter>("hoy");
 
   useEffect(() => {
     const load = () =>
@@ -54,13 +50,27 @@ export default function AdminVisits() {
     return () => clearInterval(i);
   }, []);
 
-  // Resumen del embudo: cuántas IPs alcanzaron al menos cada eslabón.
+  const today = new Date().toISOString().slice(0, 10);
+  const yesterday = new Date(Date.now() - 86400000).toISOString().slice(0, 10);
+
+  const filtered = rows.filter((r) => {
+    if (dayFilter === "hoy") return r.lastAt.slice(0, 10) === today;
+    if (dayFilter === "ayer") return r.lastAt.slice(0, 10) === yesterday;
+    return true;
+  });
+
   const funnel = STAGES.map((s) => ({
     stage: s,
     label: STAGE_LABEL[s],
-    count: rows.filter((r) => r.rank >= STAGE_RANK[s]).length,
+    count: filtered.filter((r) => r.rank >= STAGE_RANK[s]).length,
   }));
   const maxCount = Math.max(...funnel.map((f) => f.count), 1);
+
+  const tabs: { key: DayFilter; label: string }[] = [
+    { key: "hoy", label: "Hoy" },
+    { key: "ayer", label: "Ayer" },
+    { key: "todos", label: "Todos" },
+  ];
 
   return (
     <div className="mx-auto max-w-5xl px-4 py-10">
@@ -69,10 +79,7 @@ export default function AdminVisits() {
           <h1 className="text-2xl font-bold">Visitas / Embudo</h1>
           <p className="text-sm text-muted">{rows.length} IPs únicas registradas</p>
         </div>
-        <Link
-          href="/admin"
-          className="rounded-full border border-border bg-surface px-4 py-2 text-sm hover:bg-surface-2"
-        >
+        <Link href="/admin" className="rounded-full border border-border bg-surface px-4 py-2 text-sm hover:bg-surface-2">
           ← Órdenes
         </Link>
       </div>
@@ -80,16 +87,48 @@ export default function AdminVisits() {
       {/* Historial de estadísticas */}
       <AdminVisitsStats />
 
-      {/* Resumen del embudo */}
-      <div className="mt-4 space-y-2 rounded-2xl border border-border bg-surface p-5">
-        <h2 className="mb-2 text-sm font-semibold">Embudo (IPs que llegaron a cada eslabón)</h2>
+      {/* Tabs de filtro de día */}
+      <div className="mt-6 flex items-center gap-2">
+        {tabs.map((t) => (
+          <button
+            key={t.key}
+            type="button"
+            onClick={() => setDayFilter(t.key)}
+            className={`rounded-full px-4 py-1.5 text-sm font-semibold transition-colors ${
+              dayFilter === t.key
+                ? "brand-gradient text-white"
+                : "border border-border bg-surface hover:bg-surface-2"
+            }`}
+          >
+            {t.label}
+            {t.key !== "todos" && (
+              <span className="ml-1.5 text-xs opacity-70">
+                {t.key === "hoy"
+                  ? rows.filter((r) => r.lastAt.slice(0, 10) === today).length
+                  : rows.filter((r) => r.lastAt.slice(0, 10) === yesterday).length}
+              </span>
+            )}
+          </button>
+        ))}
+        {dayFilter !== "todos" && (
+          <span className="ml-2 text-xs text-muted">
+            {filtered.length} IP{filtered.length !== 1 ? "s" : ""} activa{filtered.length !== 1 ? "s" : ""}
+          </span>
+        )}
+      </div>
+
+      {/* Embudo del período seleccionado */}
+      <div className="mt-3 space-y-2 rounded-2xl border border-border bg-surface p-5">
+        <h2 className="mb-2 text-sm font-semibold">
+          Embudo — {dayFilter === "hoy" ? "hoy" : dayFilter === "ayer" ? "ayer" : "todas las visitas"}
+        </h2>
         {funnel.map((f) => (
           <div key={f.stage} className="flex items-center gap-3 text-sm">
             <span className="w-40 shrink-0 text-muted">{f.label}</span>
             <div className="h-5 flex-1 overflow-hidden rounded-full bg-surface-2">
               <div
                 className="brand-gradient h-full rounded-full"
-                style={{ width: `${Math.max(4, (f.count / maxCount) * 100)}%` }}
+                style={{ width: `${Math.max(f.count > 0 ? 4 : 0, (f.count / maxCount) * 100)}%` }}
               />
             </div>
             <span className="w-10 text-right font-semibold">{f.count}</span>
@@ -97,8 +136,8 @@ export default function AdminVisits() {
         ))}
       </div>
 
-      {/* Detalle por IP */}
-      <div className="mt-6 overflow-x-auto rounded-2xl border border-border">
+      {/* Tabla de IPs */}
+      <div className="mt-4 overflow-x-auto rounded-2xl border border-border">
         <table className="w-full text-sm">
           <thead className="bg-surface text-left text-muted">
             <tr>
@@ -111,21 +150,21 @@ export default function AdminVisits() {
             </tr>
           </thead>
           <tbody>
-            {rows.length === 0 && (
+            {filtered.length === 0 && (
               <tr>
                 <td colSpan={6} className="p-8 text-center text-muted">
-                  Todavía no hay visitas registradas.
+                  {dayFilter === "hoy" ? "Nadie visitó el sitio hoy todavía."
+                   : dayFilter === "ayer" ? "No hay visitas registradas para ayer."
+                   : "Todavía no hay visitas registradas."}
                 </td>
               </tr>
             )}
-            {rows.map((r) => (
+            {filtered.map((r) => (
               <tr key={r.ip} className="border-t border-border bg-background/40">
                 <td className="p-3 font-mono text-xs">{r.ip}</td>
                 <td className="p-3 text-xs">{r.region ?? "—"}</td>
                 <td className="p-3">
-                  <span
-                    className={`rounded-full px-2.5 py-1 text-xs font-medium ${stageColor(r.rank)}`}
-                  >
+                  <span className={`rounded-full px-2.5 py-1 text-xs font-medium ${stageColor(r.rank)}`}>
                     {STAGE_LABEL[r.stage] ?? r.stage}
                   </span>
                 </td>

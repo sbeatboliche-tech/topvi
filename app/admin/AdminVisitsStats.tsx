@@ -18,7 +18,7 @@ function fmtMonth(d: string) {
 }
 
 export default function AdminVisitsStats() {
-  const [open, setOpen] = useState(false);
+  const [open, setOpen] = useState(true);
   const [range, setRange] = useState<30 | 90 | 365>(30);
   const [stats, setStats] = useState<DayStat[]>([]);
   const [loading, setLoading] = useState(false);

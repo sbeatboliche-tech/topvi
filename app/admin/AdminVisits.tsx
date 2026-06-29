@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { STAGE_LABEL, STAGE_RANK } from "@/lib/visits";
+import AdminVisitsStats from "./AdminVisitsStats";
 
 type Visitor = {
   ip: string;
@@ -79,6 +80,9 @@ export default function AdminVisits() {
           ← Órdenes
         </Link>
       </div>
+
+      {/* Historial de estadísticas */}
+      <AdminVisitsStats />
 
       {/* Comparador Meta Ads */}
       <div className="mt-6 rounded-2xl border border-border bg-surface p-5">

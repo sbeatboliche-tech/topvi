@@ -127,6 +127,40 @@ export async function trackVisit(
   }
 }
 
+export interface DayStat {
+  day: string;   // YYYY-MM-DD
+  unique: number;
+}
+
+export async function getDailyStats(days = 30): Promise<DayStat[]> {
+  if (hasSupabase) {
+    const client = await sb();
+    const since = new Date();
+    since.setDate(since.getDate() - days);
+    const { data } = await client
+      .from("visitors")
+      .select("first_at")
+      .gte("first_at", since.toISOString());
+    const map = new Map<string, number>();
+    for (const row of data ?? []) {
+      const day = (row.first_at as string).slice(0, 10);
+      map.set(day, (map.get(day) ?? 0) + 1);
+    }
+    return [...map.entries()]
+      .sort((a, b) => a[0].localeCompare(b[0]))
+      .map(([day, unique]) => ({ day, unique }));
+  }
+  // fallback memory
+  const map = new Map<string, number>();
+  for (const v of memory.values()) {
+    const day = v.firstAt.slice(0, 10);
+    map.set(day, (map.get(day) ?? 0) + 1);
+  }
+  return [...map.entries()]
+    .sort((a, b) => a[0].localeCompare(b[0]))
+    .map(([day, unique]) => ({ day, unique }));
+}
+
 export async function listVisitors(): Promise<Visitor[]> {
   if (hasSupabase) {
     const client = await sb();

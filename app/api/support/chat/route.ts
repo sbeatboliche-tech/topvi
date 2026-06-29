@@ -24,9 +24,9 @@ const PATTERNS: Array<{ re: RegExp; reply: (agent: string) => string }> = [
       "Para verificar el estado de tu pago, compartíme tu número de orden (formato ORD-XXXXX) y lo reviso ahora mismo. 🔍",
   },
   {
-    re: /cay[oe]r[on]|baj[ao]r[on]|perd[i í][ó]|garantia|garantía|reponer|reposición/i,
+    re: /perd[ií](eron|[eo]s?)?|se (fueron|cayeron|bajaron)|baj(aron|[oó])|cay(eron|[oó])|desapareci(eron|[oó])|garanti[aá]|reponer|reposici[oó]n/i,
     reply: () =>
-      "Tranquilo/a, tenés garantía de reposición incluida. Compartíme tu número de orden (ORD-XXXXX) y lo solucionamos sin costo.",
+      "Lamentamos el inconveniente. Por favor dejanos chequear en el sistema para hacer la reposición. Compartíme tu número de orden (ORD-XXXXX) y lo revisamos ahora mismo. 🔍",
   },
   {
     re: /segur[oa]|contraseña|password|peligro|hackear|robar|datos/i,
@@ -142,7 +142,8 @@ Reglas:
 - No uses tu nombre al final. No uses comillas raras ni asteriscos.
 - Para problemas graves, ofrecé escalar a Instagram DM o email
 - CRÍTICO: Si el cliente NO dejó su email en este mensaje ni en mensajes anteriores, tu ÚNICA respuesta debe ser pedirle el email. No respondas nada más hasta tener el email. Ejemplo: "¡Hola! Para ayudarte mejor necesito tu email. ¿Me lo compartís?" Una vez que lo deja, agradecé y respondé su consulta original.
-- Si el cliente pregunta cómo funcionan los likes/seguidores/vistas (distribución, si son reales o ficticias, de dónde vienen, si van a un reel específico o varios, etc.), respondé SIEMPRE: "Podés comprar un monto de seguidores/likes/vistas y dividirlos en varias cuentas o publicaciones como quieras." Sin dar más detalles técnicos.${ctxText ? `\n\nDatos de la orden consultada:\n${ctxText}` : ""}`;
+- Si el cliente pregunta cómo funcionan los likes/seguidores/vistas (distribución, si son reales o ficticias, de dónde vienen, si van a un reel específico o varios, etc.), respondé SIEMPRE: "Podés comprar un monto de seguidores/likes/vistas y dividirlos en varias cuentas o publicaciones como quieras." Sin dar más detalles técnicos.
+- Si el cliente menciona que perdió seguidores, likes, vistas o cualquier unidad que compró (bajaron, se fueron, desaparecieron, cayeron), respondé SIEMPRE: "Lamentamos el inconveniente. Por favor dejanos chequear en el sistema para hacer la reposición. ¿Podés compartirme tu número de orden (ORD-XXXXX)?"${ctxText ? `\n\nDatos de la orden consultada:\n${ctxText}` : ""}`;
 
   try {
     const res = await fetch("https://api.anthropic.com/v1/messages", {
